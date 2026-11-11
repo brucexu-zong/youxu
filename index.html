@@ -1451,7 +1451,7 @@ details.more[open] > summary::after { content: " ▴"; }
       }
       if (force || now - (A.briefAt || 0) > 6 * 3600000) {
         const text = o.briefing(), h = hash(text);
-        if (h !== A.briefHash) { const bf = ad.file('advisor/briefing.enc.json'), cur = await bf.read(); await bf.write(await advSeal(key, { id: 'b' + now.toString(36), at: now, text: text }), cur && cur.sha); A.briefHash = h; A.briefSentAt = now; }
+        if (h !== A.briefHash) { const bf = ad.file('advisor/briefing.enc.json'), cur = await bf.read(); await bf.write(await advSeal(key, { id: 'b' + now.toString(36), at: now, tz: o.tz ? o.tz() : null, text: text }), cur && cur.sha); A.briefHash = h; A.briefSentAt = now; }
         A.briefAt = now;
       }
     }
@@ -1617,6 +1617,7 @@ details.more[open] > summary::after { content: " ▴"; }
     saveCfg: (c) => { try { localStorage.setItem(SKEY, JSON.stringify(c)); } catch (e) { } },
     onStatus: () => { if (!typing() && (ui.tab === 'butler' || ui.tab === 'today')) render(); },
     briefing: () => C.briefing(S, new Date()),
+    tz: () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) { return null; } },   // 设备所在时区：顾问的运行时间跟着它走
     onAdvice: (adv) => takeAdvice(adv)
   }) : null;
   /* 收到自动顾问的建议：只影响“以后怎么判断”的直接采纳，会改动事项的留给你点一下确认 */
