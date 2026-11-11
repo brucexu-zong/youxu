@@ -1336,6 +1336,23 @@ details.more[open] > summary::after { content: " ▴"; }
     try { return JSON.parse(td.decode(await subtle().decrypt({ name: 'AES-GCM', iv: unb64(h.iv) }, await advKey(k), unb64(h.ct)))); } catch (e) { throw err('BADKEY', '顾问密钥不对，无法解密'); }
   }
   const hash = (t) => { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return String(h); };
+  /* 省事的两种“码”：
+     配置码 YXC1：仓库名 + 顾问密钥，第一次设置时粘贴一次。
+     配对码 YXP1：仓库名 + 令牌，用同步密钥加密；在新设备上粘贴它再输入同步口令即可，不用再找令牌。 */
+  function parseCode(code) {
+    const m = String(code || '').trim().match(/^(YXC1|YXP1)\.([A-Za-z0-9+/=]+)$/); if (!m) return null;
+    try { return { kind: m[1] === 'YXC1' ? 'config' : 'pair', data: JSON.parse(unb64text(m[2])) }; } catch (e) { return null; }
+  }
+  const makeConfigCode = (repo, adv) => 'YXC1.' + b64text(JSON.stringify({ repo: repo, adv: adv }));
+  async function makePairCode(k, obj) {
+    const iv = rand(12), ct = await subtle().encrypt({ name: 'AES-GCM', iv: iv }, k.key, te.encode(JSON.stringify(obj)));
+    return 'YXP1.' + b64text(JSON.stringify({ salt: k.salt, iv: b64(iv), ct: b64(ct) }));
+  }
+  async function openPairCode(pass, data) {
+    if (!data || !data.salt || !data.iv || !data.ct) throw err('FORMAT', '配对码不完整，请重新复制');
+    const key = await deriveKey(pass, unb64(data.salt));
+    try { return JSON.parse(td.decode(await subtle().decrypt({ name: 'AES-GCM', iv: unb64(data.iv) }, key, unb64(data.ct)))); } catch (e) { throw err('BADPASS', '同步口令不对，无法打开配对码'); }
+  }
   function err(code, msg) { const e = new Error(msg); e.code = code; return e; }
 
   /* ---------- 云端适配 ---------- */
@@ -1488,10 +1505,11 @@ details.more[open] > summary::after { content: " ▴"; }
     }
     async function disable() { const c = cfg(); c.on = false; c.last = {}; o.saveCfg(c); await keys.clear(); }
     async function test(remote) { await adapterFor(remote).read(); return true; }
-    return { enable, disable, syncNow, test, cfg, hasKey: async () => !!(await keys.get()) };
+    async function pairCode() { const k = await keys.get(), c = cfg(); if (!k || !c.on) throw err('NOKEY', '请先开启同步'); return makePairCode(k, { remotes: c.remotes.map((r) => ({ id: r.id, type: r.type, repo: r.repo, token: r.token })) }); }
+    return { enable, disable, syncNow, test, cfg, pairCode, hasKey: async () => !!(await keys.get()) };
   }
 
-  const Sync = { create, payloadOf, mergePayload, applyPayload, prune, canon, deriveKey, seal, unseal, header, advSeal, advOpen, validAdvKey, b64, unb64, b64text, unb64text, memKeyStore, ADAPTERS };
+  const Sync = { create, payloadOf, mergePayload, applyPayload, prune, canon, deriveKey, seal, unseal, header, advSeal, advOpen, validAdvKey, parseCode, makeConfigCode, openPairCode, b64, unb64, b64text, unb64text, memKeyStore, ADAPTERS };
   if (typeof module !== 'undefined' && module.exports) module.exports = Sync; else root.Sync = Sync;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -1675,13 +1693,16 @@ details.more[open] > summary::after { content: " ▴"; }
     if (c.on && !ui.syncEdit) {
       const rows = c.remotes.map((r) => { const l = (c.last || {})[r.id]; return '<div><span><b>' + (r.type === 'github' ? 'GitHub' : 'Gitee') + '</b> ' + esc(r.repo) + '</span><span class="st" style="color:var(--' + (l ? (l.ok ? 'good' : 'crit') : 'ink3') + ')">' + (l ? (l.ok ? '已同步 ' + fmtAt(l.at) + (l.size ? ' · 云端 ' + fmtKB(l.size) : '') : esc(l.err) + (l.okAt ? '（上次成功 ' + fmtAt(l.okAt) + '）' : '')) : '等待首次同步') + '</span></div>'; }).join('');
       const kp = ((c.keep || {}).github) || {};
-      return card('多设备同步', '<div class="pad"><p class="hint">已开启。数据在本机压缩、加密后上传，云端只有密文，并且只保留最新一份，不留历史。离线时照常记录，联网后自动合并。</p><div class="links">' + rows + '</div>' + (kp.err ? '<p class="hint" style="color:var(--warn)">清理云端历史没成功，下次同步会再试：' + esc(kp.err) + '</p>' : '') + msg + '<div class="btns"><button class="btn pri" data-a="sync-now"' + (ui.syncBusy ? ' disabled' : '') + '>' + (ui.syncBusy ? '同步中…' : '立即同步') + '</button><button class="btn" data-a="sync-edit">修改设置</button><button class="btn danger" data-a="sync-off">' + (ui.confirm === 'syncoff' ? '再点一次确认关闭' : '关闭同步') + '</button></div></div>', null, '<span class="n">端到端加密</span>');
+      return card('多设备同步', '<div class="pad"><p class="hint">已开启。数据在本机压缩、加密后上传，云端只有密文，并且只保留最新一份，不留历史。离线时照常记录，联网后自动合并。</p><div class="links">' + rows + '</div>' + (kp.err ? '<p class="hint" style="color:var(--warn)">清理云端历史没成功，下次同步会再试：' + esc(kp.err) + '</p>' : '') + msg + '<div class="btns"><button class="btn pri" data-a="sync-now"' + (ui.syncBusy ? ' disabled' : '') + '>' + (ui.syncBusy ? '同步中…' : '立即同步') + '</button><button class="btn" data-a="sync-pair">添加另一台设备</button><button class="btn" data-a="sync-edit">修改设置</button><button class="btn danger" data-a="sync-off">' + (ui.confirm === 'syncoff' ? '再点一次确认关闭' : '关闭同步') + '</button></div></div>', null, '<span class="n">端到端加密</span>');
     }
+    const code = Y.parseCode(f.code);
     const fld = (id, key, label, type, ph) => '<div class="fld"><label for="' + id + '">' + label + '</label><input type="' + type + '" id="' + id + '" data-s="' + key + '" value="' + esc(f[key] || '') + '" placeholder="' + ph + '" autocomplete="off" autocapitalize="off" spellcheck="false"></div>';
     return card('多设备同步', '<div class="pad"><p class="hint">数据先在本机用你的口令加密，再上传到你自己的私有仓库，云端只有密文。离线时照常记录，联网后自动合并。</p>' +
       (S.meta.demo ? '<p class="hint" style="color:var(--warn)">现在是示例数据。请先清空示例，再开启同步。</p>' : '') +
+      fld('sync-code', 'code', '配置码或配对码（有就粘贴，没有可以不填）', 'text', '第一次设置用配置码；再加设备用配对码') +
+      (code && code.kind === 'pair' ? '<p class="hint" style="color:var(--good)">已识别配对码：仓库和令牌都在里面，只需再输入同步口令。</p>' : code && code.kind === 'config' ? '<p class="hint" style="color:var(--good)">已识别配置码：仓库已填好，自动顾问会一并开启。</p>' : (f.code ? '<p class="hint" style="color:var(--crit)">这不像是配置码或配对码，请整段重新复制。</p>' : '')) +
       fld('sync-pass', 'pass', '同步口令（至少 8 位，每台设备填同一个）', 'password', '忘记后无法解密云端数据，本机数据不受影响') +
-      '<div class="two">' + fld('sync-gh-repo', 'ghRepo', 'GitHub 仓库', 'text', '用户名/仓库名') + fld('sync-gh-token', 'ghToken', 'GitHub 令牌', 'password', 'github_pat_…') + '</div>' +
+      (code && code.kind === 'pair' ? '' : '<div class="two">' + fld('sync-gh-repo', 'ghRepo', 'GitHub 仓库', 'text', '用户名/仓库名') + fld('sync-gh-token', 'ghToken', 'GitHub 令牌', 'password', 'github_pat_…') + '</div>') +
       '<p class="hint">令牌只保存在这台设备上。建议用只能读写这一个仓库的令牌，这样即使令牌泄露，对方拿到的也只是密文。</p>' + msg +
       '<div class="btns"><button class="btn pri" data-a="sync-enable"' + (ui.syncBusy || S.meta.demo ? ' disabled' : '') + '>' + (ui.syncBusy ? '连接中…' : c.on ? '保存并同步' : '开启同步') + '</button><button class="btn" data-a="sync-test"' + (ui.syncBusy ? ' disabled' : '') + '>测试连接</button>' + (c.on ? '<button class="btn" data-a="sync-cancel">取消</button>' : '') + '</div></div>', null, '<span class="n">端到端加密</span>');
   }
@@ -2209,10 +2230,18 @@ details.more[open] > summary::after { content: " ▴"; }
       ui.syncBusy = true; ui.syncMsg = null; render();
       Promise.all(rs.map((r) => sync.test(r).then(() => 'GitHub 连接正常', (e) => e.message))).then((a) => syncDone({ ok: a.every((x) => /连接正常/.test(x)), text: a.join('；') }));
     },
+    'sync-pair'() { sync.pairCode().then((c) => { ui.sheet = { type: 'text', title: '添加另一台设备', text: c, hint: '在另一台设备上打开应用，进入“管家 → 同步、提醒与备份”，把这段配对码粘贴进去，再输入同样的同步口令即可。配对码本身是加密的，没有口令打不开。' }; renderSheet(); }, (e) => { ui.syncMsg = { ok: false, text: e.message }; render(); }); },
     'sync-enable'() {
+      const code = Y.parseCode(ui.sf.code), pass = ui.sf.pass || '';
+      const go2 = (rs) => sync.enable(pass, rs).then((last) => {
+        const bad = rs.filter((r) => !(last[r.id] || {}).ok);
+        if (code && code.kind === 'config' && Y.validAdvKey(code.data.adv) && !(S.advisor && S.advisor.key)) { S.advisor = { on: true, key: String(code.data.adv).trim(), autoAll: true, updatedAt: Date.now() }; commit(true); sync.syncNow({ advisor: true }).catch(() => { }); }
+        ui.syncEdit = false; ui.sf = {};
+        syncDone(bad.length ? { ok: false, text: '已开启，但这次没连上，稍后会自动重试。' } : { ok: true, text: '同步已开启。再加设备时点“添加另一台设备”。' });
+      }, (e) => syncDone({ ok: false, text: e.message }));
+      if (code && code.kind === 'pair') { ui.syncBusy = true; ui.syncMsg = null; render(); Y.openPairCode(pass, code.data).then((d) => go2((d.remotes || []).filter((r) => r && r.type === 'github' && r.repo && r.token)), (e) => syncDone({ ok: false, text: e.message })); return; }
       let rs; try { rs = formRemotes(); } catch (e) { ui.syncMsg = { ok: false, text: e.message }; render(); return; }
-      ui.syncBusy = true; ui.syncMsg = null; render();
-      sync.enable(ui.sf.pass || '', rs).then((last) => { const bad = rs.filter((r) => !(last[r.id] || {}).ok); ui.syncEdit = false; ui.sf = {}; syncDone(bad.length ? { ok: false, text: '已开启，但这次没连上，稍后会自动重试。' } : { ok: true, text: '同步已开启。在另一台设备上填同样的口令、仓库和令牌即可。' }); }, (e) => syncDone({ ok: false, text: e.message }));
+      ui.syncBusy = true; ui.syncMsg = null; render(); go2(rs);
     },
     'clear-demo'() { if (!S.meta.demo && syncOn()) { toast('已开启同步，清空前请先关闭同步'); return; } if (!S.meta.demo && ui.confirm !== 'clear') { ui.confirm = 'clear'; toast('再点一次“清空全部数据”确认。此操作不能撤销'); return; } clearAll(); ui.confirm = null; go('today'); commit(); toast('已清空。在上方记下第一件事吧'); }
   };
@@ -2262,7 +2291,8 @@ details.more[open] > summary::after { content: " ▴"; }
       else if (d.p === 'deadline') p.deadline = t.value || null;
       else if (d.p === 'keywords') p.keywords = t.value.split(/[,，、;；\s]+/).map((k) => k.trim()).filter(Boolean).slice(0, 40);
       p.updatedAt = Date.now(); commit(true);
-    } else if (d.c === 'target') { if (t.value) { S.routine.targets[d.key] = t.value; S.meta.prefsAt = Date.now(); commit(true); } }
+    } else if (d.s === 'code') { const c = Y.parseCode(t.value); ui.sf.code = t.value; if (c && c.kind === 'config' && c.data.repo) ui.sf.ghRepo = c.data.repo; render(); const nx = $('#sync-pass'); if (nx && c) nx.focus(); }
+    else if (d.c === 'target') { if (t.value) { S.routine.targets[d.key] = t.value; S.meta.prefsAt = Date.now(); commit(true); } }
     else if (d.c === 'actual') { setLog(d.date, d.key, t.value || null); commit(true); }
     else if (d.c === 'setting') { if (d.key === 'workStart') { if (t.value) S.settings.workStart = t.value; } else { const n = Math.max(0, Math.min(180, parseInt(t.value, 10) || 0)); S.settings[d.key] = n; } S.meta.prefsAt = Date.now(); commit(true); }
     else if (d.c === 'advAuto') { if (S.advisor) { S.advisor.autoAll = t.checked; S.advisor.updatedAt = Date.now(); commit(true); } }
