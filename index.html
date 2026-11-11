@@ -1710,6 +1710,7 @@ details.more[open] > summary::after { content: " ▴"; }
   function formRemotes() {
     const f = ui.sf, gr = (f.ghRepo || '').trim(), gt = (f.ghToken || '').trim();
     if (!/^[\w.-]+\/[\w.-]+$/.test(gr) || !gt) throw new Error('仓库要写成“用户名/仓库名”，并填写令牌');
+    if (!/^[\x21-\x7e]{20,}$/.test(gt)) throw new Error('令牌框里的内容不像令牌。令牌是以 github_pat_ 开头的一长串字母和数字，中间没有空格。请到令牌页面点它右边的复制图标，再回来粘贴。');
     return [{ id: 'github', type: 'github', repo: gr, token: gt }];
   }
   function syncDone(msg) { ui.syncBusy = false; ui.syncMsg = msg; render(); }
