@@ -1,0 +1,5 @@
+<resources>
+  <string name="app_name">有序</string>
+  <string name="share_label">记到有序</string>
+  <string name="sc_capture">随手记</string>
+</resources>

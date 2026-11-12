@@ -1,0 +1,66 @@
+name: android-test
+# 每次安卓外壳或界面改动后：编译调试版，在安卓模拟器上实测，结果放到 ci 分支
+on:
+  push:
+    branches: [main]
+    paths: ['android/**', 'index.html', '.github/workflows/android-test.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: android-test
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.9' }
+      - name: Bundle the web app into the APK
+        run: |
+          mkdir -p android/app/src/main/assets/web
+          cp index.html manifest.webmanifest icon-192.png icon-512.png android/app/src/main/assets/web/
+          git hash-object index.html > android/app/src/main/assets/web/VERSION
+      - name: Build debug APK
+        shell: bash
+        run: |
+          cd android
+          set -o pipefail
+          gradle --no-daemon assembleDebug -PversionCode=${{ github.run_number }} 2>&1 | tee ../build.log
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install test tools
+        run: |
+          cd android/ci
+          npm install --no-audit --no-fund
+          npx playwright install android
+      - name: Test on an Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash android/ci/run.sh
+      - name: Publish results to the ci branch
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/out
+          cp -r android/ci/out/. /tmp/out/ 2>/dev/null || true
+          cp build.log /tmp/out/ 2>/dev/null || true
+          echo "${{ job.status }} ${{ github.sha }} run ${{ github.run_number }}" > /tmp/out/STATUS
+          cd /tmp/out
+          git init -q && git checkout -q -b ci && git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "ci run ${{ github.run_number }}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci
