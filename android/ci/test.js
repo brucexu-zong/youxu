@@ -10,7 +10,8 @@ const typeIn = (p, text) => p.evaluate((t) => { const c = document.querySelector
 const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, null, 1));
 (async () => {
   const [device] = await _android.devices();
-  const shot = async (name) => { await sleep(1500); await device.screenshot({ path: `${OUT}/${name}.png` }).catch(() => {}); };
+  // 无窗口模拟器里网页不一定及时重绘：截图前先在空白处轻划一下
+  const shot = async (name) => { await device.shell('input swipe 540 1300 540 1290 60').catch(() => {}); await sleep(1500); await device.screenshot({ path: `${OUT}/${name}.png` }).catch(() => {}); };
   const page = async () => { const wv = await device.webView({ pkg: PKG }, { timeout: 90000 }); const p = await wv.page(); await p.waitForSelector('#cap', { state: 'attached', timeout: 60000 }); await sleep(800); return p; };
   let p = await page();
 
@@ -42,6 +43,7 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
   const ls = String(await device.shell('find /sdcard/Download -name "youxu-ci*"'));
   check('saving a file to Downloads', /^ok/.test(saved) && /youxu-ci/.test(ls), saved + ' | ' + ls.trim());
 
+  await p.evaluate(() => document.querySelector('.tab[data-v="today"]').click()); await shot('03b-today');
   await p.evaluate(() => { document.querySelector('.tab[data-v="butler"]').click(); document.querySelector('[data-a="seg"][data-v="data"]').click(); document.querySelector('[data-a="backup"]').click(); });
   await sleep(500); await shot('04-sheet');
   await device.shell('input keyevent 4'); await sleep(900);
@@ -75,7 +77,7 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
   await device.shell('cmd uimode night yes'); await sleep(5000);
   p = await page().catch(() => p);
   await shot('06-dark');
-  check('dark mode follows the system', await p.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches).catch(() => false));
+  check('dark mode follows the system', await p.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches || document.documentElement.getAttribute('data-theme') === 'dark').catch(() => false), await p.evaluate(() => JSON.stringify({ mq: matchMedia('(prefers-color-scheme: dark)').matches, attr: document.documentElement.getAttribute('data-theme'), bg: getComputedStyle(document.body).backgroundColor })).catch((e) => e.message));
   check('data intact after switching to dark mode', await p.evaluate(() => window.__youxu.state.items.filter((i) => !i.deleted).length === 2).catch(() => false));
   await device.shell('cmd uimode night no'); await sleep(3000);
 

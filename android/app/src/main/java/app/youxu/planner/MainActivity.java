@@ -305,6 +305,8 @@ public class MainActivity extends Activity {
         public void ready() {
             jsReady = true;
             ui.post(() -> {
+                boolean night = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+                web.evaluateJavascript("document.documentElement.setAttribute('data-theme','" + (night ? "dark" : "light") + "')", null);
                 deliverShare();
                 if (hasWindowFocus()) offerClipboard();
             });
