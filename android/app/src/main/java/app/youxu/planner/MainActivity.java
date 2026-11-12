@@ -61,7 +61,6 @@ public class MainActivity extends Activity {
     private volatile boolean jsReady = false;
     private int loadGeneration = 0;
     private String pendingShare = null;
-    private int nightMode = -1;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -92,7 +91,6 @@ public class MainActivity extends Activity {
     private void styleSystemBars() {
         int mode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         boolean night = mode == Configuration.UI_MODE_NIGHT_YES;
-        nightMode = mode;
         Window w = getWindow();
         w.setStatusBarColor(night ? 0xFF0F1316 : 0xFFF3F4F1);
         w.setNavigationBarColor(night ? 0xFF171C21 : 0xFFFFFFFF);
@@ -102,13 +100,7 @@ public class MainActivity extends Activity {
         d.setSystemUiVisibility(night ? (f & ~light) : (f | light));
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration c) {
-        super.onConfigurationChanged(c);
-        int before = nightMode;
-        styleSystemBars();
-        if (before != -1 && before != nightMode && web != null) web.reload();   // 让界面跟着换成深色/浅色
-    }
+    // 切换浅色/深色时系统会重建这个界面（清单里没有拦截 uiMode），这样网页的深浅色也跟着变
 
     /* ---------- 从别的应用分享进来、长按图标“随手记” ---------- */
     private String sharedText(Intent i) {

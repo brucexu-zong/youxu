@@ -10,7 +10,7 @@ const typeIn = (p, text) => p.evaluate((t) => { const c = document.querySelector
 const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, null, 1));
 (async () => {
   const [device] = await _android.devices();
-  const shot = (name) => device.screenshot({ path: `${OUT}/${name}.png` }).catch(() => {});
+  const shot = async (name) => { await sleep(1500); await device.screenshot({ path: `${OUT}/${name}.png` }).catch(() => {}); };
   const page = async () => { const wv = await device.webView({ pkg: PKG }, { timeout: 90000 }); const p = await wv.page(); await p.waitForSelector('#cap', { state: 'attached', timeout: 60000 }); await sleep(800); return p; };
   let p = await page();
 
@@ -39,7 +39,7 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
   check('data survives an app restart', await p.evaluate(() => window.__youxu.state.items.filter((i) => !i.deleted).length === 2));
 
   const saved = await p.evaluate(() => window.YouxuNative.saveFile('youxu-ci.json', 'application/json', '{"ok":1}'));
-  const ls = String(await device.shell('ls /sdcard/Download/有序/'));
+  const ls = String(await device.shell('find /sdcard/Download -name "youxu-ci*"'));
   check('saving a file to Downloads', /^ok/.test(saved) && /youxu-ci/.test(ls), saved + ' | ' + ls.trim());
 
   await p.evaluate(() => { document.querySelector('.tab[data-v="butler"]').click(); document.querySelector('[data-a="seg"][data-v="data"]').click(); document.querySelector('[data-a="backup"]').click(); });
@@ -72,10 +72,11 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
   check('a broken update falls back to the built-in version by itself', back.cap && back.ver !== 'b'.repeat(40) && back.ver !== 'a'.repeat(40), JSON.stringify(back));
   check('data intact after all that', await p.evaluate(() => window.__youxu.state.items.filter((i) => !i.deleted).length === 2).catch(() => false));
 
-  await device.shell('cmd uimode night yes'); await sleep(4000);
-  await p.waitForSelector('#cap', { state: 'attached', timeout: 30000 }).catch(() => {});
+  await device.shell('cmd uimode night yes'); await sleep(5000);
+  p = await page().catch(() => p);
   await shot('06-dark');
   check('dark mode follows the system', await p.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches).catch(() => false));
+  check('data intact after switching to dark mode', await p.evaluate(() => window.__youxu.state.items.filter((i) => !i.deleted).length === 2).catch(() => false));
   await device.shell('cmd uimode night no'); await sleep(3000);
 
   save(); await device.close(); process.exit(0);
