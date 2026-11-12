@@ -1457,7 +1457,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
         const fl = await ad.file('advisor/advice.enc.json').read(); A.checkedAt = now;
         if (fl && fl.text.trim()) { const adv = await advOpen(key, fl.text); if (adv && adv.id && o.onAdvice) { A.adviceAt = adv.at || now; o.onAdvice(adv); } }
       }
-      if (force || now - (A.briefAt || 0) > 6 * 3600000) {
+      if (force || now - (A.briefAt || 0) > 30 * 60000) {   // 每 30 分钟最多一次，内容没变就不上传
         const text = o.briefing(), h = hash(text);
         if (h !== A.briefHash) { const bf = ad.file('advisor/briefing.enc.json'), cur = await bf.read(); await bf.write(await advSeal(key, { id: 'b' + now.toString(36), at: now, tz: o.tz ? o.tz() : null, text: text }), cur && cur.sha); A.briefHash = h; A.briefSentAt = now; }
         A.briefAt = now;
@@ -1699,7 +1699,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     if (TRIAL) return card('自动顾问', '<div class="pad"><p class="hint">独立版里可以让 Claude 定期自动给建议，不用复制粘贴。试用页面的网络是封闭的，这里只能用下面的手动方式。</p></div>');
     const on = S.advisor && S.advisor.on && S.advisor.key, c = sync.cfg(), A = c.adv || {};
     const msg = ui.advMsg ? '<p class="hint" style="color:var(--' + (ui.advMsg.ok ? 'good' : 'crit') + ')">' + esc(ui.advMsg.text) + '</p>' : '';
-    const what = '<p class="hint">应用每隔几小时把加密的简报放进你的私有仓库；Claude 的定时任务读取后把建议写回，下次同步时出现在“今天”页顶部。默认全部自动采纳，卡片里会列出做了什么，不合适可以一键撤销。标了“不发给 Claude”的事项不会进简报。</p>';
+    const what = '<p class="hint">应用每隔半小时把加密的简报放进你的私有仓库（内容没变就不上传）；Claude 的定时任务读取后把建议写回，下次同步时出现在“今天”页顶部。默认全部自动采纳，卡片里会列出做了什么，不合适可以一键撤销。标了“不发给 Claude”的事项不会进简报。</p>';
     if (!syncOn()) return card('自动顾问', '<div class="pad">' + what + '<p class="hint" style="color:var(--warn)">需要先在“同步、提醒与备份”里开启同步。</p></div>');
     if (on) return card('自动顾问', '<div class="pad">' + what + '<div class="links"><div><span>简报上次上传</span><span class="st">' + (A.briefSentAt ? fmtAt(A.briefSentAt) : '还没有') + '</span></div><div><span>最近一次建议</span><span class="st">' + (S.advice ? fmtAt(S.advice.at) : '还没有收到') + '</span></div></div>' + '<label class="switch"><input type="checkbox" id="adv-auto" data-c="advAuto"' + (S.advisor.autoAll !== false ? ' checked' : '') + '> 新增和改动事项也自动采纳（关掉后需要你点一下确认）</label>' + (c.advErr ? '<p class="hint" style="color:var(--crit)">' + esc(c.advErr) + '</p>' : '') + msg +
       '<div class="btns"><button class="btn pri" data-a="adv-now"' + (ui.syncBusy ? ' disabled' : '') + '>' + (ui.syncBusy ? '检查中…' : '立即上传简报并检查建议') + '</button>' + (S.advice && S.advice.dismissed ? '<button class="btn" data-a="advice-show">再看一遍上次的建议</button>' : '') + '<button class="btn danger" data-a="adv-off">关闭</button></div></div>', null, '<span class="n">已开启</span>');
