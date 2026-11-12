@@ -62,16 +62,21 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
   check('pairing code on the clipboard is filled in automatically', ((await p.inputValue('#sync-code').catch(() => '')) || '').startsWith('YXC1.'));
   await shot('05-pairing');
 
+  const restart = async (wait) => { await device.shell(`am force-stop ${PKG}`); await sleep(800); await device.shell(`am start -n ${PKG}/.MainActivity`); await sleep(wait || 4000); return page(); };
+  const bundled = await p.evaluate(() => window.YouxuNative.webVersion());
   const src = await p.evaluate(async () => (await fetch('/index.html')).text());
   const inst = await p.evaluate((h) => window.YouxuNative.installWeb(h.replace('<title>', '<meta name="build" content="OTA-TEST"><title>'), 'a'.repeat(40)), src);
-  await p.evaluate(() => location.reload()); await sleep(1500); await p.waitForSelector('#cap', { state: 'attached', timeout: 30000 }); await sleep(800);
-  check('updated interface is used after reload', inst === 'ok' && await p.evaluate(() => (document.querySelector('meta[name=build]') || {}).content === 'OTA-TEST' && window.YouxuNative.webVersion() === 'a'.repeat(40)));
+  p = await restart();
+  check('updated interface is used on the next start', inst === 'ok' && await p.evaluate(() => (document.querySelector('meta[name=build]') || {}).content === 'OTA-TEST' && window.YouxuNative.webVersion() === 'a'.repeat(40)));
 
   await p.evaluate(() => window.YouxuNative.installWeb('<!DOCTYPE html><html><body>broken 有序</body></html>', 'b'.repeat(40)));
-  await p.evaluate(() => location.reload());
-  await sleep(14000);
+  await device.shell(`am force-stop ${PKG}`); await sleep(800); await device.shell(`am start -n ${PKG}/.MainActivity`);
+  await sleep(16000);                                   // 坏版本打开 → 8 秒内没启动 → 外壳删掉它，换回内置版本
+  await shot('05b-after-fallback');
+  const files = String(await device.shell(`run-as ${PKG} ls files/web`).catch((e) => 'err ' + e.message)).trim();
+  p = await restart();
   const back = await p.evaluate(() => ({ cap: !!document.querySelector('#cap'), ver: window.YouxuNative.webVersion() })).catch((e) => ({ err: e.message }));
-  check('a broken update falls back to the built-in version by itself', back.cap && back.ver !== 'b'.repeat(40) && back.ver !== 'a'.repeat(40), JSON.stringify(back));
+  check('a broken update is removed and the built-in version comes back', back.cap && back.ver === bundled && !/index\.html/.test(files), JSON.stringify(back) + ' files=' + files);
   check('data intact after all that', await p.evaluate(() => window.__youxu.state.items.filter((i) => !i.deleted).length === 2).catch(() => false));
 
   await device.shell('cmd uimode night yes'); await sleep(5000);
