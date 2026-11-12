@@ -52,13 +52,29 @@ jobs:
           disable-animations: true
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash android/ci/run.sh
+      - name: Build release APK (signed with a one-off key that is never stored)
+        if: always()
+        shell: bash
+        run: |
+          set -o pipefail
+          KS="$RUNNER_TEMP/one-off.keystore"; PW="$(openssl rand -hex 24)"
+          keytool -genkeypair -keystore "$KS" -storetype PKCS12 -alias youxu -keyalg RSA -keysize 3072 -validity 18250 -storepass "$PW" -keypass "$PW" -dname "CN=Youxu" >/dev/null 2>&1
+          export YX_KEYSTORE="$KS" YX_STORE_PASS="$PW" YX_KEY_PASS="$PW"
+          cd android
+          gradle --no-daemon assembleRelease -PversionCode=$((1000 + ${{ github.run_number }})) 2>&1 | tail -40 > ../release.log
+          mkdir -p ci/out
+          cp app/build/outputs/apk/release/app-release.apk ci/out/youxu.apk
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" verify --print-certs ci/out/youxu.apk > ci/out/verify.txt 2>&1 || true
+          "$BT/aapt2" dump badging ci/out/youxu.apk 2>/dev/null | head -4 > ci/out/badging.txt || true
+          rm -f "$KS"
       - name: Publish results to the ci branch
         if: always()
         shell: bash
         run: |
           mkdir -p /tmp/out
           cp -r android/ci/out/. /tmp/out/ 2>/dev/null || true
-          cp build.log /tmp/out/ 2>/dev/null || true
+          cp build.log release.log /tmp/out/ 2>/dev/null || true
           echo "${{ job.status }} ${{ github.sha }} run ${{ github.run_number }}" > /tmp/out/STATUS
           cd /tmp/out
           git init -q && git checkout -q -b ci && git add -A

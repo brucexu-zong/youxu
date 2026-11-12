@@ -5,11 +5,13 @@ const OUT = 'out', PKG = 'app.youxu.planner';
 const R = [];
 const check = (n, ok, extra) => { R.push({ n, ok: !!ok, extra: extra || '' }); console.log((ok ? '✓ ' : '✗ ') + n + (extra ? '  ' + extra : '')); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// 在 WebView 里 Playwright 判断不了元素是否可见，所以直接在页面里输入和回车
+const typeIn = (p, text) => p.evaluate((t) => { const c = document.querySelector('#cap'); c.focus(); c.value = t; c.dispatchEvent(new Event('input', { bubbles: true })); c.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); }, text);
 const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, null, 1));
 (async () => {
   const [device] = await _android.devices();
   const shot = (name) => device.screenshot({ path: `${OUT}/${name}.png` }).catch(() => {});
-  const page = async () => { const wv = await device.webView({ pkg: PKG }, { timeout: 90000 }); const p = await wv.page(); await p.waitForSelector('#cap', { timeout: 60000 }); return p; };
+  const page = async () => { const wv = await device.webView({ pkg: PKG }, { timeout: 90000 }); const p = await wv.page(); await p.waitForSelector('#cap', { state: 'attached', timeout: 60000 }); await sleep(800); return p; };
   let p = await page();
 
   const env = await p.evaluate(() => ({ origin: location.origin, native: !!window.YouxuNative, subtle: !!(window.crypto && crypto.subtle), zip: typeof CompressionStream, tab: window.__youxu.ui.tab, items: window.__youxu.state.items.length, demo: window.__youxu.state.meta.demo, ver: window.YouxuNative.webVersion(), app: window.YouxuNative.appVersion(), ua: navigator.userAgent.match(/Chrome\/[\d.]+/)[0] }));
@@ -25,9 +27,9 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
   check('GitHub API reachable from the app', /^200 /.test(net), net);
 
   await p.evaluate(() => document.querySelector('.tab[data-v="today"]').click());
-  await p.fill('#cap', '明天下午3点到5点 开组会'); await p.press('#cap', 'Enter'); await sleep(600);
+  await typeIn(p, '明天下午3点到5点 开组会'); await sleep(600);
   check('quick capture', await p.evaluate(() => window.__youxu.state.items.some((i) => i.title === '开组会' && i.time === '15:00' && i.est === 120)));
-  await p.fill('#cap', '周五6点40去机场接人'); await p.press('#cap', 'Enter'); await sleep(600);
+  await typeIn(p, '周五6点40去机场接人'); await sleep(600);
   await shot('03-captured');
   await p.evaluate(() => document.activeElement && document.activeElement.blur());
 
@@ -49,7 +51,7 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
 
   await device.shell(`am start -a android.intent.action.SEND -t text/plain --es android.intent.extra.TEXT "meeting at 3pm" -n ${PKG}/.MainActivity`); await sleep(2000);
   check('text shared from another app lands in the capture box', (await p.inputValue('#cap')) === 'meeting at 3pm');
-  await p.fill('#cap', ''); await p.evaluate(() => document.activeElement && document.activeElement.blur());
+  await p.evaluate(() => { const c = document.querySelector('#cap'); c.value = ''; c.dispatchEvent(new Event('input', { bubbles: true })); c.blur(); });
 
   const code = 'YXC1.' + Buffer.from(JSON.stringify({ repo: 'brucexu-zong/youxu-data', adv: 'AAAA' })).toString('base64');
   await p.evaluate((c) => window.YouxuNative.copyText(c), code); await sleep(500);
@@ -60,7 +62,7 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
 
   const src = await p.evaluate(async () => (await fetch('/index.html')).text());
   const inst = await p.evaluate((h) => window.YouxuNative.installWeb(h.replace('<title>', '<meta name="build" content="OTA-TEST"><title>'), 'a'.repeat(40)), src);
-  await p.evaluate(() => location.reload()); await p.waitForSelector('#cap', { timeout: 30000 }); await sleep(1000);
+  await p.evaluate(() => location.reload()); await sleep(1500); await p.waitForSelector('#cap', { state: 'attached', timeout: 30000 }); await sleep(800);
   check('updated interface is used after reload', inst === 'ok' && await p.evaluate(() => (document.querySelector('meta[name=build]') || {}).content === 'OTA-TEST' && window.YouxuNative.webVersion() === 'a'.repeat(40)));
 
   await p.evaluate(() => window.YouxuNative.installWeb('<!DOCTYPE html><html><body>broken 有序</body></html>', 'b'.repeat(40)));
@@ -71,7 +73,7 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
   check('data intact after all that', await p.evaluate(() => window.__youxu.state.items.filter((i) => !i.deleted).length === 2).catch(() => false));
 
   await device.shell('cmd uimode night yes'); await sleep(4000);
-  await p.waitForSelector('#cap', { timeout: 30000 }).catch(() => {});
+  await p.waitForSelector('#cap', { state: 'attached', timeout: 30000 }).catch(() => {});
   await shot('06-dark');
   check('dark mode follows the system', await p.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches).catch(() => false));
   await device.shell('cmd uimode night no'); await sleep(3000);
