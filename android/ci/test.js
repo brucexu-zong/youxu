@@ -71,9 +71,11 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
 
   await p.evaluate(() => window.YouxuNative.installWeb('<!DOCTYPE html><html><body>broken 有序</body></html>', 'b'.repeat(40)));
   await device.shell(`am force-stop ${PKG}`); await sleep(800); await device.shell(`am start -n ${PKG}/.MainActivity`);
-  await sleep(16000);                                   // 坏版本打开 → 8 秒内没启动 → 外壳删掉它，换回内置版本
+  // 坏版本打开 → 8 秒内没启动 → 外壳删掉它，换回内置版本（模拟器慢，最多等 60 秒）
+  let files = '', waited = 0;
+  for (; waited < 60; waited += 3) { await sleep(3000); files = String(await device.shell(`run-as ${PKG} ls files/web`).catch((e) => 'err ' + e.message)).trim(); if (!/index\.html/.test(files)) break; }
   await shot('05b-after-fallback');
-  const files = String(await device.shell(`run-as ${PKG} ls files/web`).catch((e) => 'err ' + e.message)).trim();
+  files += ' (after ' + (waited + 3) + 's)';
   p = await restart();
   const back = await p.evaluate(() => ({ cap: !!document.querySelector('#cap'), ver: window.YouxuNative.webVersion() })).catch((e) => ({ err: e.message }));
   check('a broken update is removed and the built-in version comes back', back.cap && back.ver === bundled && !/index\.html/.test(files), JSON.stringify(back) + ' files=' + files);

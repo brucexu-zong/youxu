@@ -242,6 +242,14 @@ public class MainActivity extends Activity {
             h.put("Cache-Control", "no-cache");
             InputStream in = name.contains("..") ? null : openWebFile(name);
             if (in == null) return new WebResourceResponse("text/plain", "UTF-8", 404, "Not Found", h, new ByteArrayInputStream(new byte[0]));
+            if ("index.html".equals(name)) {
+                // 打开时就标好深色/浅色，避免先闪一下浅色
+                try {
+                    boolean night = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+                    String html = readText(in).replaceFirst("<html ", "<html data-theme=\"" + (night ? "dark" : "light") + "\" ");
+                    return new WebResourceResponse("text/html", "UTF-8", 200, "OK", h, new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)));
+                } catch (Exception e) { in = openWebFile(name); }
+            }
             return new WebResourceResponse(mimeOf(name), "UTF-8", 200, "OK", h, in);
         }
 
