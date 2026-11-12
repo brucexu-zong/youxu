@@ -5,7 +5,10 @@ self.addEventListener('install', (e) => { e.waitUntil(caches.open(V).then((c) =>
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== V && k.indexOf('youxu-') === 0).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', (e) => {
   const u = new URL(e.request.url);
-  if (e.request.method !== 'GET' || u.origin !== self.location.origin || u.pathname.endsWith('/sw.js')) return;   // 同步请求和 sw.js 本身不经过缓存
+  // 只缓存应用本身（作用域目录下的这几个文件）；同步请求、安装包等其他文件直接走网络
+  const dir = new URL(self.registration.scope).pathname, rest = u.pathname.startsWith(dir) ? u.pathname.slice(dir.length) : null;
+  const SHELL_FILES = ['', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable.png'];
+  if (e.request.method !== 'GET' || u.origin !== self.location.origin || rest === null || SHELL_FILES.indexOf(rest) < 0) return;
   e.respondWith(caches.open(V).then(async (c) => {
     const hit = (await c.match(e.request, { ignoreSearch: true })) || (e.request.mode === 'navigate' ? await c.match('index.html') : null);
     // 后台更新时去掉网址里的参数：分享进来的文字只留在本机，不会发给服务器
