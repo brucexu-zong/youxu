@@ -70,15 +70,16 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
   check('updated interface is used on the next start', inst === 'ok' && await p.evaluate(() => (document.querySelector('meta[name=build]') || {}).content === 'OTA-TEST' && window.YouxuNative.webVersion() === 'a'.repeat(40)));
 
   await p.evaluate(() => window.YouxuNative.installWeb('<!DOCTYPE html><html><body>broken 有序</body></html>', 'b'.repeat(40)));
-  await device.shell(`am force-stop ${PKG}`); await sleep(800); await device.shell(`am start -n ${PKG}/.MainActivity`);
-  // 坏版本打开 → 8 秒内没启动 → 外壳删掉它，换回内置版本（模拟器慢，最多等 60 秒）
-  let files = '', waited = 0;
-  for (; waited < 60; waited += 3) { await sleep(3000); files = String(await device.shell(`run-as ${PKG} ls files/web`).catch((e) => 'err ' + e.message)).trim(); if (!/index\.html/.test(files)) break; }
-  await shot('05b-after-fallback');
-  files += ' (after ' + (waited + 3) + 's)';
-  p = await restart();
+  // 打开 APP：坏版本 8 秒内没启动 → 外壳删掉它，换回内置版本
+  await device.shell(`am force-stop ${PKG}`); await sleep(1500);
+  await device.shell(`am start -W -n ${PKG}/.MainActivity`); await sleep(1500);
+  await shot('05b-broken-open');
+  p = await page();                                       // 等到界面重新可用（说明已换回内置版本）
+  const files = String(await device.shell(`run-as ${PKG} ls files/web`).catch((e) => 'err ' + e.message)).trim();
   const back = await p.evaluate(() => ({ cap: !!document.querySelector('#cap'), ver: window.YouxuNative.webVersion() })).catch((e) => ({ err: e.message }));
-  check('a broken update is removed and the built-in version comes back', back.cap && back.ver === bundled && !/index\.html/.test(files), JSON.stringify(back) + ' files=' + files);
+  check('a broken update is removed and the built-in version comes back', back.cap && back.ver === bundled && !/index\.html/.test(files), JSON.stringify(back) + ' files=' + (files || '(none)'));
+  p = await restart();
+  check('stays on the built-in version after another restart', await p.evaluate((v) => window.YouxuNative.webVersion() === v, bundled).catch(() => false));
   check('data intact after all that', await p.evaluate(() => window.__youxu.state.items.filter((i) => !i.deleted).length === 2).catch(() => false));
 
   await device.shell('cmd uimode night yes'); await sleep(5000);
