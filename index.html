@@ -1321,7 +1321,7 @@ details.more[open] > summary::after { content: " ▴"; }
   }
   async function unseal(key, saltB64, text) {
     const h = header(text);
-    if (h.salt !== saltB64) throw err('SALT', '这个云端的数据是用另一个口令加密的');
+    if (h.salt !== saltB64) throw err('SALT', '同步口令已经换过了（云端数据是用另一个口令加密的）。请在“修改设置”里输入现在的口令');
     let pt; try { pt = await subtle().decrypt({ name: 'AES-GCM', iv: unb64(h.iv) }, key, unb64(h.ct)); } catch (e) { throw err('BADPASS', '同步口令不对，无法解密云端数据'); }
     if (h.z === 'gzip') pt = await pipe(new Uint8Array(pt), DecompressionStream);
     return JSON.parse(td.decode(pt));
@@ -1486,10 +1486,27 @@ details.more[open] > summary::after { content: " ▴"; }
       return running;
     }
     /** 开启同步：云端已有数据时沿用它的盐并验证口令；否则新建。 */
-    async function enable(pass, remotes) {
+    /* 用一个新口令重新加密云端：新的盐、新的密钥，以这台设备上的数据为准整体覆盖 */
+    async function reseal(pass, remotes) {
+      const salt = b64(rand(16)), key = await deriveKey(pass, unb64(salt));
+      const sealed = await seal(key, salt, payloadOf(o.getState()));
+      for (const r of remotes) { const ad = adapterFor(r), cur = await ad.read(); await ad.write(sealed, cur && cur.sha); }
+      await keys.set({ salt: salt, key: key });
+    }
+    /** 更换口令：先用旧口令把云端最新数据合并到本机，再用新口令重新加密。其他设备之后需要输入新口令 */
+    async function rekey(pass) {
+      if (!pass || pass.length < 8) throw err('WEAK', '同步口令至少 8 位');
+      const c = cfg(); if (!c.on || !c.remotes.length) throw err('NOKEY', '请先开启同步');
+      const last = await syncNow();
+      if (c.remotes.some((r) => !(last[r.id] || {}).ok)) throw err('OFFLINE', '要先连上云端才能更换口令：' + (((last[c.remotes[0].id] || {}).err) || '这次没连上'));
+      await reseal(pass, c.remotes);
+      return syncNow();
+    }
+    async function enable(pass, remotes, opt) {
       if (!subtle()) throw err('NOCRYPTO', '当前环境不支持加密（需要 https 或本机打开）');
       if (!pass || pass.length < 8) throw err('WEAK', '同步口令至少 8 位');
       if (!remotes.length) throw err('NOREMOTE', '至少填写一个云端');
+      if (opt && opt.overwrite) { await reseal(pass, remotes); o.saveCfg({ on: true, remotes: remotes, last: {} }); return syncNow(); }
       let salt = null, found = null, reached = 0, lastErr = null;
       for (const r of remotes) {
         try { const blob = await adapterFor(r).read(); reached++; if (blob && blob.text.trim() && !salt) { salt = header(blob.text).salt; found = blob.text; } }
@@ -1506,7 +1523,7 @@ details.more[open] > summary::after { content: " ▴"; }
     async function disable() { const c = cfg(); c.on = false; c.last = {}; o.saveCfg(c); await keys.clear(); }
     async function test(remote) { await adapterFor(remote).read(); return true; }
     async function pairCode() { const k = await keys.get(), c = cfg(); if (!k || !c.on) throw err('NOKEY', '请先开启同步'); return makePairCode(k, { remotes: c.remotes.map((r) => ({ id: r.id, type: r.type, repo: r.repo, token: r.token })) }); }
-    return { enable, disable, syncNow, test, cfg, pairCode, hasKey: async () => !!(await keys.get()) };
+    return { enable, disable, syncNow, test, cfg, pairCode, rekey, hasKey: async () => !!(await keys.get()) };
   }
 
   const Sync = { create, payloadOf, mergePayload, applyPayload, prune, canon, deriveKey, seal, unseal, header, advSeal, advOpen, validAdvKey, parseCode, makeConfigCode, openPairCode, b64, unb64, b64text, unb64text, memKeyStore, ADAPTERS };
@@ -1694,9 +1711,11 @@ details.more[open] > summary::after { content: " ▴"; }
     if (c.on && !ui.syncEdit) {
       const rows = c.remotes.map((r) => { const l = (c.last || {})[r.id]; return '<div><span><b>' + (r.type === 'github' ? 'GitHub' : 'Gitee') + '</b> ' + esc(r.repo) + '</span><span class="st" style="color:var(--' + (l ? (l.ok ? 'good' : 'crit') : 'ink3') + ')">' + (l ? (l.ok ? '已同步 ' + fmtAt(l.at) + (l.size ? ' · 云端 ' + fmtKB(l.size) : '') : esc(l.err) + (l.okAt ? '（上次成功 ' + fmtAt(l.okAt) + '）' : '')) : '等待首次同步') + '</span></div>'; }).join('');
       const kp = ((c.keep || {}).github) || {};
-      return card('多设备同步', '<div class="pad"><p class="hint">已开启。数据在本机压缩、加密后上传，云端只有密文，并且只保留最新一份，不留历史。离线时照常记录，联网后自动合并。</p><div class="links">' + rows + '</div>' + (kp.err ? '<p class="hint" style="color:var(--warn)">清理云端历史没成功，下次同步会再试：' + esc(kp.err) + '</p>' : '') + msg + '<div class="btns"><button class="btn pri" data-a="sync-now"' + (ui.syncBusy ? ' disabled' : '') + '>' + (ui.syncBusy ? '同步中…' : '立即同步') + '</button><button class="btn" data-a="sync-pair">添加另一台设备</button><button class="btn" data-a="sync-edit">修改设置</button><button class="btn danger" data-a="sync-off">' + (ui.confirm === 'syncoff' ? '再点一次确认关闭' : '关闭同步') + '</button></div></div>', null, '<span class="n">端到端加密</span>');
+      return card('多设备同步', '<div class="pad"><p class="hint">已开启。数据在本机压缩、加密后上传，云端只有密文，并且只保留最新一份，不留历史。离线时照常记录，联网后自动合并。</p><div class="links">' + rows + '</div>' + (kp.err ? '<p class="hint" style="color:var(--warn)">清理云端历史没成功，下次同步会再试：' + esc(kp.err) + '</p>' : '') + (ui.rekey ? '<div class="fld"><label for="sync-newpass">新的同步口令（至少 8 位）</label><input type="password" id="sync-newpass" data-s="newPass" value="' + esc(ui.sf.newPass || '') + '" autocomplete="off"></div><p class="hint">更换后，这台设备立即生效；其他设备会提示口令已更换，在那里输入新口令即可。</p><div class="btns"><button class="btn pri" data-a="sync-rekey-go"' + (ui.syncBusy ? ' disabled' : '') + '>' + (ui.syncBusy ? '更换中…' : '确认更换') + '</button><button class="btn" data-a="sync-rekey">取消</button></div>' : '') + msg + '<div class="btns"><button class="btn pri" data-a="sync-now"' + (ui.syncBusy ? ' disabled' : '') + '>' + (ui.syncBusy ? '同步中…' : '立即同步') + '</button><button class="btn" data-a="sync-pair">添加另一台设备</button><button class="btn" data-a="sync-rekey">更换口令</button><button class="btn" data-a="sync-edit">修改设置</button><button class="btn danger" data-a="sync-off">' + (ui.confirm === 'syncoff' ? '再点一次确认关闭' : '关闭同步') + '</button></div></div>', null, '<span class="n">端到端加密</span>');
     }
+    if (!c.on && f.ghRepo == null && f.ghToken == null) { const g0 = (c.remotes || []).find((r) => r.type === 'github'); if (g0) { f.ghRepo = g0.repo; f.ghToken = g0.token; } }
     const code = Y.parseCode(f.code);
+    const wrongPass = ui.syncMsg && (ui.syncMsg.code === 'BADPASS' || ui.syncMsg.code === 'SALT') && !c.on;
     const fld = (id, key, label, type, ph) => '<div class="fld"><label for="' + id + '">' + label + '</label><input type="' + type + '" id="' + id + '" data-s="' + key + '" value="' + esc(f[key] || '') + '" placeholder="' + ph + '" autocomplete="off" autocapitalize="off" spellcheck="false"></div>';
     return card('多设备同步', '<div class="pad"><p class="hint">数据先在本机用你的口令加密，再上传到你自己的私有仓库，云端只有密文。离线时照常记录，联网后自动合并。</p>' +
       (S.meta.demo ? '<p class="hint" style="color:var(--warn)">现在是示例数据。请先清空示例，再开启同步。</p>' : '') +
@@ -1705,6 +1724,7 @@ details.more[open] > summary::after { content: " ▴"; }
       fld('sync-pass', 'pass', '同步口令（至少 8 位，每台设备填同一个）', 'password', '忘记后无法解密云端数据，本机数据不受影响') +
       (code && code.kind === 'pair' ? '' : '<div class="two">' + fld('sync-gh-repo', 'ghRepo', 'GitHub 仓库', 'text', '用户名/仓库名') + fld('sync-gh-token', 'ghToken', 'GitHub 令牌', 'password', 'github_pat_…') + '</div>') +
       '<p class="hint">令牌只保存在这台设备上。建议用只能读写这一个仓库的令牌，这样即使令牌泄露，对方拿到的也只是密文。</p>' + msg +
+      (wrongPass ? '<p class="hint">云端已经有一份用别的口令加密的数据。想用旧口令：改回旧口令再点“开启同步”。想换成现在输入的这个新口令：点下面的按钮，云端会用这台设备上的数据和新口令整体重写。</p><div class="btns"><button class="btn danger" data-a="sync-overwrite"' + (ui.syncBusy ? ' disabled' : '') + '>' + (ui.confirm === 'overwrite' ? '再点一次确认：用新口令重写云端' : '用这个新口令重写云端') + '</button></div>' : '') +
       '<div class="btns"><button class="btn pri" data-a="sync-enable"' + (ui.syncBusy || S.meta.demo ? ' disabled' : '') + '>' + (ui.syncBusy ? '连接中…' : c.on ? '保存并同步' : '开启同步') + '</button><button class="btn" data-a="sync-test"' + (ui.syncBusy ? ' disabled' : '') + '>测试连接</button>' + (c.on ? '<button class="btn" data-a="sync-cancel">取消</button>' : '') + '</div></div>', null, '<span class="n">端到端加密</span>');
   }
   function formRemotes() {
@@ -1714,6 +1734,7 @@ details.more[open] > summary::after { content: " ▴"; }
     return [{ id: 'github', type: 'github', repo: gr, token: gt }];
   }
   function syncDone(msg) { ui.syncBusy = false; ui.syncMsg = msg; render(); }
+  const failMsg = (e) => ({ ok: false, text: e.message, code: e.code });
 
   /* ---------- 通用片段 ---------- */
   function meta(it, o) {
@@ -2232,6 +2253,14 @@ details.more[open] > summary::after { content: " ▴"; }
       ui.syncBusy = true; ui.syncMsg = null; render();
       Promise.all(rs.map((r) => sync.test(r).then(() => 'GitHub 连接正常', (e) => e.message))).then((a) => syncDone({ ok: a.every((x) => /连接正常/.test(x)), text: a.join('；') }));
     },
+    'sync-rekey'() { ui.rekey = !ui.rekey; ui.sf.newPass = ''; ui.syncMsg = null; render(); const n = $('#sync-newpass'); if (n) n.focus(); },
+    'sync-rekey-go'() { ui.syncBusy = true; ui.syncMsg = null; render(); sync.rekey(ui.sf.newPass || '').then(() => { ui.rekey = false; ui.sf = {}; syncDone({ ok: true, text: '口令已更换，云端已用新口令重新加密。' }); }, (e) => syncDone(failMsg(e))); },
+    'sync-overwrite'() {
+      if (ui.confirm !== 'overwrite') { ui.confirm = 'overwrite'; render(); return; }
+      ui.confirm = null; let rs; try { rs = formRemotes(); } catch (e) { ui.syncMsg = { ok: false, text: e.message }; render(); return; }
+      ui.syncBusy = true; ui.syncMsg = null; render();
+      sync.enable(ui.sf.pass || '', rs, { overwrite: true }).then(() => { ui.syncEdit = false; ui.sf = {}; syncDone({ ok: true, text: '同步已开启，云端已用新口令重写。' }); }, (e) => syncDone(failMsg(e)));
+    },
     'sync-pair'() { sync.pairCode().then((c) => { ui.sheet = { type: 'text', title: '添加另一台设备', text: c, hint: '在另一台设备上打开应用，进入“管家 → 同步、提醒与备份”，把这段配对码粘贴进去，再输入同样的同步口令即可。配对码本身是加密的，没有口令打不开。' }; renderSheet(); }, (e) => { ui.syncMsg = { ok: false, text: e.message }; render(); }); },
     'sync-enable'() {
       const code = Y.parseCode(ui.sf.code), pass = ui.sf.pass || '';
@@ -2240,7 +2269,7 @@ details.more[open] > summary::after { content: " ▴"; }
         if (code && code.kind === 'config' && Y.validAdvKey(code.data.adv) && !(S.advisor && S.advisor.key)) { S.advisor = { on: true, key: String(code.data.adv).trim(), autoAll: true, updatedAt: Date.now() }; commit(true); sync.syncNow({ advisor: true }).catch(() => { }); }
         ui.syncEdit = false; ui.sf = {};
         syncDone(bad.length ? { ok: false, text: '已开启，但这次没连上，稍后会自动重试。' } : { ok: true, text: '同步已开启。再加设备时点“添加另一台设备”。' });
-      }, (e) => syncDone({ ok: false, text: e.message }));
+      }, (e) => syncDone(failMsg(e)));
       if (code && code.kind === 'pair') { ui.syncBusy = true; ui.syncMsg = null; render(); Y.openPairCode(pass, code.data).then((d) => go2((d.remotes || []).filter((r) => r && r.type === 'github' && r.repo && r.token)), (e) => syncDone({ ok: false, text: e.message })); return; }
       let rs; try { rs = formRemotes(); } catch (e) { ui.syncMsg = { ok: false, text: e.message }; render(); return; }
       ui.syncBusy = true; ui.syncMsg = null; render(); go2(rs);
