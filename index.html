@@ -2376,7 +2376,15 @@ details.more[open] > summary::after { content: " ▴"; }
   }
   if (!TRIAL) {
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { }
-    try { if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => { }); } catch (e) { }
+    try {
+      if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+        navigator.serviceWorker.register('sw.js').catch(() => { });
+        // 有新版本：没在输入、没开详情时直接换上；否则提示一下，由你点
+        let pendingUpdate = false;
+        const applyUpdate = () => { if (!typing() && !ui.sheet && !($('#cap').value || '').trim()) location.reload(); else if (!pendingUpdate) { pendingUpdate = true; toast('有新版本', '现在更新', () => location.reload()); } };
+        navigator.serviceWorker.addEventListener('message', (e) => { if (e.data && e.data.type === 'youxu-updated') applyUpdate(); });
+      }
+    } catch (e) { }
   }
   window.__youxu = { get state() { return S; }, ui: ui, sync: sync };
 })();
