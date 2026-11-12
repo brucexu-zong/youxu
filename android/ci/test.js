@@ -11,7 +11,7 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
 (async () => {
   const [device] = await _android.devices();
   // 无窗口模拟器里网页不一定及时重绘：截图前先在空白处轻划一下
-  const shot = async (name) => { await device.shell('input swipe 540 1300 540 1290 60').catch(() => {}); await sleep(1500); await device.screenshot({ path: `${OUT}/${name}.png` }).catch(() => {}); };
+  const shot = async (name) => { await device.shell('input swipe 540 1500 540 1400 300').catch(() => {}); await sleep(1500); await device.screenshot({ path: `${OUT}/${name}.png` }).catch(() => {}); };
   const page = async () => { const wv = await device.webView({ pkg: PKG }, { timeout: 90000 }); const p = await wv.page(); await p.waitForSelector('#cap', { state: 'attached', timeout: 60000 }); await sleep(800); return p; };
   let p = await page();
 
@@ -75,7 +75,10 @@ const save = () => fs.writeFileSync(OUT + '/results.json', JSON.stringify(R, nul
   check('data intact after all that', await p.evaluate(() => window.__youxu.state.items.filter((i) => !i.deleted).length === 2).catch(() => false));
 
   await device.shell('cmd uimode night yes'); await sleep(5000);
-  p = await page().catch(() => p);
+  await shot('06a-dark-live');
+  await device.shell(`am force-stop ${PKG}`); await sleep(800);
+  await device.shell(`am start -n ${PKG}/.MainActivity`); await sleep(4000);
+  p = await page();
   await shot('06-dark');
   check('dark mode follows the system', await p.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches || document.documentElement.getAttribute('data-theme') === 'dark').catch(() => false), await p.evaluate(() => JSON.stringify({ mq: matchMedia('(prefers-color-scheme: dark)').matches, attr: document.documentElement.getAttribute('data-theme'), bg: getComputedStyle(document.body).backgroundColor })).catch((e) => e.message));
   check('data intact after switching to dark mode', await p.evaluate(() => window.__youxu.state.items.filter((i) => !i.deleted).length === 2).catch(() => false));
