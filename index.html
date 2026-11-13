@@ -189,6 +189,93 @@ h1, h2, h3 { text-wrap: balance; }
 .load i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
 .load.over i { background: var(--crit); }
 
+/* 日期标题与周历：平时一行七天，点标题展开整月 */
+.day-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 12px 28px; }
+.dbtn { display: inline-flex; align-items: center; gap: 10px; text-align: left; border-radius: 8px; }
+.dbtn .caret { width: 8px; height: 8px; border-right: 2px solid var(--ink3); border-bottom: 2px solid var(--ink3); transform: translateY(-3px) rotate(45deg); transition: transform .15s; flex: none; }
+.dbtn[aria-expanded="true"] .caret { transform: translateY(2px) rotate(-135deg); }
+.dbtn:hover .caret { border-color: var(--ink); }
+.rel { color: var(--accent); font-weight: 600; margin-right: 10px; }
+.back-today { min-height: 24px; margin-left: 4px; }
+.cal { display: flex; align-items: center; gap: 2px; }
+.cal-nav { width: 28px; height: 40px; border-radius: 8px; color: var(--ink3); font-size: 21px; line-height: 1; flex: none; }
+.cal-nav:hover { color: var(--ink); background: var(--sunk); }
+.cal-days { display: grid; grid-template-columns: repeat(7, 44px); gap: 2px; }
+.dd { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 0 3px; border-radius: 10px; color: var(--ink); }
+.dd small { font-size: 11px; color: var(--ink3); line-height: 1.3; }
+.dd b { font: 600 15px/1 var(--num); width: 30px; height: 28px; display: grid; place-items: center; border-radius: 14px; }
+.dd.past b { color: var(--ink2); font-weight: 500; }
+.dd.now b { color: var(--accent); font-weight: 700; }
+.dd.sel b { background: var(--accent); color: var(--on-accent); }
+.dd.out b { color: var(--ink3); font-weight: 400; }
+.dd:hover b { box-shadow: inset 0 0 0 1.5px var(--line); }
+.dd.sel:hover b { box-shadow: none; }
+.dots { display: flex; gap: 2px; height: 4px; }
+.dots i { width: 4px; height: 4px; border-radius: 50%; background: var(--ink3); }
+.dd.sel .dots i { background: var(--accent); }
+.calbox { position: relative; }
+.cal.mo { flex-direction: column; align-items: stretch; gap: 4px; background: var(--surface); border-radius: 14px; padding: 6px 8px 8px; position: absolute; right: 0; top: calc(100% + 8px); z-index: 12; box-shadow: 0 0 0 1px var(--line), var(--lift); }
+.cal-mh { display: flex; align-items: center; justify-content: space-between; }
+.cal-mh b { font-size: 14px; font-weight: 600; }
+.cal-mh .cal-nav { height: 30px; }
+.cal.mo .dd { padding: 2px 0 3px; }
+.cal-wd { font-size: 11px; color: var(--ink3); text-align: center; padding: 2px 0 4px; }
+
+/* 一天：按时长等比例的方块，左边钟点，时间点画成线 */
+.allday { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 18px 8px; }
+.allday .chip { cursor: pointer; }
+.night { display: flex; align-items: center; gap: 7px; padding: 0 18px 8px 18px; font-size: 12.5px; color: var(--ink3); }
+.night svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linejoin: round; }
+.dayscroll { max-height: min(640px, 68vh); overflow-y: auto; border-top: 1px solid var(--line); scrollbar-width: thin; }
+.day { --lx: 54px; --rx: 12px; position: relative; margin: 12px 0 14px; }
+.lane { position: absolute; top: 0; bottom: 0; left: var(--lx); right: var(--rx); cursor: cell; z-index: 0; }
+.hl { position: absolute; left: var(--lx); right: var(--rx); height: 1px; background: var(--line); opacity: .75; pointer-events: none; }
+.hn { position: absolute; left: 0; width: calc(var(--lx) - 10px); text-align: right; transform: translateY(-50%); font-size: 11.5px; line-height: 1; color: var(--ink3); pointer-events: none; }
+.wind { position: absolute; left: var(--lx); right: var(--rx); background: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--line) 85%, transparent) 6px 7px); pointer-events: none; z-index: 1; }
+.wind span { position: absolute; left: 8px; top: 3px; font-size: 11px; color: var(--ink3); }
+.wind.sleep { background: repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--line) 85%, transparent) 4px 5px); }
+.ev { position: absolute; left: var(--lx); width: calc(100% - var(--lx) - var(--rx)); z-index: 2; display: flex; align-items: flex-start; gap: 7px; padding: 3px 8px 3px 10px; border-radius: 7px; overflow: hidden; cursor: pointer; background: color-mix(in srgb, var(--pc) 11%, var(--surface)); box-shadow: inset 3px 0 0 var(--pc); }
+.ev.cn { --pc: var(--ink3); }
+.ev:hover { background: color-mix(in srgb, var(--pc) 17%, var(--surface)); }
+.ev.fx { background: color-mix(in srgb, var(--pc) 19%, var(--surface)); }
+.ev.fx b { font-weight: 650; }
+.ev.sug { background: var(--surface); box-shadow: none; outline: 1.5px dashed color-mix(in srgb, var(--pc) 55%, var(--line)); outline-offset: -1.5px; }
+.ev.sug b { color: var(--ink2); font-weight: 500; }
+.ev.dn { background: var(--sunk); box-shadow: inset 3px 0 0 color-mix(in srgb, var(--pc) 45%, var(--sunk)); }
+.ev.dn b { color: var(--ink3); text-decoration: line-through; font-weight: 500; }
+.ev .chk { width: 16px; height: 16px; margin-top: 2px; border-width: 1.5px; background: var(--surface); }
+.ev.done > .chk { background: var(--good); border-color: var(--good); }
+.ev.done > .chk::after { width: 7px; height: 4px; }
+.ev-b { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+.ev-b b { flex: 0 1 auto; font-size: 13.5px; font-weight: 600; line-height: 1.45; overflow: hidden; text-overflow: ellipsis; min-width: 2.5em; }
+.ev-b .tm { flex: 0 100 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; color: var(--ink2); }
+.ev.tall .ev-b { flex-direction: column; align-items: stretch; gap: 1px; white-space: normal; }
+.ev.tall .ev-b b { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--lc, 2); overflow-wrap: anywhere; }
+.ev.tall .ev-b .tm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev.rt { background: color-mix(in srgb, var(--sunk) 75%, var(--surface)); box-shadow: none; align-items: center; }
+.ev.rt.tall { align-items: flex-start; }
+.ev.rt b { color: var(--ink2); font-weight: 500; }
+.ev.rt .tm { color: var(--ink3); }
+.ev.rt:hover { background: var(--sunk); }
+.rs { flex: 0 50 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font: 600 11.5px var(--num); color: var(--good); white-space: nowrap; }
+.rs.late { color: var(--crit); }
+.pk { flex: none; font-size: 12px; font-weight: 600; color: var(--accent); padding: 1px 6px; border-radius: 6px; }
+.pk:hover { background: var(--accent-soft); }
+.pt { position: absolute; left: var(--lx); right: var(--rx); height: 0; border-top: 1.5px dashed var(--ink3); z-index: 3; pointer-events: none; }
+.pt.hit { border-top-color: var(--good); border-top-style: solid; }
+.pt-l { position: absolute; right: 0; top: 0; transform: translateY(-50%); display: flex; align-items: center; gap: 2px; padding: 1px 3px 1px 9px; border-radius: 11px; background: var(--surface); box-shadow: 0 0 0 1px var(--line); font-size: 12px; color: var(--ink2); pointer-events: auto; white-space: nowrap; }
+.pt-l > button:first-child { font-weight: 600; padding: 1px 4px 1px 0; }
+.pt-l > button:first-child .num { font-weight: 500; color: var(--ink3); margin-left: 2px; }
+.pt-l .rs { padding-right: 5px; }
+.nowl { position: absolute; left: calc(var(--lx) - 4px); right: 0; height: 0; border-top: 2px solid var(--accent); z-index: 4; pointer-events: none; }
+.nowl::before { content: ""; position: absolute; left: -1px; top: -5px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.nowl b { position: absolute; right: calc(100% + 4px); top: -9px; padding: 1px 3px; background: var(--surface); font-size: 11.5px; font-weight: 700; color: var(--accent); }
+.hov { position: absolute; left: var(--lx); right: var(--rx); height: 0; border-top: 1.5px dashed var(--accent); z-index: 1; pointer-events: none; display: none; }
+.hov.on { display: block; }
+.hov span { position: absolute; left: 8px; top: 2px; font-size: 12px; font-weight: 600; color: var(--accent); }
+.card > h2 .h2x { display: inline-flex; align-items: center; gap: 6px; }
+.card > h2 .h2x .btn { min-height: 24px; font-size: 12.5px; }
+
 /* 项目 */
 .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
 .pcard { text-align: left; padding: 18px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; }
@@ -203,7 +290,22 @@ h1, h2, h3 { text-wrap: balance; }
 .area { font-size: 13px; font-weight: 600; color: var(--ink3); margin: 20px 4px 10px; }
 .back { color: var(--accent); font-size: 14px; font-weight: 600; padding: 4px 0; }
 
+/* 已归档的项目：在项目页最下面 */
+details.arch { margin-top: 26px; }
+details.arch > summary { list-style: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--ink3); padding: 4px; margin-bottom: 8px; display: inline-flex; gap: 6px; align-items: center; }
+details.arch > summary::-webkit-details-marker { display: none; }
+details.arch > summary::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); margin-left: 2px; transition: transform .15s; }
+details.arch[open] > summary::after { transform: translateY(-2px) rotate(45deg); }
+details.arch > summary:hover { color: var(--ink); }
+
 /* 作息 */
+button.rr-n { text-align: left; align-items: flex-start; }
+button.rr-n:hover b { color: var(--accent); }
+.grid7 .off { color: var(--line); }
+.wdpick { display: flex; gap: 6px; flex-wrap: wrap; }
+.wdpick .opt { width: 40px; padding: 0; }
+.fld .tinp, .tinp { height: 34px; width: 130px; border: 1px solid transparent; border-radius: 8px; padding: 0 8px; background: var(--bg); outline: 0; font-variant-numeric: tabular-nums; }
+.tinp:focus { border-color: var(--accent); }
 .rrow { display: flex; align-items: center; gap: 10px; padding: 11px 16px 11px 18px; border-top: 1px solid var(--line); flex-wrap: wrap; }
 .card > h2 + .rrow { border-top: 0; }
 .rr-n { flex: 1; min-width: 84px; display: flex; flex-direction: column; }
@@ -296,6 +398,15 @@ details.more[open] > summary::after { content: " ▴"; }
   .nowline { background-position: 54px 0; }
   .tl-t { padding-right: 10px; } .nowline b { padding-right: 10px; }
   .focus-t { font-size: 19px; }
+  .day-head { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .cal, .calbox { width: 100%; }
+  .calbox.open .cal.wk { display: none; }
+  .cal.mo { position: static; box-shadow: none; padding: 4px 0 0; background: transparent; }
+  .cal.wk .cal-days, .cal.mo .cal-days { grid-template-columns: repeat(7, minmax(0, 1fr)); flex: 1; }
+  .cal-nav { width: 24px; }
+  .day { --lx: 48px; --rx: 8px; }
+  .dayscroll { max-height: 62vh; }
+  .night, .allday { padding-left: 16px; padding-right: 14px; }
   .stat b { font-size: 24px; }
   .opt { min-height: 36px; }
   .seg { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
@@ -741,13 +852,36 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     return {
       v: 1,
       projects: [], items: [], rules: [], fixes: [], phrases: [], habits: {},
-      routine: { targets: { wake: '07:00', breakfast: '07:30', lunch: '12:30', dinner: '18:30', sleep: '23:30' }, log: {} },
+      routine: { targets: { wake: '07:00', breakfast: '07:30', lunch: '12:30', dinner: '18:30', sleep: '23:30' }, log: {}, custom: [] },
       settings: { workStart: '08:30', windDown: 45, tol: 30, notify: false },
       meta: { deviceId: uid(), demo: false }
     };
   }
   const ROUTINE_KEYS = ['wake', 'breakfast', 'lunch', 'dinner', 'sleep'];
   const ROUTINE_NAME = { wake: '起床', breakfast: '早饭', lunch: '午饭', dinner: '晚饭', sleep: '睡觉' };
+  const MEAL_DUR = { breakfast: 30, lunch: 40, dinner: 40 };
+  /* 自定义作息（上班、下班、健身……）：{id, name, time, dur 分钟（0 = 只是一个时间点）, days 0–6 表示周一到周日（空 = 每天）}；打卡记在 'c:'+id 下 */
+  const wdIdx = (date) => (parseYmd(date).getDay() + 6) % 7;
+  const customRoutines = (state) => ((state.routine && state.routine.custom) || []).filter((c) => c && !c.deleted && c.name && /^\d\d:\d\d$/.test(c.time || ''));
+  const customOf = (state, key) => (key && key.indexOf('c:') === 0) ? customRoutines(state).find((c) => 'c:' + c.id === key) || null : null;
+  const activeOn = (c, date) => (!c.days || !c.days.length || c.days.indexOf(wdIdx(date)) >= 0) && (!c.createdAt || ymd(new Date(c.createdAt)) <= date);
+  function routineList(state, date) {
+    const T = state.routine.targets, wake = toMin(T.wake);
+    const out = ROUTINE_KEYS.map((k) => ({ key: k, name: ROUTINE_NAME[k], time: T[k], dur: MEAL_DUR[k] || 0, builtin: true }));
+    customRoutines(state).filter((c) => !date || activeOn(c, date)).forEach((c) => out.push({ key: 'c:' + c.id, name: c.name, time: c.time, dur: Math.max(0, c.dur || 0), days: c.days || [], custom: c }));
+    const pos = (r) => { const m = toMin(r.time); return (r.key === 'sleep' || m < wake - 60) && m < 12 * 60 ? m + 1440 : m; };
+    return out.sort((a, b) => pos(a) - pos(b) || (a.builtin ? -1 : 1));
+  }
+  const routineName = (state, key) => ROUTINE_NAME[key] || ((customOf(state, key) || {}).name) || '作息';
+  const routineTarget = (state, key) => state.routine.targets[key] || ((customOf(state, key) || {}).time) || null;
+  const DAYS_CN = ['一', '二', '三', '四', '五', '六', '日'];
+  function daysText(days) {
+    const d = (days || []).slice().sort();
+    if (!d.length || d.length === 7) return '每天';
+    if (d.join() === '0,1,2,3,4') return '工作日';
+    if (d.join() === '5,6') return '周末';
+    return '每周' + d.map((x) => DAYS_CN[x]).join('、');
+  }
   const byId = (state, id) => state.items.find((i) => i.id === id && !i.deleted);
   const childrenOf = (state, id) => state.items.filter((i) => !i.deleted && i.parentId === id);
   const isContainer = (state, it) => state.items.some((i) => !i.deleted && i.parentId === it.id);
@@ -875,12 +1009,37 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const busy = [];
     meals.forEach((m) => { const s = toMin(T[m[0]]); busy.push([s, s + m[1]]); blocks.push({ s: s, e: s + m[1], type: 'routine', key: m[0], label: ROUTINE_NAME[m[0]], actual: log[m[0]] || null }); });
     blocks.push({ s: Math.min(sleepMin, 1439), e: Math.min(sleepMin, 1439), type: 'routine', key: 'sleep', label: '睡觉', actual: log.sleep || null, target: T.sleep });
+    customRoutines(state).filter((c) => activeOn(c, date)).forEach((c) => {
+      const s = toMin(c.time), d = Math.max(0, Math.min(1440 - s, c.dur || 0)), k = 'c:' + c.id;
+      if (d) busy.push([s, s + d]);
+      blocks.push({ s: s, e: s + d, type: 'routine', key: k, label: c.name, actual: log[k] || null, custom: true });
+    });
 
     const openAll = state.items.filter((i) => !i.deleted && i.status !== 'done' && !isContainer(state, i));
     const spans = openAll.filter((i) => i.until && i.due <= date && i.until >= date);   // 跨多天的事（出差、会议）：当天只作提示，不占排程
     const open = openAll.filter((i) => !i.until);
-    const fixed = open.filter((i) => i.time && i.due === date);
-    fixed.forEach((i) => { const s = toMin(i.time), e = s + (i.est || 30); busy.push([s, e]); blocks.push({ s: s, e: e, type: 'fixed', itemId: i.id, label: i.title }); });
+    const future = date > today;
+    // 往后看的日子：重复的事按规律投影出来（点开的是同一件事）
+    const projected = future ? open.filter((i) => i.repeat && i.due && i.due < date && nextDue(i.due, i.repeat, addDays(date, -1), i.repeatDays) === date) : [];
+    const projIds = new Set(projected.map((i) => i.id));
+    const fixed = open.filter((i) => i.time && i.due === date).concat(projected.filter((i) => i.time));
+    fixed.forEach((i) => { const s = toMin(i.time), e = Math.min(1440, s + (i.est || 30)); busy.push([s, e]); blocks.push({ s: s, e: e, type: 'fixed', itemId: i.id, label: i.title, proj: projIds.has(i.id) || undefined }); });
+    // 过去和今天：已完成的事按完成时间画出来（有固定钟点的画在原来的钟点）
+    // 有开始时间（点过“开始”）或固定钟点的按实际画；其余的从完成时刻往前排，几件一起勾掉的会依次往前错开，不叠在一起
+    let doneN = 0; const loose = [];
+    const minOf = (t) => { const d = new Date(t); return d.getHours() * 60 + d.getMinutes(); };
+    if (!future) state.items.forEach((i) => {
+      if (i.deleted || i.status !== 'done' || !i.doneAt || isContainer(state, i)) return;
+      if (ymd(new Date(i.doneAt)) !== date) return;
+      doneN++;
+      const e0 = minOf(i.doneAt);
+      if (i.time && i.due === date) { const s = toMin(i.time); blocks.push({ s: s, e: Math.min(1440, s + (i.est || 30)), type: 'done', itemId: i.id, label: i.title }); }
+      else if (i.startedAt && ymd(new Date(i.startedAt)) === date && i.startedAt < i.doneAt) blocks.push({ s: minOf(i.startedAt), e: Math.max(e0, minOf(i.startedAt) + 5), type: 'done', itemId: i.id, label: i.title });
+      else loose.push({ i: i, e: e0, d: Math.max(10, Math.min(240, i.actual || i.est || 30)) });
+    });
+    loose.sort((x, y) => y.e - x.e || (y.i.doneAt - x.i.doneAt));
+    let floor = 1440;
+    loose.forEach((x) => { const e = Math.min(x.e, floor), s = Math.max(0, e - x.d); floor = s; blocks.push({ s: s, e: Math.max(s + 5, e), type: 'done', itemId: x.i.id, label: x.i.title }); });
 
     // 空闲时段
     busy.sort((a, b) => a[0] - b[0]);
@@ -895,7 +1054,10 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     // 截止型的大事提前开工：每 2 小时工作量提前一天
     const lead = (i) => (i.by && (i.est || 0) >= 90) ? Math.ceil(i.est / 120) : 0;
     const age = (i) => Math.min(6, Math.floor((parseYmd(date).getTime() - (i.createdAt || 0)) / 864e5 / 2));
-    const must = cand.filter((i) => (i.due && (i.due <= date || (lead(i) && diffDays(i.due, date) <= lead(i)))) || i.planDate === date || i.status === 'doing').sort((a, b) => score(b) - score(a));
+    // 今天：到期的、逾期的、正在做的、提前开工的大事；以后的某天：只看当天到期、定在那天做、或该提前开工的，再加按规律重复到那天的
+    const must = (future
+      ? cand.filter((i) => i.due === date || i.planDate === date || projIds.has(i.id) || (lead(i) && i.due > date && diffDays(i.due, date) <= lead(i)))
+      : cand.filter((i) => (i.due && (i.due <= date || (lead(i) && diffDays(i.due, date) <= lead(i)))) || i.planDate === date || i.status === 'doing')).sort((a, b) => score(b) - score(a));
     const mustIds = new Set(must.map((i) => i.id));
     // 有空时顺手做的：三天内到期的，以及没定日子、但不是“以后再说”的（越重要、放得越久越靠前）
     const soft = (i) => score(i) + (i.due ? 4 : 0) + (i.when === 'soon' ? 6 : 0) + (i.due ? 0 : Math.max(0, age(i)));
@@ -917,7 +1079,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
         if (st > f[0] + 10) { free.splice(k, 1, [f[0], st], [st + chunk + 5, f[1]]); k++; } else f[0] = st + chunk + 5;
       }
       if (suggested && need > 0) { free = snapshot; return; }
-      parts.forEach((p, idx) => blocks.push({ s: p[0], e: p[1], type: 'task', itemId: it.id, label: it.title, suggested: !!suggested, part: parts.length > 1 ? idx + 1 : 0 }));
+      parts.forEach((p, idx) => blocks.push({ s: p[0], e: p[1], type: 'task', itemId: it.id, label: it.title, suggested: !!suggested, part: parts.length > 1 ? idx + 1 : 0, proj: projIds.has(it.id) || undefined }));
       if (!suggested) planned += total;
       if (need > 0) overflow.push({ itemId: it.id, left: need, none: parts.length === 0 });
     };
@@ -925,11 +1087,26 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       must.forEach((i) => place(i, false));
       const fixedMin = fixed.reduce((a, i) => a + (i.est || 30), 0);
       let budget = Math.max(0, capacity * 0.7 - planned);
-      maybe.forEach((i) => { const e = i.est || 30; if (e <= budget) { place(i, true); budget -= e; } });
+      if (isToday) maybe.forEach((i) => { const e = i.est || 30; if (e <= budget) { place(i, true); budget -= e; } });   // “有空顺手做”的建议只给今天
       planned += fixedMin;
     }
     blocks.sort((a, b) => a.s - b.s || (a.type === 'routine' ? -1 : 1));
-    return { date: date, blocks: blocks, overflow: overflow, capacity: capacity, planned: planned, count: must.length + fixed.length, dayEnd: dayEnd, spans: spans };
+    return { date: date, blocks: blocks, overflow: overflow, capacity: capacity, planned: planned, count: must.length + fixed.length, done: doneN, dayEnd: dayEnd, spans: spans, past: date < today, future: future };
+  }
+
+  /* ---------- 日历上的小圆点：每天有几件事（未完成的按日期，已完成的按完成那天，重复的按规律往后推） ---------- */
+  function calendarMarks(state, from, to, now) {
+    const today = ymd(now || new Date()), out = {};
+    const add = (d, k) => { if (d < from || d > to) return; const o = out[d] || (out[d] = { n: 0, done: 0 }); o[k]++; };
+    state.items.forEach((i) => {
+      if (i.deleted || isContainer(state, i)) return;
+      if (i.status === 'done') { if (i.doneAt) add(ymd(new Date(i.doneAt)), 'done'); return; }
+      if (!i.due) return;
+      if (i.until) { let d = i.due < from ? from : i.due, g = 0; while (d <= i.until && d <= to && g++ < 400) { add(d, 'n'); d = addDays(d, 1); } return; }
+      add(i.due, 'n');
+      if (i.repeat) { let d = i.due, g = 0; while (g++ < 400) { d = nextDue(d, i.repeat, d < today ? today : d, i.repeatDays); if (d > to) break; add(d, 'n'); } }
+    });
+    return out;
   }
 
   /* ---------- 每天开工前的自动整理 ----------
@@ -956,11 +1133,14 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   }
   function routineStats(state, endDate, days, today) {
     const T = state.routine.targets, tol = state.settings.tol || 30, out = {};
-    ROUTINE_KEYS.forEach((k) => {
-      const rec = { ok: 0, late: 0, miss: 0, pending: 0, devSum: 0, n: 0, days: [] };
+    const all = ROUTINE_KEYS.map((k) => ({ key: k, time: T[k] })).concat(customRoutines(state).map((c) => ({ key: 'c:' + c.id, time: c.time, c: c })));
+    all.forEach((r) => {
+      const k = r.key;
+      const rec = { ok: 0, late: 0, miss: 0, pending: 0, off: 0, devSum: 0, n: 0, days: [] };
       for (let i = days - 1; i >= 0; i--) {
         const d = addDays(endDate, -i); const a = (state.routine.log[d] || {})[k];
-        if (a) { const j = routineJudge(k, T[k], a, tol); rec[j.ok ? 'ok' : 'late']++; rec.devSum += j.dev; rec.n++; rec.days.push({ date: d, actual: a, ok: j.ok, dev: j.dev }); }
+        if (a) { const j = routineJudge(k, r.time, a, tol); rec[j.ok ? 'ok' : 'late']++; rec.devSum += j.dev; rec.n++; rec.days.push({ date: d, actual: a, ok: j.ok, dev: j.dev }); }
+        else if (r.c && !activeOn(r.c, d)) { rec.off++; rec.days.push({ date: d, off: true }); }   // 这天没有这项作息（比如周末不上班）
         else if (d >= today) { rec.pending++; rec.days.push({ date: d, pending: true }); }
         else { rec.miss++; rec.days.push({ date: d, miss: true }); }
       }
@@ -1032,7 +1212,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     if (rv.slipped.length) { L.push('', '【拖延】'); rv.slipped.forEach((i) => L.push('  · ' + i.title + '（原定 ' + i.due + '）')); }
     if (rv.failed.length) { L.push('', '【失败与复盘】'); rv.failed.forEach((i) => L.push('  · ' + i.title + (i.note ? '：' + i.note : ''))); }
     L.push('', '【作息】');
-    ROUTINE_KEYS.forEach((k) => { const r = rv.routine[k]; L.push('  ' + ROUTINE_NAME[k] + '：准时 ' + r.ok + ' 天，偏晚 ' + r.late + ' 天，未打卡 ' + r.miss + ' 天'); });
+    routineList(state).forEach((x) => { const r = rv.routine[x.key]; if (r) L.push('  ' + x.name + '：准时 ' + r.ok + ' 天，偏晚 ' + r.late + ' 天，未打卡 ' + r.miss + ' 天'); });
     if (rv.next.length) { L.push('', '【下周到期】'); rv.next.forEach((i) => L.push('  · ' + i.due.slice(5) + ' ' + i.title)); }
     return L.join('\n');
   }
@@ -1059,6 +1239,13 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const T = state.routine.targets;
     [['breakfast', 30, '该吃早饭了'], ['lunch', 40, '该吃午饭了'], ['dinner', 40, '该吃晚饭了']].forEach((m) => {
       ev('routine-' + m[0], ['DTSTART:' + dt(today, T[m[0]]), 'DTEND:' + dt(today, toHM(toMin(T[m[0]]) + m[1])), 'RRULE:FREQ=DAILY', 'SUMMARY:' + ROUTINE_NAME[m[0]]], 'PT0M', m[2]);
+    });
+    const BYDAY = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+    customRoutines(state).forEach((c) => {
+      const some = c.days && c.days.length && c.days.length < 7;
+      let start = today, g = 0; while (some && c.days.indexOf(wdIdx(start)) < 0 && g++ < 7) start = addDays(start, 1);
+      const end = toMin(c.time) + Math.max(0, c.dur || 0);
+      ev('routine-' + c.id, ['DTSTART:' + dt(start, c.time), 'DTEND:' + dt(end >= 1440 ? addDays(start, 1) : start, toHM(end)), 'RRULE:' + (some ? 'FREQ=WEEKLY;BYDAY=' + c.days.slice().sort().map((w) => BYDAY[w]).join(',') : 'FREQ=DAILY'), 'SUMMARY:' + esc(c.name)], 'PT0M', c.name);
     });
     const wind = toMin(T.sleep) - (state.settings.windDown || 45);
     const windDate = wind < 0 ? addDays(today, -1) : today;
@@ -1090,9 +1277,9 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     ps.forEach((p) => { const its = openI.filter((i) => i.projectId === p.id); if (!its.length) return; L.push('', '## ' + p.name + ' · 未完成'); its.forEach((i) => L.push(line(i))); });
     const wk = live.filter((i) => i.status === 'done' && i.doneAt > now.getTime() - 7 * 864e5 && !i.private);
     if (wk.length) { L.push('', '## 近 7 天已完成'); wk.forEach((i) => L.push('- ' + i.title + (i.result === 'fail' ? '（失败' + (i.note ? '：' + i.note : '') + '）' : ''))); }
-    const st = routineStats(state, addDays(today, -1), 7, today), T = state.routine.targets;
+    const st = routineStats(state, addDays(today, -1), 7, today);
     L.push('', '## 作息（近 7 天，目标 / 准时 / 偏晚 / 未打卡）');
-    ROUTINE_KEYS.forEach((k) => L.push('- ' + ROUTINE_NAME[k] + ' ' + T[k] + ' / ' + st[k].ok + ' / ' + st[k].late + ' / ' + st[k].miss + (st[k].avgDev != null ? '，平均偏差 ' + st[k].avgDev + ' 分钟' : '')));
+    routineList(state).forEach((x) => { const r = st[x.key]; if (r) L.push('- ' + x.name + ' ' + x.time + (x.custom ? '（' + daysText(x.days) + (x.dur ? '，' + fmtDur(x.dur) : '') + '）' : '') + ' / ' + r.ok + ' / ' + r.late + ' / ' + r.miss + (r.avgDev != null ? '，平均偏差 ' + r.avgDev + ' 分钟' : '')); });
     const pn = (id) => { const p = state.projects.find((x) => x.id === id); return p ? p.name : '收件箱'; };
     const px = (state.fixes || []).filter((f) => f.kind === 'parse').sort((a, b) => b.createdAt - a.createdAt).slice(0, 30);
     if (px.length) { L.push('', '## 识别纠正记录（原话 → 应用认成 → 我改成）'); px.forEach((f) => L.push('- 「' + f.raw + '」 ' + f.field + '：' + (f.from || '没认出') + ' → ' + (f.to || '不是这个意思'))); }
@@ -1213,7 +1400,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   const Core = {
     pad, ymd, parseYmd, addDays, diffDays, toMin, toHM, nowHM, uid, weekdayName, mondayOf, fmtDate, fmtDur, fmtDurX, cnNum,
     parseCapture, tokens, buildModel, classify, findProjectByHint, related, suggestEst, matchRule, nextDue, REPEAT_NAME, repeatLabel, ruleText, phraseText, rollover, PHRASES,
-    newState, ROUTINE_KEYS, ROUTINE_NAME, byId, childrenOf, isContainer, blockers, progressOfProject, progressOfItem,
+    newState, ROUTINE_KEYS, ROUTINE_NAME, MEAL_DUR, routineList, routineName, routineTarget, customRoutines, daysText, wdIdx, calendarMarks, byId, childrenOf, isContainer, blockers, progressOfProject, progressOfItem,
     makeItem, capture, setDone, followUp, chainOf, planDay, routineDateFor, routineJudge, routineStats, insights,
     weeklyReview, reviewText, makeICS, briefing, extractOps, applyOps, isSafeOp, alternatives, learnFromCorrection
   };
@@ -1247,13 +1434,14 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const c = cutoff(60), c7 = cutoff(7), live = (x) => !(x && x.deleted && (x.updatedAt || 0) < c);
     p.items = (p.items || []).filter(live).map((i) => (i.raw && (i.createdAt || 0) < c7) ? Object.assign({}, i, { raw: undefined, rawSkip: undefined }) : i);
     p.projects = (p.projects || []).filter(live); p.rules = (p.rules || []).filter(live); p.phrases = (p.phrases || []).filter(live);
+    if (p.routine) p.routine = Object.assign({}, p.routine, { custom: (p.routine.custom || []).filter(live) });
     if (p.advice && p.advice.undo && (p.advice.at || 0) < cutoff(14)) p.advice = Object.assign({}, p.advice, { undo: null });
     return p;
   }
   function payloadOf(s) {
     return prune({
       v: 1, projects: s.projects || [], items: s.items || [], rules: s.rules || [], phrases: s.phrases || [], fixes: capFixes(s.fixes || []),
-      routine: { targets: s.routine.targets, log: s.routine.log || {}, at: s.routine.at || {} },
+      routine: { targets: s.routine.targets, log: s.routine.log || {}, at: s.routine.at || {}, custom: s.routine.custom || [] },
       settings: { workStart: s.settings.workStart, windDown: s.settings.windDown, tol: s.settings.tol },
       prefsAt: (s.meta && s.meta.prefsAt) || 0,
       advisor: s.advisor || null, advice: s.advice || null, habits: s.habits || {}
@@ -1291,7 +1479,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
         const st = Math.max(sa, sb); if (st) (at[d] = at[d] || {})[k] = st;
       });
     });
-    out.routine = { targets: pref.t, log: log, at: at };
+    out.routine = { targets: pref.t, log: log, at: at, custom: mergeList(a.routine.custom, b.routine.custom) };   // 自定义作息逐条合并，删除留墓碑
     const lww = (x, y, k) => !x ? (y || null) : !y ? x : ((y[k] || 0) > (x[k] || 0) || ((y[k] || 0) === (x[k] || 0) && canon(y) > canon(x))) ? y : x;
     out.advisor = lww(a.advisor, b.advisor, 'updatedAt');
     const xa = a.advice, xb = b.advice;
@@ -1302,7 +1490,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   }
   function applyPayload(s, p) {
     s.projects = p.projects; s.items = p.items; s.rules = p.rules || []; s.phrases = p.phrases || []; s.fixes = p.fixes || [];
-    s.routine.targets = p.routine.targets; s.routine.log = p.routine.log; s.routine.at = p.routine.at;
+    s.routine.targets = p.routine.targets; s.routine.log = p.routine.log; s.routine.at = p.routine.at; s.routine.custom = p.routine.custom || [];
     s.settings = Object.assign({}, s.settings, p.settings);
     s.meta.prefsAt = p.prefsAt; s.advisor = p.advisor || null; s.advice = p.advice || null; s.habits = p.habits || {};
   }
@@ -1562,6 +1750,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const lab = P('回国入职与实验室筹建', '事业', 1, ['入职', '签证', '搬家', '设备', '采购'], D(50));
     const fund = P('基金申请', '事业', 2, ['基金', '申请书', '预算'], D(12));
     const life = P('生活与健康', '生活', 4, ['体检', '运动', '家里']);
+    const old = P('博士论文修改稿', '事业', 3, ['论文', '修改']); old.archived = true; old.archivedAt = ago(20); old.updatedAt = ago(20);
+    s.routine.custom.push({ id: 'demo-gym', name: '健身', time: '17:30', dur: 60, days: [0, 2, 4], createdAt: ago(30), updatedAt: ago(30) });
     I({ title: '宽带隙子电池 85°C 老化测试，记录 200 h 数据点', projectId: tj.id, due: today, est: 90, status: 'doing' });
     I({ title: '中间电池 EQE 复测', projectId: tj.id, due: today, time: '15:00', est: 45 });
     const ald = I({ title: 'ALD SnO₂ 缓冲层 12 号批次', projectId: tj.id, status: 'done', result: 'fail', doneAt: ago(1), note: '分流严重，怀疑前驱体脉冲时间不足', due: D(-1) });
@@ -1586,6 +1776,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     I({ title: '测试底电池 EQE', projectId: tj.id, status: 'done', doneAt: ago(2), est: 45 });
     I({ title: '更新个人简历', projectId: fund.id, status: 'done', doneAt: ago(3), est: 60 });
     I({ title: '跑步 5 公里', projectId: life.id, status: 'done', doneAt: ago(1), est: 40 });
+    I({ title: '提交修改稿和答复意见', projectId: old.id, status: 'done', doneAt: ago(21), est: 120 });
+    I({ title: '整理今早的 J-V 数据', projectId: tj.id, status: 'done', doneAt: now.getTime() - 40 * 60000, est: 30 });
     const logs = [['07:20', '07:50', '12:35', '18:40', '23:40'], ['07:05', null, '13:20', '19:50', '00:50'], ['07:40', '08:00', '12:30', '18:30', '00:20'], ['07:10', '07:35', null, '20:15', '23:25'], ['08:10', null, '12:50', '18:45', '01:10'], ['07:00', '07:30', '12:40', '18:35', '23:35']];
     logs.forEach((l, i) => { const o = {}; C.ROUTINE_KEYS.forEach((k, j) => { if (l[j]) o[k] = l[j]; }); s.routine.log[D(i - 6)] = o; });
     return s;
@@ -1596,9 +1788,9 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   const nat = (fn, ...a) => { try { return window.YouxuNative[fn](...a); } catch (e) { return null; } };
   let S = store.load(), firstRun = false;
   if (!S || !Array.isArray(S.items)) { if (NATIVE) { S = C.newState(); firstRun = true; } else S = seed(); }
-  { const d = C.newState(); S.settings = Object.assign(d.settings, S.settings); S.routine = S.routine || d.routine; S.routine.targets = Object.assign(d.routine.targets, S.routine.targets); S.routine.log = S.routine.log || {}; S.meta = Object.assign(d.meta, S.meta); S.projects = S.projects || []; S.routine.at = S.routine.at || {}; S.rules = S.rules || []; S.fixes = S.fixes || []; S.advisor = S.advisor || null; S.advice = S.advice || null; S.phrases = S.phrases || []; S.habits = S.habits || {}; }
+  { const d = C.newState(); S.settings = Object.assign(d.settings, S.settings); S.routine = S.routine || d.routine; S.routine.targets = Object.assign(d.routine.targets, S.routine.targets); S.routine.log = S.routine.log || {}; S.meta = Object.assign(d.meta, S.meta); S.projects = S.projects || []; S.routine.at = S.routine.at || {}; S.rules = S.rules || []; S.fixes = S.fixes || []; S.advisor = S.advisor || null; S.advice = S.advice || null; S.phrases = S.phrases || []; S.habits = S.habits || {}; S.routine.custom = S.routine.custom || []; }
 
-  const ui = { tab: 'today', filter: 'open', projectId: null, day: 0, week: 0, seg: 'review', sheet: null, skip: {}, addUnder: null, focusAdd: false, ops: null, opsErr: '', confirm: null, sf: {}, syncEdit: false, syncBusy: false, syncMsg: null, advMsg: null };
+  const ui = { tab: 'today', filter: 'open', projectId: null, day: 0, date: null, cal: false, calAt: null, rdraft: null, archOpen: false, week: 0, seg: 'review', sheet: null, skip: {}, addUnder: null, focusAdd: false, ops: null, opsErr: '', confirm: null, sf: {}, syncEdit: false, syncBusy: false, syncMsg: null, advMsg: null };
   const TABS = [['today', '今天', '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'], ['tasks', '事项', '<path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><circle cx="4.5" cy="7" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="17" r="1"/>'], ['projects', '项目', '<rect x="3.5" y="4" width="7" height="6" rx="1.5"/><rect x="13.5" y="14" width="7" height="6" rx="1.5"/><path d="M7 10v5.5a1.5 1.5 0 0 0 1.5 1.5h5"/>'], ['routine', '作息', '<path d="M19.5 14.2A8 8 0 1 1 9.8 4.5a6.3 6.3 0 0 0 9.7 9.7z"/>'], ['butler', '管家', '<path d="M12 3.5l1.8 4.7 4.7 1.8-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>']];
 
   const proj = (id) => S.projects.find((p) => p.id === id && !p.deleted) || null;
@@ -1687,7 +1879,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   function focusCard(plan) {
     const now = Date.now();
     let it = openLeaves().filter((i) => i.status === 'doing').sort((a, b) => (b.startedAt || 0) - (a.startedAt || 0))[0];
-    if (!it) { const bl = plan.blocks.filter((b) => b.type !== 'routine'); const b = bl.find((x) => !x.suggested) || bl[0]; it = b ? C.byId(S, b.itemId) : null; }
+    if (!it) { const bl = plan.blocks.filter((b) => (b.type === 'task' || b.type === 'fixed') && !b.proj); const b = bl.find((x) => !x.suggested) || bl[0]; it = b ? C.byId(S, b.itemId) : null; }
     if (!it) return '';
     const doing = it.status === 'doing', mins = doing && it.startedAt ? Math.max(0, Math.round((now - it.startedAt) / 60000)) : 0, p = proj(it.projectId);
     return '<section class="card focus"><div class="pad"><div class="pmeta"><b>' + (doing ? '正在做' : '现在做') + '</b><span class="num">' + (doing ? '已进行 ' + C.fmtDur(mins) + (it.est ? ' / 预计 ' + C.fmtDur(it.est) : '') : (it.est ? '预计 ' + C.fmtDur(it.est) : '')) + '</span></div>' +
@@ -1790,40 +1982,116 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   const card = (title, body, n, extra) => '<section class="card"><h2><span>' + title + '</span>' + (extra || (n != null ? '<span class="n">' + n + '</span>' : '')) + '</h2>' + body + '</section>';
   const seg = (action, cur, opts) => '<div class="seg" role="group">' + opts.map((o) => '<button data-a="' + action + '" data-v="' + o[0] + '" aria-pressed="' + (String(cur) === String(o[0])) + '">' + o[1] + '</button>').join('') + '</div>';
 
-  /* ---------- 今天 ---------- */
+  /* ---------- 日历：平时一行周历，点日期标题展开整月 ---------- */
+  const CN_WD = ['一', '二', '三', '四', '五', '六', '日'];
+  function relLabel(date, today) { const n = C.diffDays(date, today); return n === 0 ? '今天' : n === 1 ? '明天' : n === 2 ? '后天' : n === -1 ? '昨天' : n === -2 ? '前天' : n > 0 ? n + ' 天后' : (-n) + ' 天前'; }
+  function dots(m) { const n = m ? m.n + m.done : 0; return '<i class="dots" aria-hidden="true">' + (n ? '<i></i>' : '') + (n >= 3 ? '<i></i>' : '') + (n >= 6 ? '<i></i>' : '') + '</i>'; }
+  function dayCell(d, sel, today, marks, wd, out) {
+    const m = marks[d], n = m ? m.n + m.done : 0, x = C.parseYmd(d);
+    const cls = 'dd' + (d === sel ? ' sel' : '') + (d === today ? ' now' : '') + (out ? ' out' : '') + (d < today ? ' past' : '');
+    return '<button class="' + cls + '" data-a="pick" data-v="' + d + '" aria-label="' + (x.getMonth() + 1) + '月' + x.getDate() + '日 ' + C.weekdayName(d) + (n ? '，' + n + ' 件事' : '') + '"' + (d === sel ? ' aria-current="date"' : '') + '>' + (wd ? '<small>' + wd + '</small>' : '') + '<b class="num">' + x.getDate() + '</b>' + dots(m) + '</button>';
+  }
+  function calendar(sel, today) {
+    const at = ui.calAt || sel, now = new Date();
+    const mon = C.mondayOf(ui.cal ? sel : at), wm = C.calendarMarks(S, mon, C.addDays(mon, 6), now);
+    let wk = '<div class="cal wk"><button class="cal-nav" data-a="cal-shift" data-v="-7" aria-label="上一周">‹</button><div class="cal-days">';
+    for (let i = 0; i < 7; i++) wk += dayCell(C.addDays(mon, i), sel, today, wm, CN_WD[i]);
+    wk += '</div><button class="cal-nav" data-a="cal-shift" data-v="7" aria-label="下一周">›</button></div>';
+    if (!ui.cal) return '<div class="calbox">' + wk + '</div>';
+    const x = C.parseYmd(at), first = C.ymd(new Date(x.getFullYear(), x.getMonth(), 1)), start = C.mondayOf(first), ym = first.slice(0, 7);
+    const marks = C.calendarMarks(S, start, C.addDays(start, 41), now);
+    let h = '<div class="cal mo"><div class="cal-mh"><button class="cal-nav" data-a="cal-shift" data-v="-1m" aria-label="上个月">‹</button><b>' + (x.getFullYear() !== now.getFullYear() ? x.getFullYear() + '年' : '') + (x.getMonth() + 1) + '月</b><button class="cal-nav" data-a="cal-shift" data-v="1m" aria-label="下个月">›</button></div><div class="cal-days">' + CN_WD.map((w) => '<span class="cal-wd">' + w + '</span>').join('');
+    for (let i = 0; i < 42; i++) { const d = C.addDays(start, i); if (i % 7 === 0 && i >= 28 && d.slice(0, 7) !== ym) break; h += dayCell(d, sel, today, marks, null, d.slice(0, 7) !== ym); }
+    return '<div class="calbox open">' + wk + h.replace('<div class="cal mo">', '<div class="cal mo" role="dialog" aria-label="月历">') + '</div></div></div>';
+  }
+
+  /* ---------- 一天：按时长等比例的方块，时间点画成线 ---------- */
+  const narrow = () => { try { return window.matchMedia('(max-width: 700px)').matches; } catch (e) { return false; } };
+  const MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.2A8 8 0 1 1 9.8 4.5a6.3 6.3 0 0 0 9.7 9.7z"/></svg>';
+  function dayView(plan, date, now, isToday) {
+    const k = narrow() ? 0.8 : 0.9, T = S.routine.targets, tol = S.settings.tol, nowMin = now.getHours() * 60 + now.getMinutes(), today = C.ymd(now);
+    const wake = C.toMin(T.wake); let sleep = C.toMin(T.sleep); if (sleep < 12 * 60) sleep += 1440;
+    const rel = plan.blocks.filter((b) => b.type !== 'done' || b.e >= wake - 120);
+    let a = Math.min.apply(null, [wake].concat(rel.map((b) => b.s))); if (isToday) a = Math.min(a, nowMin);
+    a = Math.max(0, Math.floor(a / 60) * 60);
+    let z = Math.max.apply(null, [Math.min(sleep, 1440)].concat(rel.map((b) => b.e))); if (isToday) z = Math.max(z, nowMin + 1);
+    z = Math.min(1440, Math.ceil(z / 60) * 60);
+    const y = (m) => Math.round((m - a) * k), H = y(z);
+    let h = '';
+    // 全天的事（出差、会议）
+    if ((plan.spans || []).length) h += '<div class="allday">' + plan.spans.map((it) => '<button class="chip on" data-a="open" data-id="' + it.id + '">全天 · ' + esc(it.title) + (it.where ? ' · ' + esc(it.where) : '') + '</button>').join('') + '</div>';
+    // 前一晚的睡眠：有打卡就算实际，没有就写目标
+    const ps = (S.routine.log[C.addDays(date, -1)] || {}).sleep, wa = (S.routine.log[date] || {}).wake;
+    const span = (x, y2) => { let d = C.toMin(y2) - C.toMin(x); if (d < 0) d += 1440; return C.fmtDur(d); };
+    h += '<div class="night">' + MOON + (ps && wa ? '前一晚 ' + ps + ' 睡，' + wa + ' 起，睡了 ' + span(ps, wa) : '睡眠 ' + T.sleep + ' – ' + T.wake + '，共 ' + span(T.sleep, T.wake)) + '</div>';
+    let g = '<div class="lane" data-a="slot" data-a0="' + a + '" data-k="' + k + '" data-date="' + date + '" title="点空白处，在这个时间记一件事"></div>';
+    for (let m = a; m <= z; m += 60) g += '<i class="hl" style="top:' + y(m) + 'px"></i><span class="hn num" style="top:' + y(m) + 'px">' + C.pad((m / 60) % 24) + ':00</span>';
+    const sl = Math.min(sleep, 1440);
+    if (plan.dayEnd < sl && plan.dayEnd < z) g += '<div class="wind" style="top:' + y(plan.dayEnd) + 'px;height:' + (y(Math.min(sl, z)) - y(plan.dayEnd)) + 'px"><span>收尾</span></div>';
+    if (sl < z) g += '<div class="wind sleep" style="top:' + y(sl) + 'px;height:' + (H - y(sl)) + 'px"></div>';
+    // 方块：重叠的并排放
+    const evs = plan.blocks.filter((b) => b.e > b.s && b.e > a && b.s < z).map((b) => { const t = y(Math.max(a, b.s)); return { b: b, top: t, h: Math.max(22, y(Math.min(z, b.e)) - t - 2) }; });
+    evs.sort((p, q) => p.top - q.top || q.h - p.h);
+    let cl = [], cend = -1;
+    const flush = () => { const cols = []; cl.forEach((o) => { let c = cols.findIndex((e) => e <= o.top); if (c < 0) { c = cols.length; cols.push(0); } cols[c] = o.top + o.h + 2; o.col = c; }); cl.forEach((o) => { o.n = cols.length; }); cl = []; };
+    evs.forEach((o) => { if (o.top >= cend) { flush(); cend = -1; } cl.push(o); cend = Math.max(cend, o.top + o.h + 2); }); flush();
+    evs.forEach((o) => {
+      const b = o.b, tm = C.toHM(b.s) + '–' + C.toHM(b.e), tall = o.h >= 40;
+      const pos = 'top:' + o.top + 'px;height:' + o.h + 'px;--lc:' + Math.max(1, Math.floor((o.h - 24) / 19)) + (o.n > 1 ? ';left:calc(var(--lx) + (100% - var(--lx) - var(--rx)) * ' + o.col + ' / ' + o.n + ');width:calc((100% - var(--lx) - var(--rx)) / ' + o.n + ' - 3px)' : '');
+      if (b.type === 'routine') {
+        let st = '';
+        if (b.actual) { const j = C.routineJudge(b.key, C.routineTarget(S, b.key), b.actual, tol); st = '<span class="rs' + (j.ok ? '' : ' late') + '">' + b.actual + (j.ok ? ' 已打卡' : ' 晚 ' + j.dev + ' 分钟') + '</span>'; }
+        else if (isToday && nowMin >= b.s - 45) st = '<button class="pk" data-a="checkin" data-key="' + b.key + '">打卡</button>';
+        g += '<div class="ev rt' + (tall ? ' tall' : '') + '" style="' + pos + '" data-a="routine-edit" data-key="' + b.key + '" data-date="' + date + '"><div class="ev-b"><b>' + esc(b.label) + '</b><span class="tm num">' + tm + '</span></div>' + st + '</div>';
+        return;
+      }
+      const it = C.byId(S, b.itemId); if (!it) return;
+      const p = proj(it.projectId), dn = b.type === 'done' || it.status === 'done';
+      const cls = 'ev ' + (p ? 'c' + p.color : 'cn') + (b.type === 'fixed' ? ' fx' : '') + (b.suggested ? ' sug' : '') + (dn ? ' dn done' : '') + (tall ? ' tall' : '');
+      const meta = tm + (b.part ? ' · 第 ' + b.part + ' 段' : '') + (b.suggested ? ' · 有空顺手做' : '') + (b.proj ? ' · ' + (C.REPEAT_NAME[it.repeat] || '重复') : '') + (it.where ? ' · ' + esc(it.where) : '');
+      const flag = !dn && it.priority === 3 ? '<span class="flag">!!</span>' : !dn && it.priority === 2 ? '<span class="flag p2">!</span>' : '';
+      g += '<div class="' + cls + '" style="' + pos + '" data-a="open" data-id="' + it.id + '">' + (b.proj ? '' : '<button class="chk" data-a="toggle" data-id="' + it.id + '" aria-label="' + (dn ? '标为未完成' : '标为完成') + '"></button>') + '<div class="ev-b"><b>' + flag + esc(it.title) + '</b><span class="tm num">' + meta + '</span></div></div>';
+    });
+    // 时间点：起床、睡觉、下班……画成线
+    plan.blocks.filter((b) => b.e === b.s && b.s >= a && b.s <= z).forEach((b) => {
+      let st = '';
+      if (b.actual) { const j = C.routineJudge(b.key, C.routineTarget(S, b.key), b.actual, tol); st = '<span class="rs' + (j.ok ? '' : ' late') + '">' + b.actual + (j.ok ? ' ✓' : ' 晚 ' + j.dev + ' 分钟') + '</span>'; }
+      else if (isToday && nowMin >= b.s - (b.key === 'sleep' ? 60 : 45)) st = '<button class="pk" data-a="checkin" data-key="' + b.key + '">打卡</button>';
+      g += '<div class="pt' + (b.actual ? ' hit' : '') + '" style="top:' + y(b.s) + 'px"><span class="pt-l"><button data-a="routine-edit" data-key="' + b.key + '" data-date="' + date + '" title="目标 ' + C.toHM(b.s) + '">' + esc(b.label) + (b.actual ? '' : ' <span class="num">' + C.toHM(b.s) + '</span>') + '</button>' + st + '</span></div>';
+    });
+    if (isToday && nowMin >= a && nowMin <= z) g += '<div class="nowl" style="top:' + y(nowMin) + 'px"><b class="num">' + C.toHM(nowMin) + '</b></div>';
+    g += '<div class="hov" aria-hidden="true"><span></span></div>';
+    // 打开时滚到“现在”前一个半小时；别的日子滚到第一件事
+    const first = plan.blocks.filter((b) => b.type !== 'routine' && b.e > a).sort((p, q) => p.s - q.s)[0];
+    const focus = Math.max(0, isToday ? y(nowMin - 90) : first ? y(first.s - 45) : y(wake));
+    return h + '<div class="dayscroll" data-date="' + date + '" data-focus="' + focus + '"><div class="day" style="height:' + H + 'px">' + g + '</div></div>';
+  }
+
+  /* ---------- 今天（也能看任意一天） ---------- */
   function vToday() {
-    const now = new Date(), today = C.ymd(now), date = C.addDays(today, ui.day), isToday = ui.day === 0;
-    const plan = C.planDay(S, date, now), nowMin = now.getHours() * 60 + now.getMinutes(), d = C.parseYmd(date), tol = S.settings.tol;
-    const fixedMin = plan.blocks.filter((b) => b.type === 'fixed').reduce((a, b) => a + b.e - b.s, 0);
+    const now = new Date(), today = C.ymd(now);
+    if (ui.date === today) ui.date = null;
+    const date = ui.date || today, isToday = date === today;
+    const plan = C.planDay(S, date, now), d = C.parseYmd(date);
+    const fixedMin = plan.blocks.filter((b) => b.type === 'fixed').reduce((x, b) => x + b.e - b.s, 0);
     const over = plan.overflow.length > 0;
-    const sum = plan.count ? plan.count + ' 件事，约 ' + C.fmtDur(plan.planned) + '；' + (isToday ? '到睡前还能用 ' : '全天可用 ') + C.fmtDur(plan.capacity + fixedMin) : (isToday ? '今天没有必须做的事。' : '明天还没有安排。');
+    let sum;
+    if (plan.past) { const lg = S.routine.log[date] || {}, rl = C.routineList(S, date), hit = rl.filter((r) => lg[r.key]).length; sum = (plan.done ? '完成了 ' + plan.done + ' 件事' : '这天没有完成记录') + '，作息打卡 ' + hit + '/' + rl.length; }
+    else sum = plan.count ? plan.count + ' 件事，约 ' + C.fmtDur(plan.planned) + '；' + (isToday ? '到睡前还能用 ' : '全天可用 ') + C.fmtDur(plan.capacity + fixedMin) : (isToday ? '今天没有必须做的事。' : '这天还没有安排。');
     let h = '';
     if (S.meta.demo) h += '<div class="banner"><span>现在看到的是示例数据，用来展示各项功能。</span><button class="btn sm pri" data-a="clear-demo">清空示例，开始使用</button></div>';
-    h += '<div class="head"><div><h1>' + (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + C.weekdayName(date) + '</h1><p class="sub">' + sum + syncLine() + '</p></div><div class="btns">' + (canMini ? '<button class="btn sm" data-a="mini" title="开一个始终置顶的小窗，工作时放在屏幕一角">悬浮小窗</button>' : '') + seg('day', ui.day, [[0, '今天'], [1, '明天']]) + '</div></div>';
-
-    let tl = '<div class="load' + (over ? ' over' : '') + '"><i style="width:' + Math.min(100, Math.round(plan.planned / Math.max(1, plan.capacity + fixedMin) * 100)) + '%"></i></div>';
-    let nowDone = !isToday;
-    plan.blocks.forEach((b) => {
-      if (!nowDone && b.s > nowMin) { tl += '<div class="nowline"><b>现在 ' + C.toHM(nowMin) + '</b></div>'; nowDone = true; }
-      if (b.type === 'routine') {
-        if (isToday && !b.actual && b.key !== 'sleep' && nowMin > b.s + 90) return;   // 过点很久又没打卡的，不再占地方（统计里记为未打卡）
-        const target = S.routine.targets[b.key];
-        let st = '';
-        if (b.actual) { const j = C.routineJudge(b.key, target, b.actual, tol); st = '<span class="chip ' + (j.ok ? 'good' : 'crit') + '">' + b.actual + (j.ok ? ' 准时' : ' 晚 ' + j.dev + ' 分钟') + '</span>'; }
-        else if (isToday) st = (nowMin > C.toMin(target) + tol && b.key !== 'sleep' ? '<span class="chip warn">已过点</span>' : '') + '<button class="btn sm' + (Math.abs(nowMin - C.toMin(target)) <= 45 ? ' pri' : '') + '" data-a="checkin" data-key="' + b.key + '">打卡</button>';
-        tl += '<div class="tl routine"><div class="tl-t">' + target + '</div><div class="row"><div class="row-main"><div class="row-title">' + b.label + '</div></div><div class="row-side">' + st + '</div></div></div>';
-      } else {
-        const it = C.byId(S, b.itemId); if (!it) return;
-        tl += '<div class="tl ' + (b.type === 'fixed' ? 'fixed' : b.suggested ? 'sug' : '') + '"><div class="tl-t">' + C.toHM(b.s) + '<small>' + C.toHM(b.e) + '</small></div>' + row(it, { noDue: b.type === 'fixed' || it.due === date, noEst: true, part: b.part, suggested: b.suggested }) + '</div>';
-      }
-    });
-    if (!nowDone) tl += '<div class="nowline"><b>现在 ' + C.toHM(nowMin) + '</b></div>';
+    h += '<div class="head day-head"><div class="ttl"><button class="dbtn" data-a="cal-toggle" aria-expanded="' + !!ui.cal + '" title="' + (ui.cal ? '收起月历' : '展开月历') + '"><h1>' + (d.getFullYear() !== now.getFullYear() ? d.getFullYear() + '年' : '') + (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + C.weekdayName(date) + '</h1><span class="caret" aria-hidden="true"></span></button>' +
+      '<p class="sub">' + (isToday ? '' : '<b class="rel">' + relLabel(date, today) + '</b>') + sum + (isToday ? syncLine() : '') + (isToday ? '' : '<button class="btn ghost sm back-today" data-a="pick" data-v="' + today + '">回到今天</button>') + '</p></div>' + calendar(date, today) + '</div>';
     let left = '';
-    if ((plan.spans || []).length) left += '<div class="tips">' + plan.spans.map((it) => '<div class="tip info" data-a="open" data-id="' + it.id + '" style="cursor:pointer"><span><b style="color:var(--ink)">' + esc(it.title) + '</b>　' + dateLabel(it, today) + (it.where ? ' · ' + esc(it.where) : '') + '</span></div>').join('') + '</div>';
-    if (isToday) left += focusCard(plan) + adviceCard();
-    if (isToday) { const allTips = C.insights(S, now), tips = ui.moreTips ? allTips : allTips.slice(0, 2); if (tips.length) left += '<div class="tips">' + tips.map((t) => '<div class="tip ' + t.level + '"><span>' + esc(t.text) + '</span>' + (t.action ? '<button class="btn sm" data-a="tip" data-v="' + esc(t.action) + '">' + t.label + '</button>' : '') + '</div>').join('') + (allTips.length > 2 ? '<button class="btn ghost sm" style="align-self:flex-start" data-a="more-tips">' + (ui.moreTips ? '收起提示' : '还有 ' + (allTips.length - 2) + ' 条提示') + '</button>' : '') + '</div>'; }
-    left += card(isToday ? '今天的安排' : '明天的安排', tl, null, '<span class="n">按优先级和到期日自动排</span>');
-    if (over) left += card('排不下的事', plan.overflow.map((o) => { const it = C.byId(S, o.itemId); return it ? row(it, { defer: true }) : ''; }).join(''), plan.overflow.length);
+    if (isToday) {
+      left += focusCard(plan) + adviceCard();
+      const allTips = C.insights(S, now), tips = ui.moreTips ? allTips : allTips.slice(0, 2);
+      if (tips.length) left += '<div class="tips">' + tips.map((t) => '<div class="tip ' + t.level + '"><span>' + esc(t.text) + '</span>' + (t.action ? '<button class="btn sm" data-a="tip" data-v="' + esc(t.action) + '">' + t.label + '</button>' : '') + '</div>').join('') + (allTips.length > 2 ? '<button class="btn ghost sm" style="align-self:flex-start" data-a="more-tips">' + (ui.moreTips ? '收起提示' : '还有 ' + (allTips.length - 2) + ' 条提示') + '</button>' : '') + '</div>';
+    }
+    const load = plan.past ? '' : '<div class="load' + (over ? ' over' : '') + '"><i style="width:' + Math.min(100, Math.round(plan.planned / Math.max(1, plan.capacity + fixedMin) * 100)) + '%"></i></div>';
+    const extra = '<span class="h2x"><span class="n">' + (plan.past ? '做完的事画在完成的时间' : '点空白处，在那个时间记一件事') + '</span>' + (isToday && canMini ? '<button class="btn ghost sm" data-a="mini" title="开一个始终置顶的小窗，工作时放在屏幕一角">悬浮小窗</button>' : '') + '</span>';
+    left += card(isToday ? '今天的安排' : plan.past ? '这天的记录' : '这天的安排', load + dayView(plan, date, now, isToday), null, extra);
+    if (over && !plan.past) left += card('排不下的事', plan.overflow.map((o) => { const it = C.byId(S, o.itemId); return it ? row(it, { defer: isToday }) : ''; }).join(''), plan.overflow.length);
 
     const inbox = openLeaves().filter((i) => !i.projectId).sort(sortItems);
     const wait = openLeaves().filter((i) => i.status === 'waiting' || i.kind === 'follow').sort(sortItems).slice(0, 6);
@@ -1869,6 +2137,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       const p = proj(ui.projectId), pr = C.progressOfProject(S, p.id);
       const tops = live().filter((i) => i.projectId === p.id && (!i.parentId || !C.byId(S, i.parentId))).sort(sortItems);
       let h = '<button class="back" data-a="back">‹ 全部项目</button>';
+      if (p.archived) h += '<div class="banner" style="margin-top:10px"><span>这个项目已归档，不在项目列表和自动归类里出现，里面的事项都还在。</span><button class="btn sm pri" data-a="punarchive" data-id="' + p.id + '">恢复到项目列表</button></div>';
       h += '<div class="head c' + p.color + '"><div><h1>' + esc(p.name) + '</h1><p class="sub">' + p.area + ' · ' + pr.done + '/' + pr.total + ' 已完成' + (p.deadline ? ' · 截止 ' + C.fmtDate(p.deadline, today) : '') + '</p></div><button class="btn" data-a="editproject" data-id="' + p.id + '">编辑项目</button></div>';
       h += '<div class="bar c' + p.color + '" style="margin-bottom:14px"><i style="width:' + (pr.total ? Math.round(pr.done / pr.total * 100) : 0) + '%"></i></div>';
       if ((p.keywords || []).length) h += '<div id="kw" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"><span class="hint" style="align-self:center">归类关键词</span>' + p.keywords.map((k) => '<span class="chip">' + esc(k) + '</span>').join('') + '</div>';
@@ -1887,30 +2156,41 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
           '<div class="next"><b>下一步</b>' + (next ? esc(next.title) : '还没有定') + '</div></button>';
       }).join('') + '</div>';
     });
-    if (!liveProjects().length) h += '<section class="card"><p class="empty">还没有项目。先建一个，比如“基金申请”或“实验室筹建”。</p></section>';
+    const arch = S.projects.filter((p) => !p.deleted && p.archived).sort((p, q) => (q.archivedAt || q.updatedAt || 0) - (p.archivedAt || p.updatedAt || 0));
+    if (!liveProjects().length) h += '<section class="card"><p class="empty">' + (arch.length ? '进行中的项目都已归档。需要时在下面恢复，或新建一个。' : '还没有项目。先建一个，比如“基金申请”或“实验室筹建”。') + '</p></section>';
+    if (arch.length) h += '<details class="arch"' + (ui.archOpen ? ' open' : '') + '><summary>已归档的项目 <span class="num">' + arch.length + '</span></summary><section class="card">' + arch.map((p) => {
+      const pr = C.progressOfProject(S, p.id), at = p.archivedAt ? C.ymd(new Date(p.archivedAt)) : null;
+      return '<div class="row" data-a="openproject" data-id="' + p.id + '"><i class="pd c' + p.color + '" style="margin-top:8px"></i><div class="row-main"><div class="row-title">' + esc(p.name) + '</div><div class="row-meta"><span class="num">' + pr.done + '/' + pr.total + ' 已完成</span>' + (at ? '<span>' + (+at.slice(5, 7)) + '月' + (+at.slice(8)) + '日归档</span>' : '') + '</div></div><div class="row-side"><button class="btn sm" data-a="punarchive" data-id="' + p.id + '">恢复</button></div></div>';
+    }).join('') + '</section></details>';
     return h;
   }
 
   /* ---------- 作息 ---------- */
   function vRoutine() {
-    const now = new Date(), today = C.ymd(now), T = S.routine.targets, tol = S.settings.tol, nowMin = now.getHours() * 60 + now.getMinutes();
-    let h = '<div class="head"><div><h1>作息</h1><p class="sub">吃饭和睡觉固定排进每天的时间轴，工作不会排到睡前 ' + S.settings.windDown + ' 分钟以内。</p></div></div>';
-    h += '<section class="card"><h2><span>今天</span><span class="n">点“打卡”记下实际时间，也可以直接改</span></h2>' + C.ROUTINE_KEYS.map((k) => {
-      const date = C.routineDateFor(k, now), a = (S.routine.log[date] || {})[k];
-      const j = a ? C.routineJudge(k, T[k], a, tol) : null;
-      return '<div class="rrow"><div class="rr-n"><b>' + C.ROUTINE_NAME[k] + '</b><span class="hint num">目标 ' + T[k] + '</span></div>' +
+    const now = new Date(), today = C.ymd(now), tol = S.settings.tol, nowMin = now.getHours() * 60 + now.getMinutes();
+    let h = '<div class="head"><div><h1>作息</h1><p class="sub">吃饭、睡觉和你加的作息都会画在“今天”的时间轴上，点时间轴上的作息也能直接改。工作不会排到睡前 ' + S.settings.windDown + ' 分钟以内。</p></div></div>';
+    h += '<section class="card"><h2><span>今天</span><span class="n">点“打卡”记下实际时间，也可以直接改</span></h2>' + C.routineList(S, today).map((r) => {
+      const k = r.key, date = C.routineDateFor(k, now), a = (S.routine.log[date] || {})[k];
+      const j = a ? C.routineJudge(k, r.time, a, tol) : null;
+      return '<div class="rrow"><button class="rr-n" data-a="routine-edit" data-key="' + k + '" data-date="' + date + '"><b>' + esc(r.name) + '</b><span class="hint num">目标 ' + r.time + '</span></button>' +
         (j ? '<span class="chip ' + (j.ok ? 'good' : 'crit') + '">' + (j.ok ? '准时' : '晚 ' + j.dev + ' 分钟') + '</span>' : '') +
-        '<input type="time" id="ac-' + k + '" data-c="actual" data-key="' + k + '" data-date="' + date + '" value="' + (a || '') + '" aria-label="' + C.ROUTINE_NAME[k] + '实际时间">' +
-        '<button class="btn sm ' + (!a && Math.abs(nowMin - C.toMin(T[k])) <= 90 ? 'pri' : '') + '" data-a="checkin" data-key="' + k + '">' + (a ? '改为现在' : '打卡') + '</button></div>';
+        '<input type="time" id="ac-' + k.replace(':', '-') + '" data-c="actual" data-key="' + k + '" data-date="' + date + '" value="' + (a || '') + '" aria-label="' + esc(r.name) + '实际时间">' +
+        '<button class="btn sm ' + (!a && Math.abs(nowMin - C.toMin(r.time)) <= 90 ? 'pri' : '') + '" data-a="checkin" data-key="' + k + '">' + (a ? '改为现在' : '打卡') + '</button></div>';
     }).join('') + '</section>';
     const st = C.routineStats(S, today, 7, today), days = st.wake.days.map((d) => d.date);
     let tb = '<div class="scroll-x"><table class="grid7"><thead><tr><th></th>' + days.map((d) => '<th>' + (d === today ? '今天' : C.weekdayName(d)) + '</th>').join('') + '<th>准时</th></tr></thead><tbody>';
-    C.ROUTINE_KEYS.forEach((k) => {
-      tb += '<tr><th>' + C.ROUTINE_NAME[k] + ' <span class="hint num">' + T[k] + '</span></th>' + st[k].days.map((d) => d.actual ? '<td class="num ' + (d.ok ? 'ok' : 'late') + '">' + d.actual + '</td>' : '<td class="miss">' + (d.pending ? '' : '—') + '</td>').join('') + '<td class="num">' + st[k].ok + '/' + (7 - st[k].pending) + '</td></tr>';
+    C.routineList(S).forEach((r) => {
+      const x = st[r.key]; if (!x) return;
+      tb += '<tr><th>' + esc(r.name) + ' <span class="hint num">' + r.time + '</span></th>' + x.days.map((d) => d.actual ? '<td class="num ' + (d.ok ? 'ok' : 'late') + '">' + d.actual + '</td>' : '<td class="miss">' + (d.off ? '<span class="off">·</span>' : d.pending ? '' : '—') + '</td>').join('') + '<td class="num">' + x.ok + '/' + Math.max(0, 7 - x.pending - x.off) + '</td></tr>';
     });
     tb += '</tbody></table></div>';
-    h += '<div class="stack" style="margin-top:16px">' + card('最近 7 天', tb, null, '<span class="n">绿色准时，红色偏晚，— 未打卡</span>');
-    h += card('目标时间', '<div class="form">' + C.ROUTINE_KEYS.map((k) => '<div class="fld"><label for="tg-' + k + '">' + C.ROUTINE_NAME[k] + '</label><input type="time" id="tg-' + k + '" data-c="target" data-key="' + k + '" value="' + T[k] + '"></div>').join('') + '</div>');
+    h += '<div class="stack" style="margin-top:16px">' + card('最近 7 天', tb, null, '<span class="n">绿色准时，红色偏晚，— 未打卡，· 当天没有这项</span>');
+    const rows = C.routineList(S).map((r) => {
+      const sub = r.custom ? C.daysText(r.days) + (r.dur ? ' · ' + C.fmtDur(r.dur) : ' · 时间点') : '每天' + (r.dur ? ' · ' + C.fmtDur(r.dur) : '');
+      const inp = r.custom ? '<input type="time" data-c="ctime" data-id="' + r.custom.id + '" value="' + r.time + '" aria-label="' + esc(r.name) + '时间">' : '<input type="time" id="tg-' + r.key + '" data-c="target" data-key="' + r.key + '" value="' + r.time + '" aria-label="' + esc(r.name) + '目标时间">';
+      return '<div class="rrow"><button class="rr-n" data-a="routine-edit" data-key="' + r.key + '" data-date="' + today + '"><b>' + esc(r.name) + '</b><span class="hint">' + sub + '</span></button>' + inp + '<button class="icon-btn" data-a="routine-edit" data-key="' + r.key + '" data-date="' + today + '" aria-label="编辑' + esc(r.name) + '">›</button></div>';
+    }).join('');
+    h += card('每天的作息', rows + '<div class="addline"><button class="btn sm" data-a="routine-new">＋ 添加作息</button><span class="hint" style="align-self:center">上班、下班、健身、午休……可以只在某几天</span></div>');
     h += card('排程设置', '<div class="form"><div class="fld"><label for="set-ws">每天从几点开始排工作</label><input type="time" id="set-ws" data-c="setting" data-key="workStart" value="' + S.settings.workStart + '"></div>' +
       '<div class="fld"><label for="set-wd">睡前留出的收尾时间（分钟）</label><input type="number" id="set-wd" min="0" max="180" step="5" data-c="setting" data-key="windDown" value="' + S.settings.windDown + '"></div>' +
       '<div class="fld"><label for="set-tol">晚多少分钟以内算准时</label><input type="number" id="set-tol" min="0" max="120" step="5" data-c="setting" data-key="tol" value="' + S.settings.tol + '"></div></div>') + '</div>';
@@ -1930,7 +2210,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       else h += card('完成了什么', '<p class="empty">这一周还没有完成的事。</p>');
       if (rv.slipped.length) h += card('拖延的事', rv.slipped.sort(sortItems).map((i) => row(i)).join(''), rv.slipped.length);
       if (rv.failed.length) h += card('失败与复盘', rv.failed.map((i) => row(i, { noDue: true })).join('') + '<p class="empty" style="padding-top:6px">点开可以看当时记下的原因和后续安排。</p>', rv.failed.length);
-      h += card('作息', '<div class="pad">' + C.ROUTINE_KEYS.map((k) => { const r = rv.routine[k]; return '<div class="pmeta"><span>' + C.ROUTINE_NAME[k] + '</span><span class="num">准时 ' + r.ok + ' 天 · 偏晚 ' + r.late + ' 天 · 未打卡 ' + r.miss + ' 天' + (r.avgDev != null && r.avgDev > 0 ? ' · 平均晚 ' + r.avgDev + ' 分钟' : '') + '</span></div>'; }).join('') + '</div>');
+      h += card('作息', '<div class="pad">' + C.routineList(S).filter((x) => rv.routine[x.key]).map((x) => { const r = rv.routine[x.key]; return '<div class="pmeta"><span>' + esc(x.name) + '</span><span class="num">准时 ' + r.ok + ' 天 · 偏晚 ' + r.late + ' 天 · 未打卡 ' + r.miss + ' 天' + (r.avgDev != null && r.avgDev > 0 ? ' · 平均晚 ' + r.avgDev + ' 分钟' : '') + '</span></div>'; }).join('') + '</div>');
       if (rv.next.length) h += card('下周到期', rv.next.map((i) => row(i)).join(''), rv.next.length);
       return h + '</div>';
     }
@@ -1969,7 +2249,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     let h = '<div class="sh-head"><b>事项</b><button class="btn sm" data-a="close">关闭</button></div><div class="sh-body">';
     h += '<input class="sh-title" id="f-title" data-f="title" value="' + esc(it.title) + '" aria-label="标题">';
     h += '<div class="fld"><span class="lbl">状态</span>' + seg('status', it.status, [['todo', '待办'], ['doing', '进行中'], ['waiting', '等待中'], ['done', '已完成']]) + '</div>';
-    h += '<div class="two"><div class="fld"><label for="f-proj">项目</label><select id="f-proj" data-f="projectId">' + opt('', '收件箱（未归类）', it.projectId) + liveProjects().map((p) => opt(p.id, p.name, it.projectId)).join('') + '</select></div>' +
+    h += '<div class="two"><div class="fld"><label for="f-proj">项目</label><select id="f-proj" data-f="projectId">' + opt('', '收件箱（未归类）', it.projectId) + liveProjects().map((p) => opt(p.id, p.name, it.projectId)).join('') + (proj(it.projectId) && proj(it.projectId).archived ? opt(it.projectId, proj(it.projectId).name + '（已归档）', it.projectId) : '') + '</select></div>' +
       '<div class="fld"><label for="f-parent">属于哪件大事</label><select id="f-parent" data-f="parentId">' + opt('', '无', it.parentId) + parents.map((p) => opt(p.id, p.title.slice(0, 24), it.parentId)).join('') + '</select></div></div>';
     h += '<div class="two"><div class="fld"><label for="f-due">日期</label><input type="date" id="f-due" data-f="due" value="' + (it.due || '') + '"></div><div class="fld"><label for="f-time">钟点（固定时间才填）</label><input type="time" id="f-time" data-f="time" value="' + (it.time || '') + '"></div></div>';
     let more = '';
@@ -1998,7 +2278,38 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     h += '<div class="fld"><label for="p-dl">截止日期（可不填）</label><input type="date" id="p-dl" data-p="deadline" value="' + (p.deadline || '') + '"></div>';
     h += '<div class="fld"><label for="p-kw">归类关键词（用逗号或空格分开）</label><textarea id="p-kw" data-p="keywords">' + esc((p.keywords || []).join('，')) + '</textarea><p class="hint">随手记里出现这些词，就自动归到这个项目。不填也行：项目里已有的事项会被当作样本，你每归一次，以后就更准。</p></div>';
     h += '<div class="fld"><span class="lbl">颜色</span><div class="btns">' + [0, 1, 2, 3, 4, 5].map((c) => '<button class="icon-btn c' + c + '" data-a="pcolor" data-v="' + c + '" aria-label="颜色 ' + (c + 1) + '" style="background:var(--pc);' + (p.color === c ? 'outline:2px solid var(--ink);outline-offset:2px' : '') + '"></button>').join('') + '</div></div>';
-    h += '<div class="btns"><button class="btn sm" data-a="parchive">归档项目</button><button class="btn danger sm" data-a="pdel">' + (ui.confirm === 'pdel' ? '再点一次确认删除' : '删除项目') + '</button></div><p class="hint">归档后项目不再显示，事项保留。删除项目时，里面的事项会回到收件箱。</p>';
+    h += '<div class="btns">' + (p.archived ? '<button class="btn sm" data-a="punarchive" data-id="' + p.id + '">恢复到项目列表</button>' : '<button class="btn sm" data-a="parchive">归档项目</button>') + '<button class="btn danger sm" data-a="pdel">' + (ui.confirm === 'pdel' ? '再点一次确认删除' : '删除项目') + '</button></div><p class="hint">归档后项目不在列表和自动归类里出现，事项保留；在项目页最下面的“已归档的项目”里随时能找到、能恢复。删除项目时，里面的事项会回到收件箱。</p>';
+    return h + '</div>';
+  }
+  const RT_TPL = [['上班', '09:00', 0, [0, 1, 2, 3, 4]], ['下班', '18:00', 0, [0, 1, 2, 3, 4]], ['健身', '18:30', 60, [0, 2, 4]], ['午休', '13:00', 30, []]];
+  const RT_DUR = [0, 15, 30, 45, 60, 90, 120, 180, 240];
+  const rtCustom = (key) => (S.routine.custom || []).find((x) => 'c:' + x.id === key && !x.deleted) || null;
+  const rtTarget = () => { const s = ui.sheet; if (!s || s.type !== 'routine') return null; return s.key === 'new' ? ui.rdraft : rtCustom(s.key); };
+  function shRoutine(sh) {
+    const key = sh.key, today = todayStr(), date = sh.date && sh.date <= today ? sh.date : today, isNew = key === 'new', c = isNew ? null : rtCustom(key);
+    if (!isNew && !c && !C.ROUTINE_NAME[key]) return '';
+    const opt = (v, t, cur) => '<option value="' + v + '"' + (String(v) === String(cur) ? ' selected' : '') + '>' + t + '</option>';
+    let h = '<div class="sh-head"><b>' + (isNew ? '添加作息' : '作息') + '</b><button class="btn sm" data-a="close">关闭</button></div><div class="sh-body">';
+    if (isNew || c) {
+      const dr = isNew ? ui.rdraft : c, on = (i) => !dr.days || !dr.days.length || dr.days.indexOf(i) >= 0, durs = RT_DUR.slice();
+      if (dr.dur && durs.indexOf(dr.dur) < 0) durs.push(dr.dur);
+      if (isNew) h += '<div class="fld"><span class="lbl">常用的，点一下填好</span><div class="btns">' + RT_TPL.map((t, i) => '<button class="opt" data-a="rt-tpl" data-v="' + i + '">' + t[0] + ' ' + t[1] + '</button>').join('') + '</div></div>';
+      h += '<input class="sh-title" id="r-name" data-r="name" value="' + esc(dr.name) + '" placeholder="名称，比如 上班、健身" aria-label="名称" maxlength="20">';
+      h += '<div class="two"><div class="fld"><label for="r-time">几点</label><input type="time" id="r-time" data-r="time" value="' + dr.time + '"></div><div class="fld"><label for="r-dur">占用多久</label><select id="r-dur" data-r="dur">' + durs.sort((x, y) => x - y).map((m) => opt(m, m ? C.fmtDur(m) : '只是一个时间点', dr.dur || 0)).join('') + '</select></div></div>';
+      h += '<div class="fld"><span class="lbl">哪几天 · ' + C.daysText(dr.days) + '</span><div class="wdpick">' + CN_WD.map((w, i) => '<button class="opt' + (on(i) ? ' on' : '') + '" data-a="rt-day" data-v="' + i + '" aria-pressed="' + on(i) + '">' + w + '</button>').join('') + '</div><div class="btns">' + [['all', '每天'], ['work', '工作日'], ['end', '周末']].map((x) => '<button class="btn ghost sm" data-a="rt-days" data-v="' + x[0] + '">' + x[1] + '</button>').join('') + '</div></div>';
+      h += '<p class="hint">' + (dr.dur ? '这段时间画成方块，不会排别的事。' : '在时间轴上画一条线，不占用时间。') + '到点时页面里会提示，也能打卡统计准不准时。</p>';
+      if (isNew) return h + '<div class="btns"><button class="btn pri" data-a="rt-add">添加</button></div></div>';
+    } else {
+      h += '<div class="sh-title" style="border-bottom-color:transparent">' + C.ROUTINE_NAME[key] + '</div>';
+      h += '<div class="fld"><label for="r-target">每天几点</label><input type="time" id="r-target" data-c="target" data-key="' + key + '" value="' + S.routine.targets[key] + '"></div>';
+    }
+    const active = C.routineList(S, date).some((r) => r.key === key);
+    if (active) {
+      const a = (S.routine.log[date] || {})[key], dd = C.parseYmd(date);
+      h += '<div class="fld"><label for="r-act">' + (date === today ? '今天' : (dd.getMonth() + 1) + '月' + dd.getDate() + '日') + '实际几点</label><div class="btns"><input type="time" id="r-act" class="tinp" data-c="actual" data-key="' + key + '" data-date="' + date + '" value="' + (a || '') + '">' + (date === today ? '<button class="btn sm' + (a ? '' : ' pri') + '" data-a="checkin" data-key="' + key + '">' + (a ? '改为现在' : '打卡（现在）') + '</button>' : '') + '</div></div>';
+    }
+    if (c) h += '<div class="btns"><button class="btn danger sm" data-a="rt-del">' + (ui.confirm === 'rtdel' ? '再点一次确认删除' : '删除这项作息') + '</button></div>';
+    h += '<p class="hint">' + (c ? '改动从今天起生效，以前的打卡记录保留。' : '改了时间，以后每天都按新时间排。' + (C.MEAL_DUR[key] ? '吃饭的 ' + C.MEAL_DUR[key] + ' 分钟不会排别的事。' : key === 'sleep' ? '睡前 ' + S.settings.windDown + ' 分钟不排工作。' : '')) + '</p>';
     return h + '</div>';
   }
   function shText(t) {
@@ -2029,6 +2340,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     else if (s && s.type === 'project') { const p = proj(s.id); if (p) h = shProject(p); }
     else if (s && s.type === 'text') h = shText(s);
     else if (s && s.type === 'pair') h = shPair(s);
+    else if (s && s.type === 'routine') h = shRoutine(s);
     if (!h) { ui.sheet = null; el.hidden = sc.hidden = true; el.innerHTML = ''; return; }
     const top = el.scrollTop; el.hidden = sc.hidden = false; el.innerHTML = h; el.scrollTop = top;
   }
@@ -2041,7 +2353,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const el = mini.document.getElementById('mini'); if (!el) return;
     const inp = mini.document.getElementById('mini-cap'), keep = inp ? inp.value : '', had = inp && mini.document.activeElement === inp;
     const now = new Date(), today = C.ymd(now), plan = C.planDay(S, today, now), nowMin = now.getHours() * 60 + now.getMinutes();
-    const rows = plan.blocks.filter((b) => b.type !== 'routine' || (b.key !== 'wake' && !b.actual && b.s >= nowMin - 30)).map((b) => {
+    const rows = plan.blocks.filter((b) => b.type !== 'done' && !b.proj && (b.type !== 'routine' || (b.key !== 'wake' && !b.actual && b.s >= nowMin - 30))).map((b) => {
       if (b.type === 'routine') return '<div class="tl routine"><div class="tl-t">' + C.toHM(b.s) + '</div><div class="row"><div class="row-main"><div class="row-title">' + b.label + '</div></div><div class="row-side"><button class="btn sm" data-a="checkin" data-key="' + b.key + '">打卡</button></div></div></div>';
       const it = C.byId(S, b.itemId); if (!it) return '';
       return '<div class="tl ' + (b.type === 'fixed' ? 'fixed' : b.suggested ? 'sug' : '') + '"><div class="tl-t">' + C.toHM(b.s) + '</div><div class="row"><button class="chk" data-a="toggle" data-id="' + it.id + '" aria-label="标为完成"></button><div class="row-main"><div class="row-title">' + esc(it.title) + '</div></div></div></div>';
@@ -2073,7 +2385,10 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   function render() {
     const inboxN = openLeaves().filter((i) => !i.projectId).length;
     $('#nav').innerHTML = '<div class="brand">有序</div>' + TABS.map((t) => '<button class="tab" data-a="tab" data-v="' + t[0] + '"' + (ui.tab === t[0] ? ' aria-current="page"' : '') + '><svg viewBox="0 0 24 24" aria-hidden="true">' + t[2] + '</svg>' + t[1] + (t[0] === 'tasks' && inboxN ? '<span class="dot">' + inboxN + '</span>' : '') + '</button>').join('');
+    const ds0 = $('.dayscroll'), keep = ds0 ? { date: ds0.dataset.date, top: ds0.scrollTop } : null;
     $('#view').innerHTML = VIEWS[ui.tab]();
+    const ds = $('.dayscroll');
+    if (ds) ds.scrollTop = (keep && keep.date === ds.dataset.date) ? keep.top : +ds.dataset.focus || 0;
     if (ui.focusAdd && ui.addUnder) { const el = document.getElementById('add-' + ui.addUnder); if (el) el.focus(); }
     ui.focusAdd = false;
     renderMini();
@@ -2164,9 +2479,42 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const keep = { targets: S.routine.targets, settings: S.settings };
     S = C.newState(); S.routine.targets = keep.targets; S.settings = keep.settings; ui.projectId = null; ui.sheet = null; ui.ops = null;
   }
+  function slotMin(el, clientY) {
+    const r = el.getBoundingClientRect(), k = +el.dataset.k || 0.9, a0 = +el.dataset.a0 || 0;
+    return Math.max(0, Math.min(1425, a0 + Math.floor((clientY - r.top) / k / 15) * 15));
+  }
+  function rtSaved(c) { if (ui.sheet && ui.sheet.key !== 'new') { c.updatedAt = Date.now(); commit(true); } renderSheet(); }
   const A = {
-    tab(d) { go(d.v); if (d.v === 'projects') ui.projectId = null; render(); },
-    day(d) { ui.day = +d.v; render(); },
+    tab(d) { if (d.v === 'today' && ui.tab === 'today') { ui.date = null; ui.cal = false; ui.calAt = null; } go(d.v); if (d.v === 'projects') ui.projectId = null; render(); },
+    day(d) { ui.date = C.addDays(todayStr(), +d.v); render(); },
+    pick(d) { const t = todayStr(); ui.date = d.v === t ? null : d.v; ui.calAt = d.v; ui.cal = false; render(); },
+    'cal-toggle'() { ui.cal = !ui.cal; ui.calAt = ui.date || todayStr(); render(); },
+    'cal-shift'(d) { const base = ui.calAt || ui.date || todayStr(); if (/m$/.test(d.v)) { const x = C.parseYmd(base); ui.calAt = C.ymd(new Date(x.getFullYear(), x.getMonth() + parseInt(d.v, 10), 1)); } else ui.calAt = C.addDays(base, +d.v); render(); },
+    slot(d, el, e) {
+      if (!e) return; const m = slotMin(el, e.clientY), x = C.parseYmd(d.date), now = new Date();
+      const pre = (x.getFullYear() !== now.getFullYear() ? x.getFullYear() + '年' : '') + (x.getMonth() + 1) + '月' + x.getDate() + '日 ' + C.toHM(m) + ' ';
+      const c0 = $('#cap'); c0.value = pre; ui.skip = {}; ui.receipt = null; capPreview(); c0.focus(); try { c0.setSelectionRange(pre.length, pre.length); } catch (x2) { }
+    },
+    'routine-edit'(d) { ui.confirm = null; ui.rdraft = null; ui.sheet = { type: 'routine', key: d.key, date: d.date || todayStr() }; renderSheet(); $('#sheet').scrollTop = 0; },
+    'routine-new'() { ui.confirm = null; ui.rdraft = { name: '', time: '09:00', dur: 0, days: [0, 1, 2, 3, 4] }; ui.sheet = { type: 'routine', key: 'new' }; renderSheet(); const n = $('#r-name'); if (n) n.focus(); },
+    'rt-tpl'(d) { const t = RT_TPL[+d.v]; if (!t || !ui.rdraft) return; Object.assign(ui.rdraft, { name: t[0], time: t[1], dur: t[2], days: t[3].slice() }); renderSheet(); },
+    'rt-day'(d) {
+      const c = rtTarget(); if (!c) return; const i = +d.v, a = (c.days && c.days.length ? c.days : [0, 1, 2, 3, 4, 5, 6]).slice(), k = a.indexOf(i);
+      if (k >= 0) { if (a.length > 1) a.splice(k, 1); } else a.push(i);
+      c.days = a.length === 7 ? [] : a.sort(); rtSaved(c);
+    },
+    'rt-days'(d) { const c = rtTarget(); if (!c) return; c.days = d.v === 'work' ? [0, 1, 2, 3, 4] : d.v === 'end' ? [5, 6] : []; rtSaved(c); },
+    'rt-add'() {
+      const dr = ui.rdraft; if (!dr) return; const n = $('#r-name'), nm = ((n && n.value) || dr.name || '').trim();
+      if (!nm) { toast('先写个名称，比如“健身”'); if (n) n.focus(); return; }
+      const t = Date.now(), c = { id: C.uid(), name: nm.slice(0, 20), time: dr.time || '09:00', dur: dr.dur || 0, days: (dr.days || []).length === 7 ? [] : (dr.days || []).slice(), createdAt: t, updatedAt: t };
+      S.routine.custom.push(c); ui.rdraft = null; ui.sheet = null; commit(); toast('已添加「' + c.name + '」：' + C.daysText(c.days) + ' ' + c.time);
+    },
+    'rt-del'() {
+      const c = rtTarget(); if (!c || ui.sheet.key === 'new') return;
+      if (ui.confirm !== 'rtdel') { ui.confirm = 'rtdel'; renderSheet(); return; }
+      c.deleted = true; c.updatedAt = Date.now(); ui.confirm = null; ui.sheet = null; commit(); toast('已删除「' + c.name + '」');
+    },
     'more-tips'() { ui.moreTips = !ui.moreTips; render(); },
     filter(d) { ui.filter = d.v; render(); },
     seg(d) { ui.seg = d.v; render(); },
@@ -2189,7 +2537,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       else if (v.indexOf('open:') === 0) A.open({ id: v.slice(5) });
       else if (v.indexOf('project:') === 0) { ui.projectId = v.slice(8); go('projects'); render(); }
     },
-    checkin(d) { const now = new Date(), date = C.routineDateFor(d.key, now); setLog(date, d.key, C.nowHM(now)); commit(); toast(C.ROUTINE_NAME[d.key] + '已打卡 ' + C.nowHM(now)); },
+    checkin(d) { const now = new Date(), date = C.routineDateFor(d.key, now); setLog(date, d.key, C.nowHM(now)); commit(); toast(C.routineName(S, d.key) + '已打卡 ' + C.nowHM(now)); },
     addchild(d) { ui.addUnder = ui.addUnder === d.id ? null : d.id; ui.focusAdd = true; render(); },
     addsub(d) { addSub(d.under); },
     newproject() { const p = { id: C.uid(), name: '新项目', area: '事业', color: S.projects.length % 6, keywords: [], deadline: null, updatedAt: Date.now() }; S.projects.push(p); ui.projectId = p.id; ui.sheet = { type: 'project', id: p.id }; commit(); const n = $('#p-name'); if (n) { n.focus(); n.select(); } },
@@ -2210,7 +2558,11 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     del() { const it = cur(); if (!it) return; if (ui.confirm !== 'del') { ui.confirm = 'del'; renderSheet(); return; } it.deleted = true; touch(it); (function w(id) { C.childrenOf(S, id).forEach((c) => { c.deleted = true; touch(c); w(c.id); }); })(it.id); ui.sheet = null; ui.confirm = null; commit(); toast('已删除'); },
     parea(d) { const p = curP(); if (!p) return; p.area = d.v; p.updatedAt = Date.now(); commit(); },
     pcolor(d) { const p = curP(); if (!p) return; p.color = +d.v; p.updatedAt = Date.now(); commit(); },
-    parchive() { const p = curP(); if (!p) return; p.archived = true; p.updatedAt = Date.now(); ui.projectId = null; ui.sheet = null; commit(); toast('项目已归档'); },
+    parchive() {
+      const p = curP(); if (!p) return; p.archived = true; p.archivedAt = Date.now(); p.updatedAt = Date.now(); ui.projectId = null; ui.sheet = null; ui.archOpen = true; commit();
+      toast('已归档「' + p.name + '」，在项目页最下面能找到', '撤销', () => { p.archived = false; p.updatedAt = Date.now(); commit(); });
+    },
+    punarchive(d) { const p = proj(d.id) || curP(); if (!p) return; p.archived = false; p.updatedAt = Date.now(); commit(); toast('已恢复「' + p.name + '」'); },
     pdel() { const p = curP(); if (!p) return; if (ui.confirm !== 'pdel') { ui.confirm = 'pdel'; renderSheet(); return; } p.deleted = true; p.updatedAt = Date.now(); S.items.forEach((i) => { if (i.projectId === p.id) { i.projectId = null; touch(i); } }); ui.projectId = null; ui.sheet = null; ui.confirm = null; commit(); toast('项目已删除，事项回到收件箱'); },
     'cap-skip'(d) { ui.skip[d.v] = true; capPreview(); $('#cap').focus(); },
     'cap-add'() { capAdd(); },
@@ -2312,19 +2664,32 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 
   function onClick(e) {
     if (e.target.id === 'scrim') { A.close(); return; }
-    const el = e.target.closest('[data-a]'); if (!el) return;
-    const f = A[el.dataset.a]; if (f) { e.preventDefault(); f(el.dataset, el); }
+    let shut = false;
+    if (ui.cal && e.target.closest && !e.target.closest('.cal.mo, [data-a="cal-toggle"]')) { ui.cal = false; shut = true; }   // 点月历外面：收起
+    const el = e.target.closest('[data-a]');
+    const f = el && A[el.dataset.a]; if (f) { e.preventDefault(); f(el.dataset, el, e); }
+    if (shut && document.querySelector('.cal.mo')) render();
   }
   document.addEventListener('click', onClick);
-  document.addEventListener('toggle', (e) => { if (e.target.classList && e.target.classList.contains('more')) ui.sheetMore = e.target.open; }, true);
-  document.addEventListener('input', (e) => { if (e.target.id === 'cap') capPreview(); else if (e.target.dataset && e.target.dataset.s) ui.sf[e.target.dataset.s] = e.target.value; });
+  document.addEventListener('toggle', (e) => { const c = e.target.classList; if (!c) return; if (c.contains('more')) ui.sheetMore = e.target.open; else if (c.contains('arch')) ui.archOpen = e.target.open; }, true);
+  // 鼠标停在时间轴空白处：显示“+ 15:00”，点一下就在那个时间记一件事
+  document.addEventListener('mousemove', (e) => {
+    const g = document.querySelector('.day .hov'); if (!g) return;
+    const lane = e.target.classList && e.target.classList.contains('lane') ? e.target : null;
+    if (!lane) { g.classList.remove('on'); return; }
+    const m = slotMin(lane, e.clientY);
+    g.style.top = Math.round((m - (+lane.dataset.a0 || 0)) * (+lane.dataset.k || 0.9)) + 'px'; g.firstChild.textContent = '+ ' + C.toHM(m) + ' 记一件事'; g.classList.add('on');
+  });
+  document.addEventListener('input', (e) => { if (e.target.id === 'cap') capPreview(); else if (e.target.dataset && e.target.dataset.s) ui.sf[e.target.dataset.s] = e.target.value; else if (e.target.id === 'r-name' && ui.rdraft && ui.sheet && ui.sheet.key === 'new') ui.rdraft.name = e.target.value; });
   document.addEventListener('keydown', (e) => {
     const t = e.target;
     if (e.key === 'Enter' && !e.isComposing) {
       if (t.id === 'cap') { e.preventDefault(); capAdd(); }
       else if (t.dataset && t.dataset.under) { e.preventDefault(); addSub(t.dataset.under); }
+      else if (t.id === 'r-name' && ui.sheet && ui.sheet.key === 'new') { e.preventDefault(); if (ui.rdraft) ui.rdraft.name = t.value; A['rt-add'](); }
       else if (t.classList && t.classList.contains('sh-title')) t.blur();
-    } else if (e.key === 'Escape') { if (ui.sheet) A.close(); else if (ui.addUnder) { ui.addUnder = null; render(); } }
+    }
+    else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && ui.tab === 'today' && !ui.sheet && !e.altKey && !e.metaKey && !e.ctrlKey && !e.shiftKey && !/INPUT|TEXTAREA|SELECT/.test(t.tagName)) { e.preventDefault(); A.pick({ v: C.addDays(ui.date || todayStr(), e.key === 'ArrowLeft' ? -1 : 1) }); } else if (e.key === 'Escape') { if (ui.cal) { ui.cal = false; render(); } else if (ui.sheet) A.close(); else if (ui.addUnder) { ui.addUnder = null; render(); } }
     else if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(t.tagName)) { e.preventDefault(); $('#cap').focus(); }
   });
   document.addEventListener('change', (e) => {
@@ -2358,6 +2723,15 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     } else if (d.s === 'code') { const c = Y.parseCode(t.value); ui.sf.code = t.value; if (c && c.kind === 'config' && c.data.repo) ui.sf.ghRepo = c.data.repo; render(); const nx = $('#sync-pass'); if (nx && c) nx.focus(); }
     else if (d.c === 'target') { if (t.value) { S.routine.targets[d.key] = t.value; S.meta.prefsAt = Date.now(); commit(true); } }
     else if (d.c === 'actual') { setLog(d.date, d.key, t.value || null); commit(true); }
+    else if (d.c === 'ctime') { const c = (S.routine.custom || []).find((x) => x.id === d.id); if (c && t.value) { c.time = t.value; c.updatedAt = Date.now(); commit(true); } }
+    else if (d.r) {
+      const c = rtTarget(); if (!c) return;
+      if (d.r === 'name') { const v = t.value.trim().slice(0, 20); if (v || ui.sheet.key === 'new') c.name = v; }
+      else if (d.r === 'time') { if (t.value) c.time = t.value; }
+      else if (d.r === 'dur') c.dur = Math.max(0, parseInt(t.value, 10) || 0);
+      if (ui.sheet.key !== 'new') { c.updatedAt = Date.now(); commit(true); }
+      if (d.r !== 'name') renderSheet();
+    }
     else if (d.c === 'setting') { if (d.key === 'workStart') { if (t.value) S.settings.workStart = t.value; } else { const n = Math.max(0, Math.min(180, parseInt(t.value, 10) || 0)); S.settings[d.key] = n; } S.meta.prefsAt = Date.now(); commit(true); }
     else if (d.c === 'advAuto') { if (S.advisor) { S.advisor.autoAll = t.checked; S.advisor.updatedAt = Date.now(); commit(true); } }
     else if (d.c === 'notify') {
@@ -2365,7 +2739,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       if (t.checked) { try { if (!('Notification' in window)) throw 0; Notification.requestPermission().then((r) => { if (r !== 'granted') { S.settings.notify = false; store.save(S); render(); toast('浏览器没有允许通知。到点时页面内仍会提示'); } else toast('已开启桌面通知'); }); } catch (x) { S.settings.notify = false; store.save(S); render(); toast('这个环境不支持桌面通知。到点时页面内仍会提示'); } }
     } else if (d.c === 'restore') {
       const f = t.files && t.files[0]; if (!f) return; const rd = new FileReader();
-      rd.onload = () => { try { const o = JSON.parse(rd.result); if (!o || !Array.isArray(o.items) || !Array.isArray(o.projects)) throw 0; S = o; const dft = C.newState(); S.settings = Object.assign(dft.settings, S.settings); S.meta = Object.assign(dft.meta, S.meta); S.routine = S.routine || dft.routine; S.routine.log = S.routine.log || {}; S.routine.at = S.routine.at || {}; S.rules = S.rules || []; S.fixes = S.fixes || []; S.advisor = S.advisor || null; S.advice = S.advice || null; S.phrases = S.phrases || []; S.habits = S.habits || {}; ui.projectId = null; commit(); toast('已从备份恢复：' + live().length + ' 件事'); } catch (x) { toast('这不是有效的备份文件'); } };
+      rd.onload = () => { try { const o = JSON.parse(rd.result); if (!o || !Array.isArray(o.items) || !Array.isArray(o.projects)) throw 0; S = o; const dft = C.newState(); S.settings = Object.assign(dft.settings, S.settings); S.meta = Object.assign(dft.meta, S.meta); S.routine = S.routine || dft.routine; S.routine.log = S.routine.log || {}; S.routine.at = S.routine.at || {}; S.rules = S.rules || []; S.fixes = S.fixes || []; S.advisor = S.advisor || null; S.advice = S.advice || null; S.phrases = S.phrases || []; S.habits = S.habits || {}; S.routine.custom = S.routine.custom || []; ui.projectId = null; commit(); toast('已从备份恢复：' + live().length + ' 件事'); } catch (x) { toast('这不是有效的备份文件'); } };
       rd.readAsText(f);
     }
   });
@@ -2378,6 +2752,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     live().forEach((i) => { if (i.status !== 'done' && i.due === today && i.time) { const dlt = C.toMin(i.time) - nm; if (dlt <= 10 && dlt >= 0 && !fired.has(today + i.id)) { fired.add(today + i.id); msgs.push((dlt ? dlt + ' 分钟后：' : '现在：') + i.title); } } });
     const T = S.routine.targets, log = S.routine.log[today] || {};
     [['breakfast', '该吃早饭了'], ['lunch', '该吃午饭了'], ['dinner', '该吃晚饭了']].forEach((m) => { if (T[m[0]] === hm && !log[m[0]] && !fired.has(today + m[0])) { fired.add(today + m[0]); msgs.push(m[1]); } });
+    C.routineList(S, today).forEach((r) => { if (r.custom && r.time === hm && !log[r.key] && !fired.has(today + r.key)) { fired.add(today + r.key); msgs.push(r.name + ' · ' + r.time); } });
     const wind = C.toHM(C.toMin(T.sleep) - S.settings.windDown);
     if (wind === hm && !fired.has(today + 'wind')) { fired.add(today + 'wind'); msgs.push('该收尾了，' + T.sleep + ' 睡觉'); }
     msgs.forEach((m) => { toast(m); if (S.settings.notify) { try { if (Notification.permission === 'granted') new Notification('有序', { body: m }); } catch (e) { } } });
@@ -2428,7 +2803,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   function applyUpdate() { if (!typing() && !ui.sheet && !($('#cap').value || '').trim()) location.reload(); else if (!applyUpdate.asked) { applyUpdate.asked = true; toast('有新版本', '现在更新', () => location.reload()); } }
   if (NATIVE) {
     // 返回键：先关详情，再回到“今天”，最后才退出
-    window.__youxuBack = () => { if (ui.sheet) { A.close(); return true; } if (ui.tab === 'projects' && ui.projectId) { ui.projectId = null; render(); return true; } if (ui.tab !== 'today') { go('today'); render(); return true; } return false; };
+    window.__youxuBack = () => { if (ui.sheet) { A.close(); return true; } if (ui.tab === 'today' && (ui.date || ui.cal)) { ui.date = null; ui.cal = false; ui.calAt = null; render(); return true; } if (ui.tab === 'projects' && ui.projectId) { ui.projectId = null; render(); return true; } if (ui.tab !== 'today') { go('today'); render(); return true; } return false; };
     // 从微信等应用分享过来的文字
     window.__youxuShared = (t) => { A.close(); go('today'); render(); const c0 = $('#cap'); c0.value = String(t || '').replace(/\s+/g, ' ').trim().slice(0, 300); capPreview(); c0.focus(); };
     // 剪贴板里有配对码（外壳只会转交以 YXP1./YXC1. 开头的内容）：还没开启同步时自动填好
