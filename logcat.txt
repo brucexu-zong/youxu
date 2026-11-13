@@ -1,0 +1,400 @@
+W/ToastPresenter(  835): Error calling back app.youxu.planner to notify onToastHide()
+V/SplashScreenExceptionList(  520): SplashScreen checking exception for package app.youxu.planner (target sdk:34) -> false
+V/WindowManagerShell(  835): Transition requested: android.os.BinderProxy@7342f25 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=12 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=app.youxu.planner/.MainActivity } baseActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} topActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} origActivity=null realActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} numActivities=1 lastActiveTime=118080 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@33388fa} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{c09aeab app.youxu.planner.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+I/ActivityTaskManager(  520): START u0 {flg=0x10000000 cmp=app.youxu.planner/.MainActivity} with LAUNCH_SINGLE_TASK from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+D/CoreBackPreview(  520): Window{ec2b540 u0 Splash Screen app.youxu.planner}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@540edbe, mPriority=0, mIsAnimationCallback=false}
+I/ActivityManager(  520): Start proc 6353:app.youxu.planner/u0a192 for next-top-activity {app.youxu.planner/app.youxu.planner.MainActivity}
+V/WindowManager(  520): Sent Transition #17 createdAt=11-13 10:43:46.331 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=12 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=app.youxu.planner/.MainActivity } baseActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} topActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} origActivity=null realActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} numActivities=1 lastActiveTime=118080 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{21ca0cd Task{3a46fd4 #12 type=standard A=10192:app.youxu.planner}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{abd1d82 app.youxu.planner.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+V/WindowManager(  520):     info={id=17 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{21ca0cd Task{3a46fd4 #12 type=standard A=10192:app.youxu.planner}}} m=OPEN f=NONE leash=Surface(name=Task=12)/@0x48cc91 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{662db7 Task{6f3ff35 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xdf65b9f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+I/p.youxu.planner( 6353): Late-enabling -Xcheck:jni
+I/p.youxu.planner( 6353): Using CollectorTypeCC GC.
+W/p.youxu.planner( 6353): Unexpected CPU variant for x86: x86_64.
+W/p.youxu.planner( 6353): Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+W/ziparchive( 6353): Unable to open '/data/app/~~lRLm0ijgXhFpur6YLoRyzg==/app.youxu.planner-6ScKB83GnO4Yj5qWPZmmiQ==/base.dm': No such file or directory
+W/ziparchive( 6353): Unable to open '/data/app/~~lRLm0ijgXhFpur6YLoRyzg==/app.youxu.planner-6ScKB83GnO4Yj5qWPZmmiQ==/base.dm': No such file or directory
+D/nativeloader( 6353): Configuring clns-6 for other apk /data/app/~~lRLm0ijgXhFpur6YLoRyzg==/app.youxu.planner-6ScKB83GnO4Yj5qWPZmmiQ==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~lRLm0ijgXhFpur6YLoRyzg==/app.youxu.planner-6ScKB83GnO4Yj5qWPZmmiQ==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/app.youxu.planner
+V/GraphicsEnvironment( 6353): ANGLE GameManagerService for app.youxu.planner: false
+V/GraphicsEnvironment( 6353): app.youxu.planner is not listed in per-application setting
+I/WebViewFactory( 6353): Loading com.google.android.webview version 113.0.5672.136 (code 567263637)
+W/p.youxu.planner( 6353): Entry not found
+D/nativeloader( 6353): Configuring clns-7 for other apk /data/app/~~WnxVZz3DU6yz7n-Gligz7g==/com.google.android.trichromelibrary_567263637-n2yl3AJqn1WgAUdjoWVOkg==/TrichromeLibrary.apk. target_sdk_version=34, uses_libraries=ALL, library_path=/data/app/~~djIEF-LV-wU6icHMaN-T8A==/com.google.android.webview-jeOk_hhBgCfI-ShkFoEHdA==/lib/x86_64:/data/app/~~djIEF-LV-wU6icHMaN-T8A==/com.google.android.webview-jeOk_hhBgCfI-ShkFoEHdA==/WebViewGoogle.apk!/lib/x86_64:/data/app/~~WnxVZz3DU6yz7n-Gligz7g==/com.google.android.trichromelibrary_567263637-n2yl3AJqn1WgAUdjoWVOkg==/TrichromeLibrary.apk!/lib/x86_64, permitted_path=/data:/mnt/expand
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{9a50442 com.android.cts.priv.ctsshim/10190} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{5797de2 com.google.android.youtube/10139} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{2de8990 com.android.internal.display.cutout.emulation.corner/10025} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{c0aa289 com.android.internal.display.cutout.emulation.double/10048} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{f699344 com.google.android.googlequicksearchbox/10131} BLOCKED
+D/nativeloader( 6353): Configuring clns-8 for other apk /data/app/~~djIEF-LV-wU6icHMaN-T8A==/com.google.android.webview-jeOk_hhBgCfI-ShkFoEHdA==/WebViewGoogle.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~djIEF-LV-wU6icHMaN-T8A==/com.google.android.webview-jeOk_hhBgCfI-ShkFoEHdA==/lib/x86_64:/data/app/~~djIEF-LV-wU6icHMaN-T8A==/com.google.android.webview-jeOk_hhBgCfI-ShkFoEHdA==/WebViewGoogle.apk!/lib/x86_64:/data/app/~~WnxVZz3DU6yz7n-Gligz7g==/com.google.android.trichromelibrary_567263637-n2yl3AJqn1WgAUdjoWVOkg==/TrichromeLibrary.apk!/lib/x86_64, permitted_path=/data:/mnt/expand
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{6b12aaf com.google.android.onetimeinitializer/10126} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{6caaebc com.google.android.ext.shared/10100} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{6f1de45 com.android.internal.systemui.navbar.gestural_wide_back/10007} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{512d99a com.android.virtualmachine.res/10188} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{e6fc2cb com.google.android.federatedcompute/10173} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{6f1faa8 com.android.managedprovisioning.auto_generated_rro_product__/10024} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{55719c1 com.android.carrierconfig.auto_generated_rro_vendor__/10078} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{c34f566 com.android.systemui.emulation.pixel_3_xl/10034} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{835c0a7 com.android.systemui.emulation.pixel_4_xl/10059} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{7c01954 com.android.systemui.emulation.pixel_fold/10009} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{f7a90fd com.android.simappdialog.auto_generated_rro_product__/10030} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{b01f2 com.android.htmlviewer/10115} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{273c043 com.google.android.health.connect.backuprestore/10171} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{6af76c0 com.android.systemui.auto_generated_rro_product__/10031} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{27a5574 com.google.android.apps.messaging/10129} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{4c34b3e com.google.android.soundpicker/10137} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{8081d9f com.google.android.marvin.talkbackoverlay/10077} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{c753eec com.google.android.configupdater/10130} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{d9fe2b5 com.android.internal.emulation.pixel_3a_xl/10044} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{124dd4a com.android.internal.emulation.pixel_6_pro/10018} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{95af4bb com.android.internal.emulation.pixel_7_pro/10004} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{5ed5dd8 com.android.internal.emulation.pixel_8_pro/10058} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{5b8f531 com.android.internal.emulation.pixel_3a/10053} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{f5b8416 com.android.internal.emulation.pixel_4a/10011} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{b3a2197 com.android.internal.emulation.pixel_6a/10023} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{fc67f84 com.android.internal.emulation.pixel_7a/10033} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{676b36d com.google.android.overlay.googlewebview/10049} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{e83cba2 com.google.android.hotspot2.osulogin/10182} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{7754033 com.android.simappdialog/10112} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{ee0ff0 com.android.internal.display.cutout.emulation.hole/10073} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{1d81969 com.android.internal.display.cutout.emulation.tall/10065} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{f6ffee com.android.internal.systemui.navbar.threebutton/10068} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{1413544 com.android.camera2/10147} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{fbc3b1c com.android.systemui.auto_generated_rro_vendor__/10076} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{f2e82ab com.google.android.deskclock/10152} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{ddfed08 com.android.internal.systemui.navbar.twobutton/10020} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{761942 com.google.android.as/10125} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{54f1ee4 com.google.android.gm/10142} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{5509e87 com.android.internal.systemui.navbar.gestural_extra_wide_back/10045} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{70ad1b4 com.android.systemui.emulation.pixel_3/10015} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{b851dd com.android.systemui.emulation.pixel_4/10037} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{55a6152 com.android.systemui.emulation.pixel_5/10071} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{88e9c23 com.android.systemui.emulation.pixel_6/10074} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{e5d5520 com.android.systemui.emulation.pixel_7/10072} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{46d2ed9 com.android.systemui.emulation.pixel_8/10070} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{b99409e com.android.nfc.auto_generated_rro_product__/10027} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{a24d77f com.android.printspooler/10104} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{692a34c com.android.emergency.auto_generated_rro_product__/10041} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{2f8df95 com.google.android.connectivity.resources.goldfish.overlay/10079} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{a54c8aa com.android.dreams.basic/10103} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{8b96c9b com.google.android.networkstack.tethering.emulator/10022} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{eca838 com.android.providers.settings.auto_generated_rro_product__/10002} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{354e011 com.google.android.as.oss/10121} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{3650d4e com.android.traceur.auto_generated_rro_product__/10005} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{61607ae com.google.android.devicelockcontroller/10177} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{e88d1e7 com.google.android.dialer/10128} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{251d805 com.android.internal.emulation.pixel_3/10046} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{ff68f68 com.android.internal.emulation.pixel_4/10060} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{e1cef81 com.android.internal.emulation.pixel_5/10012} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{2117826 com.android.internal.emulation.pixel_6/10038} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{76fec67 com.android.internal.emulation.pixel_7/10067} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{3593a14 com.android.internal.emulation.pixel_8/10039} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{c2802bd com.google.android.captiveportallogin/10113} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{90cf0b2 com.android.musicfx/10088} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{784e803 com.google.android.apps.docs/10154} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{923f601 com.google.android.apps.maps/10153} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{799e380 com.google.android.modulemetadata/10146} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{4d70db9 com.google.android.markup/10135} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{bd565fe com.android.providers.settings.auto_generated_rro_vendor__/10080} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{c4c794f com.google.android.rkpdapp/10172} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{bb808b7 com.google.android.contacts/10155} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{8d1cc75 com.android.server.telecom.auto_generated_rro_product__/10032} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{51de40a com.google.android.overlay.googleconfig/10055} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{2f1547b com.android.chrome/10150} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{aa0a298 com.android.bips.auto_generated_rro_product__/10035} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{17fbaf1 com.google.android.apps.customization.pixel/10145} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{5be36d6 com.google.android.tag/10082} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{636bd57 com.google.android.overlay.permissioncontroller/10003} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{b495044 com.google.android.partnersetup/10124} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{d44152d com.google.android.apps.wallpaper.nexus/10141} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{23eea62 com.google.android.apps.nexuslauncher/10169} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{9ffd7f3 com.google.android.nearby.halfsheet/10184} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{ead2cb0 com.android.theme.font.notoserifsource/10066} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{379d729 com.google.android.safetycenter.resources/10186} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{d254aae com.android.internal.display.cutout.emulation.waterfall/10040} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{636004f com.android.internal.systemui.navbar.transparent/10029} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{53063dc com.google.android.connectivity.resources/10183} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{c2fbce5 com.android.providers.contacts.auto_generated_rro_product__/10019} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{9ff63ba com.google.android.feedback/10162} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{dfc526b com.google.android.printservice.recommendation/10110} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{f4de1c8 com.google.android.apps.photos/10140} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{dd5b894 com.google.android.calendar/10144} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{d719162 com.google.android.documentsui/10098} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{5300186 com.android.systemui.emulation.pixel_3a_xl/10021} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{98baa47 com.android.systemui.emulation.pixel_6_pro/10063} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{8435274 com.android.systemui.emulation.pixel_7_pro/10054} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{181a39d com.android.systemui.emulation.pixel_8_pro/10001} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{c7ab012 com.google.mainline.telemetry/10151} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{1cea3e3 com.android.carrierconfig.auto_generated_rro_product__/10064} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{f7d21e0 com.android.providers.partnerbookmarks/10101} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{bd9dc99 com.android.wallpaper.livepicker/10090} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{44fbb5e com.android.providers.telephony.auto_generated_rro_product__/10062} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{9bd9b3f com.android.phone.auto_generated_rro_vendor__/10081} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{cc27c0c com.google.mainline.adservices/10136} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{de2a955 com.android.imsserviceentitlement/10117} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{5d82f6a com.google.android.healthconnect.controller/10170} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{17aac5b com.android.internal.emulation.pixel_2_xl/10016} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{b214cf8 com.android.internal.emulation.pixel_3_xl/10056} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{27185d1 com.android.internal.emulation.pixel_4_xl/10047} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{1c1d836 com.android.internal.emulation.pixel_fold/10006} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{f2db337 com.android.bookmarkprovider/10114} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{69a40a4 com.google.android.overlay.pixelconfigcommon/10014} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{237ae0d com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__/10050} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{3cb41c2 com.android.systemui.emulation.pixel_3a/10013} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{9a04bd3 com.android.systemui.emulation.pixel_4a/10000} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{88cc310 com.android.systemui.emulation.pixel_6a/10042} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{5be1e09 com.android.systemui.emulation.pixel_7a/10017} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{6d29c6d com.google.android.settings.intelligence/10118} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{d8e8a97 com.google.android.projection.gearhead/10123} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{99d22f com.google.android.uwb.resources/10175} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{5e110f4 com.android.cts.ctsshim/10191} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{ee3003c com.google.android.wifi.resources/10180} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{b2191c5 com.google.android.wifi.dialog/10181} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{b13471a com.google.android.apps.wallpaper/10160} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{efb624b com.google.android.odad/10122} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{9fde428 com.android.settings.auto_generated_rro_product__/10028} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{b8e8541 com.android.internal.systemui.navbar.gestural/10051} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{a6d243d com.google.android.apps.youtube.music/10156} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{29bd827 com.android.bluetoothmidiservice/10107} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{d611ad4 com.android.storagemanager.auto_generated_rro_product__/10026} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{c7d347d com.google.android.cellbroadcastreceiver/10176} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{68a4a59 com.android.phone.auto_generated_rro_product__/10061} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{55ef61e android.auto_generated_rro_product__/10069} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{c8c3315 com.android.internal.systemui.navbar.gestural_narrow_back/10052} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{680562a com.google.android.inputmethod.latin/10143} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{d61ac1b android.auto_generated_rro_vendor__/10075} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{ce8b1b8 com.google.android.apps.restore/10119} BLOCKED
+W/p.youxu.planner( 6353): Accessing hidden method Landroid/os/Trace;->isTagEnabled(J)Z (unsupported, reflection, allowed)
+W/p.youxu.planner( 6353): Accessing hidden method Landroid/os/Trace;->traceBegin(JLjava/lang/String;)V (unsupported, reflection, allowed)
+W/p.youxu.planner( 6353): Accessing hidden method Landroid/os/Trace;->traceEnd(J)V (unsupported, reflection, allowed)
+W/p.youxu.planner( 6353): Accessing hidden method Landroid/os/Trace;->asyncTraceBegin(JLjava/lang/String;I)V (unsupported, reflection, allowed)
+W/p.youxu.planner( 6353): Accessing hidden method Landroid/os/Trace;->asyncTraceEnd(JLjava/lang/String;I)V (unsupported, reflection, allowed)
+I/cr_VariationsUtils( 6353): Failed reading seed file "/data/user/0/app.youxu.planner/app_webview/variations_seed_new"
+I/cr_VariationsUtils( 6353): Failed reading seed file "/data/user/0/app.youxu.planner/app_webview/variations_seed"
+I/ActivityManager(  520): Start proc 6453:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0i4 for  {app.youxu.planner/org.chromium.content.app.SandboxedProcessService0:0}
+W/chromium( 6353): [WARNING:dns_config_service_android.cc(115)] Failed to read DnsConfig.
+I/cr_WebViewApkApp( 6453): Launched version=113.0.5672.136 minSdkVersion=29 isBundle=false processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+D/CoreBackPreview(  520): Window{68bfb u0 app.youxu.planner/app.youxu.planner.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@a017e30, mPriority=0, mIsAnimationCallback=false}
+W/ziparchive(  520): Unable to open '/data/app/~~lRLm0ijgXhFpur6YLoRyzg==/app.youxu.planner-6ScKB83GnO4Yj5qWPZmmiQ==/base.dm': No such file or directory
+I/ActivityTaskManager(  520): Displayed app.youxu.planner/.MainActivity for user 0: +1s667ms
+I/ImeTracker(  520): app.youxu.planner:f5730d79: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+I/ImeTracker(  520): app.youxu.planner:f5730d79: onCancelled at PHASE_SERVER_SHOULD_HIDE
+W/InputManager-JNI(  520): Input channel object 'ec2b540 Splash Screen app.youxu.planner (client)' was disposed without first being removed with the input manager!
+I/GoogleInputMethodService( 1521): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=app.youxu.planner fieldId=0 fieldName=null extras=null}, false)
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{6dbbd29 com.google.android.googlequicksearchbox/10131} BLOCKED
+D/CoreBackPreview(  520): Window{68bfb u0 app.youxu.planner/app.youxu.planner.MainActivity}: Setting back callback null
+W/InputManager-JNI(  520): Input channel object '68bfb app.youxu.planner/app.youxu.planner.MainActivity (client)' was disposed without first being removed with the input manager!
+I/GoogleInputMethodService( 1521): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=app.youxu.planner fieldId=0 fieldName=null extras=null}, true)
+D/CoreBackPreview(  520): Window{fe4c0e6 u0 app.youxu.planner/app.youxu.planner.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@a4db979, mPriority=0, mIsAnimationCallback=false}
+I/GoogleInputMethodService( 1521): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=app.youxu.planner fieldId=0 fieldName=null extras=null}, true)
+I/WindowManager(  520): finishDrawing of relaunch: Window{fe4c0e6 u0 app.youxu.planner/app.youxu.planner.MainActivity} 585ms
+I/GoogleInputMethodService( 1521): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=app.youxu.planner fieldId=0 fieldName=null extras=null}, true)
+I/ImeTracker(  520): app.youxu.planner:cdea0b51: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+I/ImeTracker(  520): app.youxu.planner:cdea0b51: onCancelled at PHASE_SERVER_SHOULD_HIDE
+I/AppsFilter(  520): interaction: PackageSetting{ba99b78 app.youxu.planner/10192} -> PackageSetting{dd1d824 com.google.android.contacts/10155} BLOCKED
+I/GoogleInputMethodService( 1521): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=app.youxu.planner fieldId=0 fieldName=null extras=null}, false)
+W/p.youxu.planner( 6353): Accessing hidden method Landroid/view/MotionEvent;->getEventTimeNano()J (unsupported, reflection, allowed)
+I/ActivityManager(  520): Force stopping app.youxu.planner appid=10192 user=0: from pid 6821
+I/ActivityManager(  520): Killing 6353:app.youxu.planner/u0a192 (adj 0): stop app.youxu.planner due to from pid 6821
+I/ActivityManager(  520): Killing 6453:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0a192i4 (adj 0): isolated not needed
+W/ActivityTaskManager(  520): Force removing ActivityRecord{7336127 u0 app.youxu.planner/.MainActivity t12 f}}: app died, no saved state
+V/WindowManagerShell(  835): Transition requested: android.os.BinderProxy@fd58757 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=12 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=app.youxu.planner/.MainActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} numActivities=0 lastActiveTime=118836 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@1715244} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+I/ImeTracker(  520): app.youxu.planner:fcbe3350: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_REMOVE_CLIENT
+I/ImeTracker(  520): app.youxu.planner:fcbe3350: onCancelled at PHASE_SERVER_SHOULD_HIDE
+W/WindowManager(  520): Failed to deliver inset control state change to w=Window{fe4c0e6 u0 app.youxu.planner/app.youxu.planner.MainActivity}
+I/WindowManager(  520): WIN DEATH: Window{fe4c0e6 u0 app.youxu.planner/app.youxu.planner.MainActivity}
+W/InputManager-JNI(  520): Input channel object 'fe4c0e6 app.youxu.planner/app.youxu.planner.MainActivity (client)' was disposed without first being removed with the input manager!
+D/CarrierSvcBindHelper( 1047): onHandleForceStop: [app.youxu.planner]
+V/ActivityManager(  520): Got obituary of 6353:app.youxu.planner
+V/WindowManager(  520): Sent Transition #19 createdAt=11-13 10:44:00.202 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=12 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=app.youxu.planner/.MainActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} numActivities=0 lastActiveTime=118836 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{21ca0cd Task{3a46fd4 #12 type=standard A=10192:app.youxu.planner}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+V/WindowManager(  520):     info={id=19 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{21ca0cd Task{3a46fd4 #12 type=standard A=10192:app.youxu.planner}}} m=CLOSE f=NONE leash=Surface(name=Task=12)/@0x48cc91 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{662db7 Task{6f3ff35 #1 type=home}}} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xdf65b9f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{a2864ed token=android.os.Binder@8520704})/@0x9687edb sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+W/WindowManager(  520): Exception thrown during dispatchAppVisibility Window{fe4c0e6 u0 app.youxu.planner/app.youxu.planner.MainActivity EXITING}
+V/SplashScreenExceptionList(  520): SplashScreen checking exception for package app.youxu.planner (target sdk:34) -> false
+V/WindowManagerShell(  835): Transition requested: android.os.BinderProxy@a3913c2 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=13 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=app.youxu.planner/.MainActivity } baseActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} topActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} origActivity=null realActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} numActivities=1 lastActiveTime=132903 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@85eb5d3} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{febe510 app.youxu.planner.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+I/ActivityTaskManager(  520): START u0 {flg=0x10000000 cmp=app.youxu.planner/.MainActivity} with LAUNCH_SINGLE_TASK from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+D/CoreBackPreview(  520): Window{4215174 u0 Splash Screen app.youxu.planner}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@3ee4712, mPriority=0, mIsAnimationCallback=false}
+I/ActivityManager(  520): Start proc 6844:app.youxu.planner/u0a192 for next-top-activity {app.youxu.planner/app.youxu.planner.MainActivity}
+V/WindowManager(  520): Sent Transition #20 createdAt=11-13 10:44:01.140 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=13 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=app.youxu.planner/.MainActivity } baseActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} topActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} origActivity=null realActivity=ComponentInfo{app.youxu.planner/app.youxu.planner.MainActivity} numActivities=1 lastActiveTime=132903 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{9c0963f Task{af9f0c8 #13 type=standard A=10192:app.youxu.planner}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{8815b0c app.youxu.planner.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+V/WindowManager(  520):     info={id=20 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{9c0963f Task{af9f0c8 #13 type=standard A=10192:app.youxu.planner}}} m=OPEN f=NONE leash=Surface(name=Task=13)/@0xe779f99 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{662db7 Task{6f3ff35 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xdf65b9f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+I/p.youxu.planner( 6844): Late-enabling -Xcheck:jni
+I/p.youxu.planner( 6844): Using CollectorTypeCC GC.
+W/p.youxu.planner( 6844): Unexpected CPU variant for x86: x86_64.
+W/p.youxu.planner( 6844): Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+W/ziparchive( 6844): Unable to open '/data/app/~~lRLm0ijgXhFpur6YLoRyzg==/app.youxu.planner-6ScKB83GnO4Yj5qWPZmmiQ==/base.dm': No such file or directory
+W/ziparchive( 6844): Unable to open '/data/app/~~lRLm0ijgXhFpur6YLoRyzg==/app.youxu.planner-6ScKB83GnO4Yj5qWPZmmiQ==/base.dm': No such file or directory
+D/nativeloader( 6844): Configuring clns-6 for other apk /data/app/~~lRLm0ijgXhFpur6YLoRyzg==/app.youxu.planner-6ScKB83GnO4Yj5qWPZmmiQ==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~lRLm0ijgXhFpur6YLoRyzg==/app.youxu.planner-6ScKB83GnO4Yj5qWPZmmiQ==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/app.youxu.planner
+V/GraphicsEnvironment( 6844): ANGLE GameManagerService for app.youxu.planner: false
+V/GraphicsEnvironment( 6844): app.youxu.planner is not listed in per-application setting
+I/WebViewFactory( 6844): Loading com.google.android.webview version 113.0.5672.136 (code 567263637)
+W/p.youxu.planner( 6844): Entry not found
+D/nativeloader( 6844): Configuring clns-7 for other apk /data/app/~~WnxVZz3DU6yz7n-Gligz7g==/com.google.android.trichromelibrary_567263637-n2yl3AJqn1WgAUdjoWVOkg==/TrichromeLibrary.apk. target_sdk_version=34, uses_libraries=ALL, library_path=/data/app/~~djIEF-LV-wU6icHMaN-T8A==/com.google.android.webview-jeOk_hhBgCfI-ShkFoEHdA==/lib/x86_64:/data/app/~~djIEF-LV-wU6icHMaN-T8A==/com.google.android.webview-jeOk_hhBgCfI-ShkFoEHdA==/WebViewGoogle.apk!/lib/x86_64:/data/app/~~WnxVZz3DU6yz7n-Gligz7g==/com.google.android.trichromelibrary_567263637-n2yl3AJqn1WgAUdjoWVOkg==/TrichromeLibrary.apk!/lib/x86_64, permitted_path=/data:/mnt/expand
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{9a50442 com.android.cts.priv.ctsshim/10190} BLOCKED
+D/nativeloader( 6844): Configuring clns-8 for other apk /data/app/~~djIEF-LV-wU6icHMaN-T8A==/com.google.android.webview-jeOk_hhBgCfI-ShkFoEHdA==/WebViewGoogle.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~djIEF-LV-wU6icHMaN-T8A==/com.google.android.webview-jeOk_hhBgCfI-ShkFoEHdA==/lib/x86_64:/data/app/~~djIEF-LV-wU6icHMaN-T8A==/com.google.android.webview-jeOk_hhBgCfI-ShkFoEHdA==/WebViewGoogle.apk!/lib/x86_64:/data/app/~~WnxVZz3DU6yz7n-Gligz7g==/com.google.android.trichromelibrary_567263637-n2yl3AJqn1WgAUdjoWVOkg==/TrichromeLibrary.apk!/lib/x86_64, permitted_path=/data:/mnt/expand
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{5797de2 com.google.android.youtube/10139} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{2de8990 com.android.internal.display.cutout.emulation.corner/10025} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{c0aa289 com.android.internal.display.cutout.emulation.double/10048} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{6dbbd29 com.google.android.googlequicksearchbox/10131} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{6b12aaf com.google.android.onetimeinitializer/10126} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{6caaebc com.google.android.ext.shared/10100} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{6f1de45 com.android.internal.systemui.navbar.gestural_wide_back/10007} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{512d99a com.android.virtualmachine.res/10188} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{e6fc2cb com.google.android.federatedcompute/10173} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{6f1faa8 com.android.managedprovisioning.auto_generated_rro_product__/10024} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{55719c1 com.android.carrierconfig.auto_generated_rro_vendor__/10078} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{c34f566 com.android.systemui.emulation.pixel_3_xl/10034} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{835c0a7 com.android.systemui.emulation.pixel_4_xl/10059} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{7c01954 com.android.systemui.emulation.pixel_fold/10009} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{f7a90fd com.android.simappdialog.auto_generated_rro_product__/10030} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{b01f2 com.android.htmlviewer/10115} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{273c043 com.google.android.health.connect.backuprestore/10171} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{6af76c0 com.android.systemui.auto_generated_rro_product__/10031} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{27a5574 com.google.android.apps.messaging/10129} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{4c34b3e com.google.android.soundpicker/10137} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{8081d9f com.google.android.marvin.talkbackoverlay/10077} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{c753eec com.google.android.configupdater/10130} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{d9fe2b5 com.android.internal.emulation.pixel_3a_xl/10044} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{124dd4a com.android.internal.emulation.pixel_6_pro/10018} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{95af4bb com.android.internal.emulation.pixel_7_pro/10004} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{5ed5dd8 com.android.internal.emulation.pixel_8_pro/10058} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{5b8f531 com.android.internal.emulation.pixel_3a/10053} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{f5b8416 com.android.internal.emulation.pixel_4a/10011} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{b3a2197 com.android.internal.emulation.pixel_6a/10023} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{fc67f84 com.android.internal.emulation.pixel_7a/10033} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{676b36d com.google.android.overlay.googlewebview/10049} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{e83cba2 com.google.android.hotspot2.osulogin/10182} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{7754033 com.android.simappdialog/10112} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{ee0ff0 com.android.internal.display.cutout.emulation.hole/10073} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{1d81969 com.android.internal.display.cutout.emulation.tall/10065} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{f6ffee com.android.internal.systemui.navbar.threebutton/10068} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{1413544 com.android.camera2/10147} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{fbc3b1c com.android.systemui.auto_generated_rro_vendor__/10076} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{f2e82ab com.google.android.deskclock/10152} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{ddfed08 com.android.internal.systemui.navbar.twobutton/10020} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{761942 com.google.android.as/10125} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{54f1ee4 com.google.android.gm/10142} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{5509e87 com.android.internal.systemui.navbar.gestural_extra_wide_back/10045} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{70ad1b4 com.android.systemui.emulation.pixel_3/10015} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{b851dd com.android.systemui.emulation.pixel_4/10037} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{55a6152 com.android.systemui.emulation.pixel_5/10071} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{88e9c23 com.android.systemui.emulation.pixel_6/10074} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{e5d5520 com.android.systemui.emulation.pixel_7/10072} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{46d2ed9 com.android.systemui.emulation.pixel_8/10070} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{b99409e com.android.nfc.auto_generated_rro_product__/10027} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{a24d77f com.android.printspooler/10104} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{692a34c com.android.emergency.auto_generated_rro_product__/10041} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{2f8df95 com.google.android.connectivity.resources.goldfish.overlay/10079} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{a54c8aa com.android.dreams.basic/10103} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{8b96c9b com.google.android.networkstack.tethering.emulator/10022} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{eca838 com.android.providers.settings.auto_generated_rro_product__/10002} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{354e011 com.google.android.as.oss/10121} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{3650d4e com.android.traceur.auto_generated_rro_product__/10005} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{61607ae com.google.android.devicelockcontroller/10177} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{e88d1e7 com.google.android.dialer/10128} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{251d805 com.android.internal.emulation.pixel_3/10046} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{ff68f68 com.android.internal.emulation.pixel_4/10060} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{e1cef81 com.android.internal.emulation.pixel_5/10012} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{2117826 com.android.internal.emulation.pixel_6/10038} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{76fec67 com.android.internal.emulation.pixel_7/10067} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{3593a14 com.android.internal.emulation.pixel_8/10039} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{c2802bd com.google.android.captiveportallogin/10113} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{90cf0b2 com.android.musicfx/10088} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{784e803 com.google.android.apps.docs/10154} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{923f601 com.google.android.apps.maps/10153} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{799e380 com.google.android.modulemetadata/10146} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{4d70db9 com.google.android.markup/10135} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{bd565fe com.android.providers.settings.auto_generated_rro_vendor__/10080} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{c4c794f com.google.android.rkpdapp/10172} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{dd1d824 com.google.android.contacts/10155} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{8d1cc75 com.android.server.telecom.auto_generated_rro_product__/10032} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{51de40a com.google.android.overlay.googleconfig/10055} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{2f1547b com.android.chrome/10150} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{aa0a298 com.android.bips.auto_generated_rro_product__/10035} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{17fbaf1 com.google.android.apps.customization.pixel/10145} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{5be36d6 com.google.android.tag/10082} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{636bd57 com.google.android.overlay.permissioncontroller/10003} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{b495044 com.google.android.partnersetup/10124} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{d44152d com.google.android.apps.wallpaper.nexus/10141} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{23eea62 com.google.android.apps.nexuslauncher/10169} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{9ffd7f3 com.google.android.nearby.halfsheet/10184} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{ead2cb0 com.android.theme.font.notoserifsource/10066} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{379d729 com.google.android.safetycenter.resources/10186} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{d254aae com.android.internal.display.cutout.emulation.waterfall/10040} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{636004f com.android.internal.systemui.navbar.transparent/10029} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{53063dc com.google.android.connectivity.resources/10183} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{c2fbce5 com.android.providers.contacts.auto_generated_rro_product__/10019} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{9ff63ba com.google.android.feedback/10162} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{dfc526b com.google.android.printservice.recommendation/10110} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{f4de1c8 com.google.android.apps.photos/10140} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{dd5b894 com.google.android.calendar/10144} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{d719162 com.google.android.documentsui/10098} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{5300186 com.android.systemui.emulation.pixel_3a_xl/10021} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{98baa47 com.android.systemui.emulation.pixel_6_pro/10063} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{8435274 com.android.systemui.emulation.pixel_7_pro/10054} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{181a39d com.android.systemui.emulation.pixel_8_pro/10001} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{c7ab012 com.google.mainline.telemetry/10151} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{1cea3e3 com.android.carrierconfig.auto_generated_rro_product__/10064} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{f7d21e0 com.android.providers.partnerbookmarks/10101} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{bd9dc99 com.android.wallpaper.livepicker/10090} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{44fbb5e com.android.providers.telephony.auto_generated_rro_product__/10062} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{9bd9b3f com.android.phone.auto_generated_rro_vendor__/10081} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{cc27c0c com.google.mainline.adservices/10136} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{de2a955 com.android.imsserviceentitlement/10117} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{5d82f6a com.google.android.healthconnect.controller/10170} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{17aac5b com.android.internal.emulation.pixel_2_xl/10016} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{b214cf8 com.android.internal.emulation.pixel_3_xl/10056} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{27185d1 com.android.internal.emulation.pixel_4_xl/10047} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{1c1d836 com.android.internal.emulation.pixel_fold/10006} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{f2db337 com.android.bookmarkprovider/10114} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{69a40a4 com.google.android.overlay.pixelconfigcommon/10014} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{237ae0d com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__/10050} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{3cb41c2 com.android.systemui.emulation.pixel_3a/10013} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{9a04bd3 com.android.systemui.emulation.pixel_4a/10000} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{88cc310 com.android.systemui.emulation.pixel_6a/10042} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{5be1e09 com.android.systemui.emulation.pixel_7a/10017} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{6d29c6d com.google.android.settings.intelligence/10118} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{d8e8a97 com.google.android.projection.gearhead/10123} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{99d22f com.google.android.uwb.resources/10175} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{5e110f4 com.android.cts.ctsshim/10191} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{ee3003c com.google.android.wifi.resources/10180} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{b2191c5 com.google.android.wifi.dialog/10181} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{b13471a com.google.android.apps.wallpaper/10160} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{efb624b com.google.android.odad/10122} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{9fde428 com.android.settings.auto_generated_rro_product__/10028} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{b8e8541 com.android.internal.systemui.navbar.gestural/10051} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{a6d243d com.google.android.apps.youtube.music/10156} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{29bd827 com.android.bluetoothmidiservice/10107} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{d611ad4 com.android.storagemanager.auto_generated_rro_product__/10026} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{c7d347d com.google.android.cellbroadcastreceiver/10176} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{68a4a59 com.android.phone.auto_generated_rro_product__/10061} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{55ef61e android.auto_generated_rro_product__/10069} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{c8c3315 com.android.internal.systemui.navbar.gestural_narrow_back/10052} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{680562a com.google.android.inputmethod.latin/10143} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{d61ac1b android.auto_generated_rro_vendor__/10075} BLOCKED
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{ce8b1b8 com.google.android.apps.restore/10119} BLOCKED
+W/p.youxu.planner( 6844): Accessing hidden method Landroid/os/Trace;->isTagEnabled(J)Z (unsupported, reflection, allowed)
+W/p.youxu.planner( 6844): Accessing hidden method Landroid/os/Trace;->traceBegin(JLjava/lang/String;)V (unsupported, reflection, allowed)
+W/p.youxu.planner( 6844): Accessing hidden method Landroid/os/Trace;->traceEnd(J)V (unsupported, reflection, allowed)
+W/p.youxu.planner( 6844): Accessing hidden method Landroid/os/Trace;->asyncTraceBegin(JLjava/lang/String;I)V (unsupported, reflection, allowed)
+W/p.youxu.planner( 6844): Accessing hidden method Landroid/os/Trace;->asyncTraceEnd(JLjava/lang/String;I)V (unsupported, reflection, allowed)
+I/cr_VariationsUtils( 6844): Failed reading seed file "/data/user/0/app.youxu.planner/app_webview/variations_seed_new"
+I/cr_VariationsUtils( 6844): Failed reading seed file "/data/user/0/app.youxu.planner/app_webview/variations_seed"
+I/ActivityManager(  520): Start proc 6886:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0i5 for  {app.youxu.planner/org.chromium.content.app.SandboxedProcessService0:0}
+W/chromium( 6844): [WARNING:dns_config_service_android.cc(115)] Failed to read DnsConfig.
+I/cr_WebViewApkApp( 6886): Launched version=113.0.5672.136 minSdkVersion=29 isBundle=false processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+D/CoreBackPreview(  520): Window{9de2c39 u0 app.youxu.planner/app.youxu.planner.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@8e022cf, mPriority=0, mIsAnimationCallback=false}
+W/ziparchive(  520): Unable to open '/data/app/~~lRLm0ijgXhFpur6YLoRyzg==/app.youxu.planner-6ScKB83GnO4Yj5qWPZmmiQ==/base.dm': No such file or directory
+I/ActivityTaskManager(  520): Displayed app.youxu.planner/.MainActivity for user 0: +1s191ms
+D/CoreBackPreview(  520): Window{4215174 u0 Splash Screen app.youxu.planner EXITING}: Setting back callback null
+W/InputManager-JNI(  520): Input channel object '4215174 Splash Screen app.youxu.planner (client)' was disposed without first being removed with the input manager!
+I/ImeTracker(  520): app.youxu.planner:29f991da: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+I/ImeTracker(  520): app.youxu.planner:29f991da: onCancelled at PHASE_SERVER_SHOULD_HIDE
+I/GoogleInputMethodService( 1521): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=app.youxu.planner fieldId=0 fieldName=null extras=null}, false)
+W/p.youxu.planner( 6844): Accessing hidden method Landroid/view/MotionEvent;->getEventTimeNano()J (unsupported, reflection, allowed)
+I/AppsFilter(  520): interaction: PackageSetting{6506841 app.youxu.planner/10192} -> PackageSetting{2d021d7 com.google.android.contacts/10155} BLOCKED
+I/GoogleInputMethodService( 1521): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=app.youxu.planner fieldId=0 fieldName=null extras=null}, true)
+W/InputManager-JNI(  520): Input channel object '9de2c39 app.youxu.planner/app.youxu.planner.MainActivity (client)' was disposed without first being removed with the input manager!
+I/WindowManager(  520): setOnBackInvokedCallback(): No window state for package:app.youxu.planner
+I/GoogleInputMethodService( 1521): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=app.youxu.planner fieldId=0 fieldName=null extras=null}, true)
+D/CoreBackPreview(  520): Window{622531a u0 app.youxu.planner/app.youxu.planner.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@c91b427, mPriority=0, mIsAnimationCallback=false}
+I/GoogleInputMethodService( 1521): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=app.youxu.planner fieldId=0 fieldName=null extras=null}, true)
+I/WindowManager(  520): finishDrawing of relaunch: Window{622531a u0 app.youxu.planner/app.youxu.planner.MainActivity} 292ms
+I/ImeTracker(  520): app.youxu.planner:4509995a: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+I/ImeTracker(  520): app.youxu.planner:4509995a: onCancelled at PHASE_SERVER_SHOULD_HIDE
+I/GoogleInputMethodService( 1521): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=app.youxu.planner fieldId=0 fieldName=null extras=null}, false)

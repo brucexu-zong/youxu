@@ -1,0 +1,4 @@
+package: name='app.youxu.planner' versionCode='1011' versionName='1.0.1011' platformBuildVersionName='14' platformBuildVersionCode='34' compileSdkVersion='34' compileSdkVersionCodename='14'
+minSdkVersion:'29'
+targetSdkVersion:'34'
+uses-permission: name='android.permission.INTERNET'

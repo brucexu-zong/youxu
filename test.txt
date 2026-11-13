@@ -1,0 +1,19 @@
+✓ runs inside the app from built-in files  {"origin":"https://appassets.androidplatform.net","native":true,"subtle":true,"zip":"function","tab":"butler","items":0,"demo":false,"ver":"21e2afc10747f3a39068ba281fd0e0cc5c11290d","app":"1.0.11","ua":"Chrome/113.0.5672.136"}
+✓ encryption and compression available
+✓ first launch: no demo data, opens the device setup
+✓ encrypt → decrypt round trip in the WebView
+✓ GitHub API reachable from the app  200 21e2afc10747
+✓ quick capture
+✓ data survives an app restart
+✓ saving a file to Downloads  ok:Download/有序/youxu-ci.json | /sdcard/Download/有序/youxu-ci.json
+✓ back key closes the open sheet first
+✓ back key then returns to Today
+✓ text shared from another app lands in the capture box
+✓ pairing code on the clipboard is filled in automatically
+✓ updated interface is used on the next start
+✓ a broken update is removed and the built-in version comes back  {"cap":true,"ver":"21e2afc10747f3a39068ba281fd0e0cc5c11290d"} files=ls: files/web: No such file or directory
+✓ stays on the built-in version after another restart
+✓ data intact after all that
+✓ dark mode follows the system  {"mq":false,"attr":"dark","bg":"rgb(15, 19, 22)"}
+✓ data intact after switching to dark mode
+exit 0

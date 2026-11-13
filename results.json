@@ -1,0 +1,92 @@
+[
+ {
+  "n": "runs inside the app from built-in files",
+  "ok": true,
+  "extra": "{\"origin\":\"https://appassets.androidplatform.net\",\"native\":true,\"subtle\":true,\"zip\":\"function\",\"tab\":\"butler\",\"items\":0,\"demo\":false,\"ver\":\"21e2afc10747f3a39068ba281fd0e0cc5c11290d\",\"app\":\"1.0.11\",\"ua\":\"Chrome/113.0.5672.136\"}"
+ },
+ {
+  "n": "encryption and compression available",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "first launch: no demo data, opens the device setup",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "encrypt → decrypt round trip in the WebView",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "GitHub API reachable from the app",
+  "ok": true,
+  "extra": "200 21e2afc10747"
+ },
+ {
+  "n": "quick capture",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "data survives an app restart",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "saving a file to Downloads",
+  "ok": true,
+  "extra": "ok:Download/有序/youxu-ci.json | /sdcard/Download/有序/youxu-ci.json"
+ },
+ {
+  "n": "back key closes the open sheet first",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "back key then returns to Today",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "text shared from another app lands in the capture box",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "pairing code on the clipboard is filled in automatically",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "updated interface is used on the next start",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "a broken update is removed and the built-in version comes back",
+  "ok": true,
+  "extra": "{\"cap\":true,\"ver\":\"21e2afc10747f3a39068ba281fd0e0cc5c11290d\"} files=ls: files/web: No such file or directory"
+ },
+ {
+  "n": "stays on the built-in version after another restart",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "data intact after all that",
+  "ok": true,
+  "extra": ""
+ },
+ {
+  "n": "dark mode follows the system",
+  "ok": true,
+  "extra": "{\"mq\":false,\"attr\":\"dark\",\"bg\":\"rgb(15, 19, 22)\"}"
+ },
+ {
+  "n": "data intact after switching to dark mode",
+  "ok": true,
+  "extra": ""
+ }
+]
