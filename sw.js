@@ -1,7 +1,7 @@
 /* 有序 · 离线缓存。先用本地缓存立即打开，再在后台更新，所以网络不通时也能用。 */
-const V = 'youxu-e6e7b26317';
+const V = 'youxu-0f44066524';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
-self.addEventListener('install', (e) => { e.waitUntil(caches.open(V).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
+self.addEventListener('install', (e) => { e.waitUntil(caches.open(V).then((c) => c.addAll(SHELL.map((p) => new Request(p, { cache: 'reload' })))).then(() => self.skipWaiting())); });   // 安装新版本时绕过浏览器缓存，拿到的一定是最新文件
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== V && k.indexOf('youxu-') === 0).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', (e) => {
   const u = new URL(e.request.url);

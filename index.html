@@ -2412,6 +2412,13 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     try {
       if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         navigator.serviceWorker.register('sw.js').catch(() => { });
+        // 开着不关时也能更新：每半小时、以及切回窗口时检查一次；新版本装好后在你空闲时换上
+        const hadController = !!navigator.serviceWorker.controller;
+        navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) applyUpdate(); });
+        const checkUpdate = () => navigator.serviceWorker.getRegistration().then((r) => r && r.update()).catch(() => { });
+        setInterval(checkUpdate, 30 * 60000);
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
+        window.__youxuCheckUpdate = checkUpdate;
         // 有新版本：没在输入、没开详情时直接换上；否则提示一下，由你点
         navigator.serviceWorker.addEventListener('message', (e) => { if (e.data && e.data.type === 'youxu-updated') applyUpdate(); });
       }
