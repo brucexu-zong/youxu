@@ -210,6 +210,28 @@ h1, h2, h3 { text-wrap: balance; }
 .dd.out b { color: var(--ink3); font-weight: 400; }
 .dd:hover b { box-shadow: inset 0 0 0 1.5px var(--line); }
 .dd.sel:hover b { box-shadow: none; }
+.dd { position: relative; }
+.hb { position: absolute; top: 1px; right: 1px; font-size: 9.5px; font-weight: 700; line-height: 1; font-style: normal; padding: 1px 2px; border-radius: 3px; pointer-events: none; }
+.hb.mine { color: var(--crit); }
+.hb.work { color: var(--ink3); }
+.hb.oth { color: var(--ink2); background: var(--sunk); }
+.dd.rest:not(.sel) b { color: var(--crit); }
+.cal-foot { display: flex; justify-content: flex-end; border-top: 1px solid var(--line); margin-top: 4px; padding-top: 4px; }
+.chip.hol { cursor: pointer; }
+.chip.hol.mine { background: color-mix(in srgb, var(--crit) 12%, var(--surface)); color: var(--crit); }
+.chip.hol.work { background: var(--sunk); color: var(--ink2); }
+.hlist { display: flex; flex-direction: column; margin-top: 8px; }
+.hrow { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 4px 12px; align-items: baseline; padding: 9px 2px; border-bottom: 1px solid var(--line); }
+.hrow:last-child { border-bottom: 0; }
+.hrow .hl-d { color: var(--ink2); font-size: 13px; }
+.hrow .hl-n { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: left; }
+.hrow .hl-n b { font-weight: 600; }
+.hrow.past { opacity: .5; }
+.hrow.work .hl-n b { font-weight: 500; color: var(--ink2); }
+.hrow.sub { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.hrow.sub .hl-n:hover b { color: var(--accent); }
+.hol-on, .hol-add { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--bg); display: flex; flex-direction: column; gap: 8px; }
+.hol-on > span { font-weight: 600; }
 .dots { display: flex; gap: 2px; height: 4px; }
 .dots i { width: 4px; height: 4px; border-radius: 50%; background: var(--ink3); }
 .dd.sel .dots i { background: var(--accent); }
@@ -520,7 +542,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     now = now || new Date(); skip = skip || {}; extra = extra || {};
     const today = ymd(now), nowMin = now.getHours() * 60 + now.getMinutes(), cur = (now.getDay() + 6) % 7;
     let s = ' ' + String(text).trim().replace(/大概|大约|差不多|约莫|左右/g, ' ') + ' ';
-    const r = { title: '', due: null, until: null, time: null, est: null, priority: 1, projectHint: null, slot: null, follow: false, repeat: null, repeatDays: null, by: false, when: null, where: null, found: {}, asks: [] };
+    const r = { title: '', due: null, until: null, time: null, est: null, priority: 1, projectHint: null, slot: null, follow: false, repeat: null, repeatN: null, repeatDays: null, by: false, when: null, where: null, found: {}, asks: [] };
     // 你的习惯：有歧义的说法，按你上次的选择来理解；asks 是这句话里仍可能有歧义的地方（界面会给出选择题）
     const H = extra.habits || {}, hv = (k) => (H[k] && H[k].v != null) ? H[k].v : null;
     const pick = (k, def, ok) => { const v = hv(k); return v != null && (!ok || ok.indexOf(String(v)) >= 0) ? v : def; };
@@ -558,21 +580,40 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
         .sort((a, b) => b.text.length - a.text.length).forEach((ph) => { const i = s.indexOf(ph.text); if (i < 0) return; pend.push(ph); if (!ph.set.keep) s = s.slice(0, i) + ' ' + s.slice(i + ph.text.length); });
     }
 
-    // 重复：每天 / 每个工作日 / 每周三 / 每周一三五 / 每两周 / 每月5号
+    // 重复：每天 / 每晚 / 每两天 / 每隔两天 / 隔天 / 工作日 / 每周六 / 周六都 / 每周一三五 / 每周一到周五 / 每周末 / 每两周 / 每月5号 / 每月底 / 每季度 / 每年3月1日
     if (!skip.repeat) {
-      const setRep = (v, raw) => { if (r.repeat) return false; r.repeat = v; r.found.repeat = raw.trim(); return true; };
-      cut(/每个?工作日/, (m) => setRep('weekday', m));
-      cut(/每(?:天|日)/, (m) => setRep('day', m));
-      cut(/每个?(?:周|星期|礼拜)([一二三四五六日天]{2,7})/, (m, ws) => {
-        if (!setRep('week', m)) return false;
-        r.repeatDays = Array.from(new Set(ws.split('').map(wd))).sort();
-        if (!r.due) { let k = 0; while (r.repeatDays.indexOf((cur + k) % 7) < 0 && k < 7) k++; r.due = addDays(today, k); }
+      const setRep = (v, raw, n, days) => { if (r.repeat) return false; r.repeat = v; r.found.repeat = raw.trim(); if (n) r.repeatN = n; if (days) r.repeatDays = days; return true; };
+      const W = '[一二三四五六日天]', WK = '(?:周|星期|礼拜)';
+      const dayList = (run) => Array.from(new Set((run.match(/[一二三四五六日天]/g) || []).map(wd))).sort();
+      const span = (x, y) => { const out = []; for (let i = wd(x); i <= wd(y); i++) out.push(i); return out; };
+      const nOf = (x) => { const v = /^\d+$/.test(x) ? +x : numF(x); return isNaN(v) ? null : Math.round(v); };
+      cut(new RegExp('每个?工作日|工作日(?:每天|都)|(?:每' + WK + '|' + WK + ')一(?:到|至|-|~|～)' + WK + '?五(?:每天|都)?'), (m) => setRep('weekday', m));
+      cut(new RegExp('(?:每(?:个|逢)?' + WK + '?末|' + WK + '?末(?:都|每次))'), (m) => setRep('week', m, null, [5, 6]));
+      cut(new RegExp('每(?:个|逢)?' + WK + '(' + W + ')(?:到|至|-|~|～)' + WK + '?(' + W + ')'), (m, x, y) => wd(y) > wd(x) ? setRep('week', m, null, span(x, y)) : false);
+      cut(new RegExp('每(两|2|隔一)个?' + WK + '的?(?:' + WK + ')?(' + W + ')?'), (m, two, w) => { if (!setRep('2week', m)) return false; if (w) r.repeatDays = [wd(w)]; });
+      cut(new RegExp('每\\s*(\\d+|[三四五六七八九十]{1,2})\\s*个?' + WK + '(' + W + ')?'), (m, n, w) => { const k = nOf(n); if (!k || k < 3 || k > 52) return false; if (!setRep('nweek', m, k)) return false; if (w) r.repeatDays = [wd(w)]; });
+      cut(new RegExp('每(?:个|逢)?' + WK + '(' + W + '(?:\\s*[、,，和及与/]?\\s*' + WK + '?' + W + ')*)'), (m, run) => setRep('week', m, null, dayList(run)));
+      cut(new RegExp(WK + '(' + W + '(?:\\s*[、,，和及与/]\\s*' + WK + '?' + W + ')*)(?:都|每次都?)'), (m, run) => setRep('week', m, null, dayList(run)));
+      cut(/每\s*隔\s*(\d+|[一二两三四五六七八九十]{1,3})\s*(?:天|日)|隔天|隔日/, (m, n) => {
+        const g = n ? nOf(n) : 1; if (!g || g > 60) return false;
+        if (g === 1) return setRep('nday', m, 2);
+        const c = pick('gap', 'skip', ['skip', 'every']), k = c === 'every' ? g : g + 1;
+        r.asks.push({ key: 'gap', q: '“' + m.trim() + '”是指', cur: c, opts: [{ v: 'every', label: '每 ' + g + ' 天一次' }, { v: 'skip', label: '每 ' + (g + 1) + ' 天一次（中间空 ' + g + ' 天）' }] });
+        return setRep(k === 1 ? 'day' : 'nday', m, k > 1 ? k : null);
       });
-      cut(/每(两|2|隔一)?个?(?:周|星期|礼拜)([一二三四五六日天])?/, (m, two, w) => {
-        if (!setRep(two ? '2week' : 'week', m)) return false;
-        if (w && !r.due) { let dl = wd(w) - cur; if (dl < 0) dl += 7; r.due = addDays(today, dl); }
-      });
-      cut(/每个?月(?:(\d{1,2})[号日])?/, (m, d) => { if (!setRep('month', m)) return false; if (d && +d >= 1 && +d <= 31 && !r.due) r.due = dayOfMonth(+d); });
+      cut(/每\s*(\d+|[两二三四五六七八九十]{1,3}|两三|三四|四五)\s*(?:天|日)(?:一次)?/, (m, n) => { const k = nOf(n); if (!k || k < 2 || k > 365) return false; return setRep('nday', m, k); });
+      cut(/(?:每(?:天|日)?|天天)(早上|早晨|清晨|上午|中午|下午|傍晚|晚上|夜里|晚|早|夜)/, (m, p) => { if (!setRep('day', m)) return false; const sl = /早|上午|清晨/.test(p) ? 'morning' : /中午/.test(p) ? 'noon' : /下午/.test(p) ? 'afternoon' : 'evening'; r.slot = r.slot || sl; return ' ' + (p.length > 1 ? p : '') + ' '; });
+      cut(/每(?:天|日)|天天/, (m) => setRep('day', m));
+      cut(new RegExp('每(?:个|逢)?' + WK + '(?![' + '一二三四五六日天末' + '])'), (m) => setRep('week', m));
+      cut(/每季度|每个季度|每三个月/, (m) => setRep('nmonth', m, 3));
+      cut(/每半年/, (m) => setRep('nmonth', m, 6));
+      cut(/每\s*(两|2|四|4|五|5|六|6|\d{1,2})\s*个月/, (m, n) => { const k = nOf(n); if (!k || k < 2 || k > 24) return false; return setRep('nmonth', m, k); });
+      cut(/每个?月的?(?:底|末|最后一天)/, (m) => { if (!setRep('month', m, null, [-1])) return false; if (!r.due) r.due = ymd(new Date(now.getFullYear(), now.getMonth() + 1, 0)); });
+      cut(/每个?月的?初/, (m) => { if (!setRep('month', m, null, [1])) return false; if (!r.due) r.due = dayOfMonth(1); });
+      cut(/每个?月的?中/, (m) => { if (!setRep('month', m, null, [15])) return false; if (!r.due) r.due = dayOfMonth(15); });
+      cut(/每个?月的?(?:(\d{1,2}|[一二三四五六七八九十]{1,3})\s*[号日])?/, (m, d) => { const k = d ? nOf(d) : null; if (d && (!k || k < 1 || k > 31)) return false; if (!setRep('month', m, null, k ? [k] : null)) return false; if (k && !r.due) r.due = dayOfMonth(k); });
+      cut(/每年的?(?:(\d{1,2})\s*月\s*(\d{1,2})\s*[日号]?)?/, (m, mo, d) => { if (!setRep('year', m)) return false; if (mo && !r.due) { const x = mdDate(0, +mo, +d); if (x) r.due = x < today ? mdDate(now.getFullYear() + 1, +mo, +d) : x; } });
+      if (r.repeat) s = s.replace(/(^|\s)(?:都要|都得|都会|都|要)(?=\S)/, '$1');
     }
 
     let attr = null;   // “明天的PPT”这类：日期是修饰语，只在没有别的日期时当作截止
@@ -715,15 +756,21 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       if (st.est && r.est == null && !skip.est) { r.est = +st.est; r.found.est = ph.text; }
       if (st.when && !r.when) r.when = st.when;
       if (st.priority && r.priority < st.priority) r.priority = st.priority;
+      if (st.repeat && !r.repeat && !skip.repeat) { r.repeat = st.repeat; r.repeatN = st.repeatN || null; r.repeatDays = st.repeatDays || null; r.found.repeat = ph.text; }
     });
     if (attr && !r.due) {
       const c = pick('attr', 'by', ['by', 'today', 'none']);
       r.asks.push({ key: 'attr', q: '这件事', cur: c, opts: [{ v: 'by', label: fmtDate(attr, today) + '之前做完' }, { v: 'today', label: '今天做' }, { v: 'none', label: '不设日期' }] });
       if (c === 'by') { r.due = attr; r.by = true; r.found.due = '（按提到的日期）'; } else if (c === 'today') { r.due = today; r.found.due = '（今天）'; }
     }
+    if (r.repeat && !r.due) {
+      if (r.repeat === 'weekday') r.due = cur > 4 ? addDays(today, 7 - cur) : today;
+      else if ((r.repeat === 'week' || r.repeat === '2week' || r.repeat === 'nweek') && r.repeatDays && r.repeatDays.length) { let k = 0; while (r.repeatDays.indexOf((cur + k) % 7) < 0 && k < 7) k++; r.due = addDays(today, k); }
+      else r.due = today;
+    }
+    if (r.repeat && r.due === today && !r.found.due && r.time && toMin(r.time) <= nowMin) r.due = nextDue(today, r.repeat, today, r.repeatDays, r.repeatN);   // 今天这个钟点已过：从下一次开始
     if (r.time && !r.due) { r.due = toMin(r.time) > nowMin ? today : addDays(today, 1); }
     if (r.slot && !r.due) r.due = today;
-    if (r.repeat && !r.due) r.due = (r.repeat === 'weekday' && cur > 4) ? addDays(today, 7 - cur) : today;
     if (r.time || r.until) r.by = false;
 
     // 没有日期时的模糊说法：近期做 / 以后再说
@@ -817,20 +864,75 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     (state.rules || []).forEach((r) => { if (r.deleted) return; (r.match || []).forEach((k) => { k = String(k).toLowerCase(); if (k && low.indexOf(k) >= 0 && k.length > len) { best = r; len = k.length; } }); });
     return best;
   }
-  const REPEAT_NAME = { day: '每天', weekday: '工作日', week: '每周', '2week': '每两周', month: '每月' };
-  const repeatLabel = (it) => it.repeat === 'week' && it.repeatDays && it.repeatDays.length ? '每周' + it.repeatDays.map((d) => '一二三四五六日'[d]).join('') : REPEAT_NAME[it.repeat];
-  function nextDue(due, rep, today, days) {
-    let d = due || today;
+  const REPEAT_NAME = { day: '每天', weekday: '工作日', week: '每周', '2week': '每两周', month: '每月', nday: '每几天', nweek: '每几周', nmonth: '每几个月', year: '每年' };
+  function repeatLabel(it) {
+    const r = it.repeat, ds = it.repeatDays || [], n = it.repeatN || 2, cn = (k) => k === 2 ? '两' : String(k);
+    if (r === 'week' && ds.length) return ds.join() === '5,6' ? '每周末' : ds.join() === '0,1,2,3,4' ? '工作日' : '每周' + ds.map((d) => '一二三四五六日'[d]).join('');
+    if (r === 'week' && it.due) return '每' + weekdayName(it.due);
+    if (r === '2week') return '每两周' + (ds.length ? '的周' + '一二三四五六日'[ds[0]] : '');
+    if (r === 'nday') return '每' + cn(n) + '天';
+    if (r === 'nweek') return '每' + n + '周';
+    if (r === 'nmonth') return n === 3 ? '每季度' : n === 6 ? '每半年' : '每' + cn(n) + '个月';
+    if (r === 'month') { const d = ds.length ? ds[0] : it.due ? +it.due.slice(8) : null; return d === -1 ? '每月最后一天' : d ? '每月 ' + d + ' 号' : '每月'; }
+    if (r === 'year' && it.due) { const x = parseYmd(it.due); return '每年 ' + (x.getMonth() + 1) + '月' + x.getDate() + '日'; }
+    return REPEAT_NAME[r] || '重复';
+  }
+  function nextDue(due, rep, today, days, n) {
+    let d = due || today; n = Math.max(1, +n || 1);
+    const monthStep = (k) => {
+      const x = parseYmd(d), anchor = days && days.length ? days[0] : x.getDate();
+      const first = new Date(x.getFullYear(), x.getMonth() + k, 1), last = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+      d = ymd(new Date(first.getFullYear(), first.getMonth(), anchor === -1 ? last : Math.min(anchor, last)));
+    };
     const step = () => {
       if (rep === 'week' && days && days.length) { do { d = addDays(d, 1); } while (days.indexOf((parseYmd(d).getDay() + 6) % 7) < 0); return; }
-      if (rep === 'weekday') { do { d = addDays(d, 1); } while ([0, 6].indexOf(parseYmd(d).getDay()) >= 0); }
-      else if (rep === 'week') d = addDays(d, 7);
+      if (rep === 'weekday') { do { d = addDays(d, 1); } while ([0, 6].indexOf(parseYmd(d).getDay()) >= 0); return; }
+      if (rep === 'week') d = addDays(d, 7);
       else if (rep === '2week') d = addDays(d, 14);
-      else if (rep === 'month') { const x = parseYmd(d), n = new Date(x.getFullYear(), x.getMonth() + 1, 1), last = new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate(); d = ymd(new Date(n.getFullYear(), n.getMonth(), Math.min(x.getDate(), last))); }
+      else if (rep === 'nweek') d = addDays(d, 7 * n);
+      else if (rep === 'nday') d = addDays(d, n);
+      else if (rep === 'month') monthStep(1);
+      else if (rep === 'nmonth') monthStep(n);
+      else if (rep === 'year') { const x = parseYmd(d), y = x.getFullYear() + 1, last = new Date(y, x.getMonth() + 1, 0).getDate(); d = ymd(new Date(y, x.getMonth(), Math.min(x.getDate(), last))); }
       else d = addDays(d, 1);
     };
-    step(); let g = 0; while (d <= today && g++ < 800) step();
+    step(); let g = 0; while (d <= today && g++ < 2000) step();
     return d;
+  }
+  /* 重复规则 ⇄ 一个短代码（界面的选项用）：'' day weekday week:5 week:0,2,4 2week nday:2 nweek:3 month:15 month:-1 nmonth:3 year */
+  function repeatCode(it) {
+    if (!it || !it.repeat) return '';
+    const ds = (it.repeatDays || []).join(',');
+    if (it.repeat === 'week') return ds ? 'week:' + ds : 'week:' + (it.due ? wdIdx(it.due) : 0);
+    if (it.repeat === 'month') return 'month:' + (ds || (it.due ? +it.due.slice(8) : 1));
+    if (/^n/.test(it.repeat)) return it.repeat + ':' + (it.repeatN || 2);
+    return it.repeat;
+  }
+  function applyRepeat(it, code, now) {
+    const today = ymd(now || new Date()), m = String(code || '').split(':'), k = m[0], arg = m[1];
+    if (!k) { it.repeat = null; it.repeatN = null; it.repeatDays = null; return it; }
+    it.repeat = k; it.repeatN = null; it.repeatDays = null;
+    if (k === 'week' && arg) it.repeatDays = arg.split(',').map(Number).filter((x) => x >= 0 && x <= 6).sort();
+    else if (k === 'month' && arg) it.repeatDays = [+arg];
+    else if (/^n/.test(k)) it.repeatN = Math.max(2, Math.min(365, +arg || 2));
+    // 日子要落在规则上：从原来的日子（或今天）起找第一次
+    const base = it.due && it.due >= today ? it.due : today;
+    const fits = (d) => k === 'weekday' ? wdIdx(d) < 5 : k === 'week' && it.repeatDays ? it.repeatDays.indexOf(wdIdx(d)) >= 0 : k === 'month' && it.repeatDays ? (it.repeatDays[0] === -1 ? addDays(d, 1).slice(8) === '01' : +d.slice(8) === it.repeatDays[0]) : true;
+    if (k === 'month' && it.repeatDays) {   // 当月的那一天还没过就用当月，否则下个月
+      const x = parseYmd(base), a = it.repeatDays[0], last = new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate();
+      const d = ymd(new Date(x.getFullYear(), x.getMonth(), a === -1 ? last : Math.min(a, last)));
+      it.due = d >= base ? d : nextDue(d, 'month', base, it.repeatDays);
+    } else it.due = fits(base) ? base : nextDue(base, k, base, it.repeatDays, it.repeatN);
+    it.when = null; it.until = null;
+    return it;
+  }
+  function repeatChoices(it, today) {
+    const base = (it && it.due) || today, w = wdIdx(base), dm = +base.slice(8), x = parseYmd(base);
+    const out = [['', '不重复'], ['day', '每天'], ['nday:2', '每两天'], ['weekday', '工作日'], ['week:' + w, '每' + weekdayName(base)], ['week:5,6', '每周末'], ['2week', '每两周'], ['month:' + dm, '每月 ' + dm + ' 号'], ['month:-1', '每月最后一天'], ['nmonth:3', '每季度'], ['year', '每年 ' + (x.getMonth() + 1) + '月' + x.getDate() + '日']];
+    const cur = repeatCode(it);
+    if (cur && !out.some((o) => o[0] === cur)) out.splice(1, 0, [cur, repeatLabel(it)]);
+    if (!out.some((o) => /^nday:/.test(o[0]) && o[0] !== 'nday:2')) out.push(['nday:3', '每隔几天（自己定）']);
+    return out.map((o) => ({ v: o[0], label: o[1] }));
   }
   function related(state, item, max) {
     const A = new Set(tokens(item.title));
@@ -852,7 +954,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     return {
       v: 1,
       projects: [], items: [], rules: [], fixes: [], phrases: [], habits: {},
-      routine: { targets: { wake: '07:00', breakfast: '07:30', lunch: '12:30', dinner: '18:30', sleep: '23:30' }, log: {}, custom: [] },
+      routine: { targets: { wake: '07:00', breakfast: '07:30', lunch: '12:30', dinner: '18:30', sleep: '23:30' }, log: {}, custom: [] }, hcal: [],
       settings: { workStart: '08:30', windDown: 45, tol: 30, notify: false },
       meta: { deviceId: uid(), demo: false }
     };
@@ -905,7 +1007,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const t = Date.now();
     return Object.assign({
       id: uid(), title: '', note: '', projectId: null, parentId: null, status: 'todo', due: null, time: null, est: null,
-      priority: 1, dependsOn: [], followOf: null, slot: null, kind: 'task', result: null, planDate: null, repeat: null, repeatDays: null, by: false, when: null, until: null, where: null, people: [],
+      priority: 1, dependsOn: [], followOf: null, slot: null, kind: 'task', result: null, planDate: null, repeat: null, repeatN: null, repeatDays: null, by: false, when: null, until: null, where: null, people: [],
       createdAt: t, updatedAt: t, doneAt: null, deleted: false
     }, o);
   }
@@ -921,7 +1023,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     let est = p.est, estFrom = null;
     if (est == null && !skip.est) { if (rule && rule.est) { est = rule.est; estFrom = 'rule'; } else { est = suggestEst(state, p.title); if (est) estFrom = 'learned'; } }
     const item = makeItem({
-      title: p.title, due: p.due, time: p.time, est: est, slot: p.slot || (rule && rule.slot) || null, repeat: p.repeat, repeatDays: p.repeatDays, by: !!(p.by && p.due && !p.time), when: p.due ? null : p.when, until: p.until, where: p.where, raw: String(text).trim().slice(0, 200),
+      title: p.title, due: p.due, time: p.time, est: est, slot: p.slot || (rule && rule.slot) || null, repeat: p.repeat, repeatN: p.repeatN || null, repeatDays: p.repeatDays, by: !!(p.by && p.due && !p.time), when: p.due ? null : p.when, until: p.until, where: p.where, raw: String(text).trim().slice(0, 200),
       priority: p.priority > 1 ? p.priority : ((rule && rule.priority) || 1),
       projectId: hinted ? hinted.id : ruleProj ? ruleProj.id : (g.confident ? g.best : null),
       kind: p.follow ? 'follow' : 'task'
@@ -938,6 +1040,10 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   function alternatives(item, now, have) {
     now = now || new Date(); have = have || {};
     const today = ymd(now), rows = [], uniq = (xs) => xs.filter((o, i) => xs.findIndex((y) => y.v === o.v) === i);
+    if (!have.repeat && (item.repeat || /每|隔|都|天天|周末|工作日|daily|weekly|monthly/i.test(item.raw || ''))) {
+      const ch = repeatChoices(item, today).filter((o) => o.v !== 'nday:3' || /隔|几天|\d\s*天|[三四五六七八九十]天/.test(item.raw || ''));
+      rows.push({ field: 'repeat', q: '重复', cur: repeatCode(item), opts: ch.slice(0, 8) });
+    }
     if (!have.due && !item.until) rows.push({ field: 'due', q: '哪天', cur: item.due || '', opts: uniq([{ v: today, label: '今天' }, { v: addDays(today, 1), label: '明天' }].concat(item.due ? [{ v: item.due, label: fmtDate(item.due, today) }] : []).concat([{ v: '', label: '不定日子' }])) });
     if (item.time && !have.time) { const m = toMin(item.time); rows.push({ field: 'time', q: '几点', cur: item.time, opts: [{ v: item.time, label: item.time }, { v: toHM(m + 720), label: toHM(m + 720) }, { v: '', label: '不定钟点' }] }); }
     if (!have.est && !item.until) rows.push({ field: 'est', q: '大概多久', cur: item.est ? String(item.est) : null, opts: uniq([30, 60, 90, 120].concat(item.est ? [item.est] : []).sort((a, b) => a - b).map((m) => ({ v: String(m), label: fmtDurX(m) }))) });
@@ -968,7 +1074,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     if (done && it.startedAt) { const m = Math.round((now.getTime() - it.startedAt) / 60000); if (m >= 3 && m <= 600) it.actual = m; }
     // 重复事项：完成后自动生成下一次
     if (done && it.repeat && !(it.nextId && byId(state, it.nextId))) {
-      const nx = makeItem({ title: it.title, note: it.note, projectId: it.projectId, parentId: it.parentId, time: it.time, est: it.est, priority: it.priority, slot: it.slot, repeat: it.repeat, repeatDays: it.repeatDays, where: it.where, due: nextDue(it.due, it.repeat, ymd(now), it.repeatDays) });
+      const nx = makeItem({ title: it.title, note: it.note, projectId: it.projectId, parentId: it.parentId, time: it.time, est: it.est, priority: it.priority, slot: it.slot, repeat: it.repeat, repeatN: it.repeatN || null, repeatDays: it.repeatDays, where: it.where, due: nextDue(it.due, it.repeat, ymd(now), it.repeatDays, it.repeatN) });
       state.items.push(nx); it.nextId = nx.id;
     }
     // 小事都做完时，大事自动完成
@@ -1020,7 +1126,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const open = openAll.filter((i) => !i.until);
     const future = date > today;
     // 往后看的日子：重复的事按规律投影出来（点开的是同一件事）
-    const projected = future ? open.filter((i) => i.repeat && i.due && i.due < date && nextDue(i.due, i.repeat, addDays(date, -1), i.repeatDays) === date) : [];
+    const projected = future ? open.filter((i) => i.repeat && i.due && i.due < date && nextDue(i.due, i.repeat, addDays(date, -1), i.repeatDays, i.repeatN) === date) : [];
     const projIds = new Set(projected.map((i) => i.id));
     const fixed = open.filter((i) => i.time && i.due === date).concat(projected.filter((i) => i.time));
     fixed.forEach((i) => { const s = toMin(i.time), e = Math.min(1440, s + (i.est || 30)); busy.push([s, e]); blocks.push({ s: s, e: e, type: 'fixed', itemId: i.id, label: i.title, proj: projIds.has(i.id) || undefined }); });
@@ -1104,7 +1210,90 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       if (!i.due) return;
       if (i.until) { let d = i.due < from ? from : i.due, g = 0; while (d <= i.until && d <= to && g++ < 400) { add(d, 'n'); d = addDays(d, 1); } return; }
       add(i.due, 'n');
-      if (i.repeat) { let d = i.due, g = 0; while (g++ < 400) { d = nextDue(d, i.repeat, d < today ? today : d, i.repeatDays); if (d > to) break; add(d, 'n'); } }
+      if (i.repeat) { let d = i.due, g = 0; while (g++ < 400) { d = nextDue(d, i.repeat, d < today ? today : d, i.repeatDays, i.repeatN); if (d > to) break; add(d, 'n'); } }
+    });
+    return out;
+  }
+
+  /* ---------- 节假日：各国法定假日（数据按需下载，见 tools/holidays_gen.py） ---------- */
+  // 代码:日历上的简称:中文名,别名…
+  const COUNTRY_SRC = 'CN:中:中国,中国大陆,大陆,国内|SA:沙:沙特阿拉伯,沙特|US:美:美国|DE:德:德国|GB:英:英国|JP:日:日本|KR:韩:韩国,南韩|FR:法:法国|IT:意:意大利|ES:西:西班牙|NL:荷:荷兰|CH:瑞士:瑞士|SE:瑞典:瑞典|NO:挪:挪威|DK:丹:丹麦|FI:芬:芬兰|BE:比:比利时|AT:奥:奥地利|PT:葡:葡萄牙|IE:爱:爱尔兰|PL:波:波兰|CZ:捷:捷克|HU:匈:匈牙利|GR:希:希腊|RU:俄:俄罗斯|UA:乌:乌克兰|TR:土:土耳其|IL:以:以色列|AE:阿联酋:阿联酋,阿拉伯联合酋长国,迪拜|QA:卡:卡塔尔|KW:科:科威特|BH:巴林:巴林|OM:阿曼:阿曼|JO:约:约旦|EG:埃:埃及|MA:摩:摩洛哥|IN:印:印度|PK:巴基:巴基斯坦|BD:孟:孟加拉,孟加拉国|SG:新:新加坡|MY:马:马来西亚|TH:泰:泰国|VN:越:越南|ID:印尼:印度尼西亚,印尼|PH:菲:菲律宾|HK:港:香港|MO:澳门:澳门|TW:台:台湾|AU:澳:澳大利亚,澳洲|NZ:新西:新西兰|CA:加:加拿大|MX:墨:墨西哥|BR:巴西:巴西|AR:阿根:阿根廷|CL:智:智利|CO:哥伦:哥伦比亚|PE:秘:秘鲁|ZA:南非:南非|NG:尼日:尼日利亚|KE:肯:肯尼亚|IR:伊朗:伊朗|IQ:伊拉克:伊拉克|KZ:哈:哈萨克斯坦|UZ:乌兹:乌兹别克斯坦|MN:蒙:蒙古|LU:卢:卢森堡|IS:冰:冰岛|EE:爱沙:爱沙尼亚|LV:拉:拉脱维亚|LT:立:立陶宛|SK:斯洛伐:斯洛伐克|SI:斯洛文:斯洛文尼亚|HR:克:克罗地亚|RS:塞:塞尔维亚|RO:罗:罗马尼亚|BG:保:保加利亚|CY:塞浦:塞浦路斯|MT:马耳他:马耳他|LK:斯里:斯里兰卡|NP:尼泊:尼泊尔';
+  const COUNTRIES = {}, CNAME = [];
+  COUNTRY_SRC.split('|').forEach((x) => { const p = x.split(':'), ns = p[2].split(','); COUNTRIES[p[0]] = { name: ns[0], short: p[1] }; ns.forEach((n) => CNAME.push([n, p[0]])); });
+  CNAME.sort((a, b) => b[0].length - a[0].length);
+  const countryName = (c, en) => (COUNTRIES[c] && COUNTRIES[c].name) || en || c;
+  const countryShort = (c) => (COUNTRIES[c] && COUNTRIES[c].short) || c;
+  function findCountry(text, enList) {
+    for (let i = 0; i < CNAME.length; i++) if (text.indexOf(CNAME[i][0]) >= 0) return { code: CNAME[i][1], hit: CNAME[i][0] };
+    if (enList) { const t = text.toLowerCase(), l = enList.slice().sort((a, b) => b[1].length - a[1].length); for (let i = 0; i < l.length; i++) if (l[i][1].length > 3 && t.indexOf(l[i][1].toLowerCase()) >= 0) return { code: l[i][0], hit: l[i][1] }; }
+    return null;
+  }
+  const HOL_WORDS = '法定节假日|法定假日|节假日|公共假期|公众假期|法定节日|放假安排|假期安排|休假安排|放假时间|假日|假期|放假|public holidays?|bank holidays?|holidays?';
+  /** “查一下沙特阿拉伯的法定节假日”“德国合作者的假期”“我的假期”这类：是查询，不是要记下的事 */
+  function holidayQuery(text, enList) {
+    const t = String(text || '').trim(); if (!t || t.length > 40) return null;
+    const hk = t.match(new RegExp(HOL_WORDS, 'i')); if (!hk) return null;
+    const ct = findCountry(t, enList), mine = /我的|我们的|自己的/.test(t), collab = /合作者|合作方|合作伙伴|collaborator/i.test(t);
+    let rest = t.replace(hk[0], ' '); if (ct) rest = rest.replace(ct.hit, ' ');
+    rest = rest.replace(/请|帮我|帮忙|我想|我要|我需要|需要|想|查一?下|查查|查询|查|看一?下|看看|看|显示|列出|告诉我|一下|有哪些|是哪几天|是什么时候|什么时候|几号|哪几天|哪些|所有|全部|的|呢|吗|吧|啊|了|今年|明年|后年|和|及|与|还有|我的|我们的|自己的|合作者|合作方|合作伙伴|那边|那里|国家|地区|官方|安排|元旦|春节|清明|劳动节|五一|端午|中秋|国庆|十一|圣诞|开斋节|宰牲节|[?？。！!，,、\s]|\d{4}年?/g, '');
+    if (rest.length > 2) return null;
+    if (!ct && !mine && !collab && !/查|看|显示|列出|有哪些|哪几天|什么时候/.test(t)) return null;
+    return { code: ct ? ct.code : null, mine: mine, collab: collab };
+  }
+  const HN = [[/Labou?r Thanksgiving/i, '勤劳感谢日'], [/Eid al-Fitr|Ramadan Feast|Hari Raya Puasa|Ramazan Bayram/i, '开斋节'], [/Eid al-Adha|Sacrifice|Kurban|Hari Raya Haji/i, '宰牲节'], [/Arafa/i, '阿拉法特日'],
+    [/Founding Day/i, '建国日'], [/Islamic New Year|Hijri New Year|Muharram/i, '伊斯兰新年'], [/Prophet|Mawlid|Mouloud|Maulid|Milad/i, '先知诞辰'], [/Ashura/i, '阿舒拉节'], [/Isra/i, '登霄节'],
+    [/German Unity/i, '德国统一日'], [/Juneteenth/i, '六月节'], [/National Day|Bastille|National Holiday/i, '国庆日'], [/Independence/i, '独立日'], [/New Year's Eve/i, '新年前夜'], [/Chinese New Year|Lunar New Year|Spring Festival|Seollal/i, '春节'], [/New Year/i, '元旦'],
+    [/Christmas Eve/i, '平安夜'], [/Second Day of Christmas|Boxing Day|St\.? Stephen/i, '节礼日'], [/Christmas/i, '圣诞节'], [/Good Friday/i, '耶稣受难日'], [/Holy Saturday/i, '圣周六'], [/Maundy Thursday|Holy Thursday/i, '濯足节'],
+    [/Easter Monday/i, '复活节星期一'], [/Easter/i, '复活节'], [/Whit Monday|Pentecost Monday/i, '圣灵降临节星期一'], [/Whit|Pentecost/i, '圣灵降临节'], [/Ascension/i, '耶稣升天节'], [/Corpus Christi/i, '基督圣体节'],
+    [/Assumption/i, '圣母升天节'], [/All Saints/i, '诸圣节'], [/All Souls/i, '万灵节'], [/Immaculate Conception/i, '圣母无原罪瞻礼'], [/Epiphany|Three Kings/i, '主显节'], [/Reformation/i, '宗教改革日'],
+    [/Labou?r Day|May Day|Workers/i, '劳动节'], [/Martin Luther King/i, '马丁·路德·金纪念日'], [/Washington|Presidents/i, '总统日'], [/Memorial Day/i, '阵亡将士纪念日'], [/Juneteenth/i, '六月节'], [/Columbus/i, '哥伦布日'],
+    [/Veterans/i, '退伍军人节'], [/Thanksgiving/i, '感恩节'], [/Bank Holiday/i, '银行假日'], [/Victoria Day/i, '维多利亚日'], [/Canada Day/i, '加拿大日'], [/Australia Day/i, '澳大利亚日'], [/Anzac/i, '澳新军团日'],
+    [/King's Birthday|Queen's Birthday/i, '国王诞辰'], [/Remembrance/i, '阵亡将士纪念日'], [/Armistice/i, '停战纪念日'], [/Liberation/i, '解放日'], [/Republic Day/i, '共和国日'], [/Constitution/i, '宪法纪念日'],
+    [/Children/i, '儿童节'], [/Coming of Age/i, '成人节'], [/Foundation Day/i, '建国纪念日'], [/Emperor/i, '天皇诞辰'], [/Vernal Equinox/i, '春分'], [/Autumnal Equinox/i, '秋分'], [/Showa/i, '昭和日'],
+    [/Greenery/i, '绿之日'], [/Marine Day/i, '海之日'], [/Mountain Day/i, '山之日'], [/Respect for the Aged/i, '敬老节'], [/Sports Day|Health and Sports/i, '体育日'], [/Culture Day/i, '文化日'],
+    [/Mid-Autumn|Chuseok/i, '中秋节'], [/Dragon Boat|Tuen Ng/i, '端午节'], [/Ching Ming|Qingming|Tomb/i, '清明节'], [/Buddha|Vesak/i, '佛诞'], [/Diwali|Deepavali/i, '排灯节'], [/Hanukkah/i, '光明节'],
+    [/Yom Kippur/i, '赎罪日'], [/Rosh Hashanah/i, '犹太新年'], [/Passover|Pesach/i, '逾越节'], [/Sukkot/i, '住棚节'], [/Carnival/i, '狂欢节'], [/Women/i, '妇女节'], [/Youth/i, '青年节'], [/Teachers/i, '教师节'],
+    [/Hangul/i, '韩文日'], [/National Foundation/i, '开天节'], [/Saint Patrick|St\.? Patrick/i, '圣帕特里克节'], [/Midsummer/i, '仲夏节'], [/King's Day/i, '国王节']];
+  function holidayName(raw) {
+    const s = String(raw || '').split(/;\s*/)[0];
+    if (/^休息日|调休|day off|substitut/i.test(s)) return '调休';
+    const base = s.replace(/（补假）|（补休）|\s*\((observed|estimated)\)/gi, '').trim();
+    const hit = HN.find((x) => x[0].test(base));
+    return hit ? hit[1] : base.replace(/\s+Holiday$/i, '');
+  }
+  /** 把逐日的假日连成一段段的假期（中间只隔周末的算一段），并算出连周末一共休几天 */
+  function holidayPeriods(data, from, to) {
+    if (!data || !data.h) return [];
+    const wk = data.w || [5, 6], work = new Set(data.x || []), map = {};
+    data.h.forEach((r) => { map[r[0]] = r; });
+    const off = (d) => wk.indexOf(wdIdx(d)) >= 0 && !work.has(d);
+    const ps = []; let cur = null;
+    Object.keys(map).sort().forEach((d) => {
+      if (cur) { let g = addDays(cur.e, 1), ok = diffDays(d, cur.e) <= 4; while (ok && g < d) { if (!off(g)) ok = false; g = addDays(g, 1); } if (ok) { cur.e = d; cur.days.push(d); return; } ps.push(cur); }
+      cur = { s: d, e: d, days: [d] };
+    });
+    if (cur) ps.push(cur);
+    return ps.map((p) => {
+      let rs = p.s, re = p.e, g = 0;
+      while (off(addDays(rs, -1)) && g++ < 2) rs = addDays(rs, -1); g = 0;
+      while (off(addDays(re, 1)) && g++ < 2) re = addDays(re, 1);
+      const names = []; p.days.forEach((d) => { const n = holidayName(map[d][1]); if (names.indexOf(n) < 0) names.push(n); });
+      const nm = names.filter((n) => n !== '调休'); 
+      return { s: p.s, e: p.e, rs: rs, re: re, n: diffDays(re, rs) + 1, k: diffDays(p.e, p.s) + 1, name: (nm.length ? nm : names).join('、'), lunar: p.days.some((d) => map[d][2] === 'i'), tentative: (data.t || []).indexOf(+p.s.slice(0, 4)) >= 0 };
+    }).filter((p) => p.re >= from && p.rs <= to);
+  }
+  /** 日历用：from–to 每天有哪些假日。subs 是要显示的日历，cache 里是各国数据 */
+  function holidayMarks(subs, cache, from, to) {
+    const out = {};
+    (subs || []).forEach((sb) => {
+      if (!sb || sb.deleted || sb.show === false) return; const data = cache && cache[sb.c] && cache[sb.c].data; if (!data) return;
+      holidayPeriods(data, addDays(from, -10), addDays(to, 10)).forEach((p) => {
+        for (let d = p.s, g = 0; d <= p.e && g < 40; d = addDays(d, 1), g++) {
+          if (d < from || d > to) continue;
+          (out[d] = out[d] || []).push({ c: sb.c, who: sb.who || '', mine: !!sb.mine, name: p.name, lunar: p.lunar });
+        }
+      });
+      if (sb.mine) (data.x || []).forEach((w) => { if (w >= from && w <= to) (out[w] = out[w] || []).push({ c: sb.c, mine: true, work: true, name: '调休上班' }); });
     });
     return out;
   }
@@ -1116,6 +1305,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     state.items.forEach((i) => {
       if (i.deleted || i.status === 'done') return;
       if (i.until) { if (i.until < today) { setDone(state, i, true, now); n++; } return; }
+      if (i.repeat && i.time && i.due && i.due < today) { i.due = nextDue(i.due, i.repeat, addDays(today, -1), i.repeatDays, i.repeatN); i.missed = (i.missed || 0) + 1; i.updatedAt = Date.now(); n++; return; }   // 错过的定点重复事项：直接排到下一次
       if (i.due && i.due < today && !i.by && !i.time && !isContainer(state, i)) { i.due = today; i.deferred = (i.deferred || 0) + 1; i.updatedAt = Date.now(); n++; }
     });
     return n;
@@ -1265,7 +1455,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     L.push('请你：1) 把收件箱里的事归到合适的项目；2) 把过大的事拆成 15–120 分钟能做完的小事，并标出先后依赖；3) 指出本周安排的风险（超载、逾期、卡住的项目、作息）；4) 给每个项目补充有助于自动归类的关键词；5) 根据下面的“归类纠正记录”“估时偏差”“反复改期的事”，总结出 rule 规则，让应用以后不依赖你也能自己判断；6) 根据“识别纠正记录”（我随手写的原话，以及应用认错后我改成了什么），总结出 phrase：我常用的口语说法对应的时间含义，让应用下次自己认对。');
     L.push('先用中文简要说明你的判断，然后在回复最后给出一个 ```json 代码块，我会粘贴回应用导入。格式：');
     L.push('{"ops":[{"op":"add","ref":"a1","title":"…","project":"项目名或id","parent":"已有事项id或前面的ref","due":"YYYY-MM-DD","time":"HH:MM","est":分钟数,"priority":1到3,"dependsOn":["id或ref"],"note":"…"},{"op":"update","id":"已有事项id","set":{"project":"…","due":"…","est":60,"priority":2,"status":"todo|doing|waiting|done","title":"…","dependsOn":["id"]}},{"op":"project","name":"新项目名","area":"事业|生活","keywords":["…"],"deadline":"YYYY-MM-DD"},{"op":"keywords","project":"项目名","add":["…"]},{"op":"rule","match":["标题里出现的词"],"project":"项目名","est":分钟数,"priority":1到3,"slot":"morning|afternoon|evening"}]}');
-    L.push('phrase 的格式：{"op":"phrase","text":"原话里的那个说法","day":相对今天的天数,"time":"HH:MM","slot":"morning|afternoon|evening","est":分钟数,"when":"soon|someday"}，只写有依据的字段。例如 {"op":"phrase","text":"组会后","day":0,"slot":"afternoon"}。text 要是固定说法，不要含具体事情。');
+    L.push('phrase 的格式：{"op":"phrase","text":"原话里的那个说法","day":相对今天的天数,"time":"HH:MM","slot":"morning|afternoon|evening","est":分钟数,"when":"soon|someday","repeat":"day|weekday|week|2week|month|year|nday|nweek|nmonth","repeatN":间隔数,"repeatDays":[周几 0=周一…6=周日，或每月几号，-1=月底]}，只写有依据的字段。例如 {"op":"phrase","text":"组会后","day":0,"slot":"afternoon"}、{"op":"phrase","text":"逢单周","repeat":"2week"}。text 要是固定说法，不要含具体事情。');
     L.push('rule 的含义：以后标题里出现 match 中任一个词时，自动套用其中的项目、默认用时、优先级、时段。match 要用具体、不易误伤的词；只写有依据的字段。');
     L.push('只用上面列出的字段；不确定的字段省略；不要删除任何事项。');
     L.push('', '## 项目');
@@ -1350,6 +1540,11 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
         if (['morning', 'noon', 'afternoon', 'evening'].indexOf(op.slot) >= 0) st.slot = op.slot;
         if (num(op.est, 1, 1440)) st.est = num(op.est, 1, 1440);
         if (op.when === 'soon' || op.when === 'someday') st.when = op.when;
+        if (['day', 'weekday', 'week', '2week', 'month', 'year', 'nday', 'nweek', 'nmonth'].indexOf(op.repeat) >= 0) {
+          st.repeat = op.repeat;
+          if (/^n/.test(op.repeat) && num(op.repeatN, 2, 365)) st.repeatN = Math.round(num(op.repeatN, 2, 365));
+          if (Array.isArray(op.repeatDays)) { const ds = op.repeatDays.map(Number).filter((x) => x === -1 || (x >= 0 && x <= 31)); if (ds.length) st.repeatDays = ds.slice(0, 7); }
+        }
         if (text.length < 2 || text.length > 12 || !Object.keys(st).length) { log.push('口语说法不完整，跳过'); return; }
         state.phrases = state.phrases || [];
         if (state.phrases.some((x) => !x.deleted && x.text === text)) { log.push('已有这个说法，跳过：' + text); return; }
@@ -1399,8 +1594,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   }
   const Core = {
     pad, ymd, parseYmd, addDays, diffDays, toMin, toHM, nowHM, uid, weekdayName, mondayOf, fmtDate, fmtDur, fmtDurX, cnNum,
-    parseCapture, tokens, buildModel, classify, findProjectByHint, related, suggestEst, matchRule, nextDue, REPEAT_NAME, repeatLabel, ruleText, phraseText, rollover, PHRASES,
-    newState, ROUTINE_KEYS, ROUTINE_NAME, MEAL_DUR, routineList, routineName, routineTarget, customRoutines, daysText, wdIdx, calendarMarks, byId, childrenOf, isContainer, blockers, progressOfProject, progressOfItem,
+    parseCapture, tokens, buildModel, classify, findProjectByHint, related, suggestEst, matchRule, nextDue, REPEAT_NAME, repeatLabel, repeatCode, applyRepeat, repeatChoices, ruleText, phraseText, rollover, PHRASES,
+    newState, ROUTINE_KEYS, ROUTINE_NAME, MEAL_DUR, routineList, routineName, routineTarget, customRoutines, daysText, wdIdx, calendarMarks, holidayQuery, holidayPeriods, holidayMarks, holidayName, countryName, countryShort, findCountry, COUNTRIES, byId, childrenOf, isContainer, blockers, progressOfProject, progressOfItem,
     makeItem, capture, setDone, followUp, chainOf, planDay, routineDateFor, routineJudge, routineStats, insights,
     weeklyReview, reviewText, makeICS, briefing, extractOps, applyOps, isSafeOp, alternatives, learnFromCorrection
   };
@@ -1433,14 +1628,14 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   function prune(p) {
     const c = cutoff(60), c7 = cutoff(7), live = (x) => !(x && x.deleted && (x.updatedAt || 0) < c);
     p.items = (p.items || []).filter(live).map((i) => (i.raw && (i.createdAt || 0) < c7) ? Object.assign({}, i, { raw: undefined, rawSkip: undefined }) : i);
-    p.projects = (p.projects || []).filter(live); p.rules = (p.rules || []).filter(live); p.phrases = (p.phrases || []).filter(live);
+    p.projects = (p.projects || []).filter(live); p.rules = (p.rules || []).filter(live); p.phrases = (p.phrases || []).filter(live); p.hcal = (p.hcal || []).filter(live);
     if (p.routine) p.routine = Object.assign({}, p.routine, { custom: (p.routine.custom || []).filter(live) });
     if (p.advice && p.advice.undo && (p.advice.at || 0) < cutoff(14)) p.advice = Object.assign({}, p.advice, { undo: null });
     return p;
   }
   function payloadOf(s) {
     return prune({
-      v: 1, projects: s.projects || [], items: s.items || [], rules: s.rules || [], phrases: s.phrases || [], fixes: capFixes(s.fixes || []),
+      v: 1, projects: s.projects || [], items: s.items || [], rules: s.rules || [], phrases: s.phrases || [], hcal: s.hcal || [], fixes: capFixes(s.fixes || []),
       routine: { targets: s.routine.targets, log: s.routine.log || {}, at: s.routine.at || {}, custom: s.routine.custom || [] },
       settings: { workStart: s.settings.workStart, windDown: s.settings.windDown, tol: s.settings.tol },
       prefsAt: (s.meta && s.meta.prefsAt) || 0,
@@ -1459,7 +1654,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   }
   const capFixes = (l) => l.slice().sort((p, q) => (q.createdAt || 0) - (p.createdAt || 0) || (p.id < q.id ? -1 : 1)).slice(0, 150).sort((p, q) => (p.createdAt || 0) - (q.createdAt || 0) || (p.id < q.id ? -1 : 1));
   function mergePayload(a, b) {
-    const out = { v: 1, projects: mergeList(a.projects, b.projects), items: mergeList(a.items, b.items), rules: mergeList(a.rules, b.rules), phrases: mergeList(a.phrases, b.phrases), fixes: capFixes(mergeList(a.fixes, b.fixes)) };
+    const out = { v: 1, projects: mergeList(a.projects, b.projects), items: mergeList(a.items, b.items), rules: mergeList(a.rules, b.rules), phrases: mergeList(a.phrases, b.phrases), hcal: mergeList(a.hcal, b.hcal), fixes: capFixes(mergeList(a.fixes, b.fixes)) };
     const pa = a.prefsAt || 0, pb = b.prefsAt || 0;
     const prefA = { t: a.routine.targets, s: a.settings }, prefB = { t: b.routine.targets, s: b.settings };
     const useB = pb > pa || (pb === pa && canon(prefB) > canon(prefA));
@@ -1489,7 +1684,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     return prune(out);
   }
   function applyPayload(s, p) {
-    s.projects = p.projects; s.items = p.items; s.rules = p.rules || []; s.phrases = p.phrases || []; s.fixes = p.fixes || [];
+    s.projects = p.projects; s.items = p.items; s.rules = p.rules || []; s.phrases = p.phrases || []; s.hcal = p.hcal || []; s.fixes = p.fixes || [];
     s.routine.targets = p.routine.targets; s.routine.log = p.routine.log; s.routine.at = p.routine.at; s.routine.custom = p.routine.custom || [];
     s.settings = Object.assign({}, s.settings, p.settings);
     s.meta.prefsAt = p.prefsAt; s.advisor = p.advisor || null; s.advice = p.advice || null; s.habits = p.habits || {};
@@ -1788,7 +1983,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   const nat = (fn, ...a) => { try { return window.YouxuNative[fn](...a); } catch (e) { return null; } };
   let S = store.load(), firstRun = false;
   if (!S || !Array.isArray(S.items)) { if (NATIVE) { S = C.newState(); firstRun = true; } else S = seed(); }
-  { const d = C.newState(); S.settings = Object.assign(d.settings, S.settings); S.routine = S.routine || d.routine; S.routine.targets = Object.assign(d.routine.targets, S.routine.targets); S.routine.log = S.routine.log || {}; S.meta = Object.assign(d.meta, S.meta); S.projects = S.projects || []; S.routine.at = S.routine.at || {}; S.rules = S.rules || []; S.fixes = S.fixes || []; S.advisor = S.advisor || null; S.advice = S.advice || null; S.phrases = S.phrases || []; S.habits = S.habits || {}; S.routine.custom = S.routine.custom || []; }
+  { const d = C.newState(); S.settings = Object.assign(d.settings, S.settings); S.routine = S.routine || d.routine; S.routine.targets = Object.assign(d.routine.targets, S.routine.targets); S.routine.log = S.routine.log || {}; S.meta = Object.assign(d.meta, S.meta); S.projects = S.projects || []; S.routine.at = S.routine.at || {}; S.rules = S.rules || []; S.fixes = S.fixes || []; S.advisor = S.advisor || null; S.advice = S.advice || null; S.phrases = S.phrases || []; S.habits = S.habits || {}; S.routine.custom = S.routine.custom || []; S.hcal = S.hcal || []; }
 
   const ui = { tab: 'today', filter: 'open', projectId: null, day: 0, date: null, cal: false, calAt: null, rdraft: null, archOpen: false, week: 0, seg: 'review', sheet: null, skip: {}, addUnder: null, focusAdd: false, ops: null, opsErr: '', confirm: null, sf: {}, syncEdit: false, syncBusy: false, syncMsg: null, advMsg: null };
   const TABS = [['today', '今天', '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'], ['tasks', '事项', '<path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><circle cx="4.5" cy="7" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="17" r="1"/>'], ['projects', '项目', '<rect x="3.5" y="4" width="7" height="6" rx="1.5"/><rect x="13.5" y="14" width="7" height="6" rx="1.5"/><path d="M7 10v5.5a1.5 1.5 0 0 0 1.5 1.5h5"/>'], ['routine', '作息', '<path d="M19.5 14.2A8 8 0 1 1 9.8 4.5a6.3 6.3 0 0 0 9.7 9.7z"/>'], ['butler', '管家', '<path d="M12 3.5l1.8 4.7 4.7 1.8-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>']];
@@ -1982,27 +2177,62 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   const card = (title, body, n, extra) => '<section class="card"><h2><span>' + title + '</span>' + (extra || (n != null ? '<span class="n">' + n + '</span>' : '')) + '</h2>' + body + '</section>';
   const seg = (action, cur, opts) => '<div class="seg" role="group">' + opts.map((o) => '<button data-a="' + action + '" data-v="' + o[0] + '" aria-pressed="' + (String(cur) === String(o[0])) + '">' + o[1] + '</button>').join('') + '</div>';
 
+  /* ---------- 节假日：数据按需从网上取（GitHub 上每月自动更新），存在本机；要显示哪些国家随同步走 ---------- */
+  const HOL_KEY = 'youxu.hol', HOL_URL = 'https://brucexu-zong.github.io/youxu/holidays/', holBusy = {};
+  let HOL = {}; try { HOL = JSON.parse(localStorage.getItem(HOL_KEY) || '{}') || {}; } catch (e) { HOL = {}; }
+  const holSave = () => { try { localStorage.setItem(HOL_KEY, JSON.stringify(HOL)); } catch (e) { } };
+  async function holGet(file) {
+    const tries = [];
+    if (/github\.io$/.test(location.hostname)) tries.push(['holidays/' + file, {}]);
+    tries.push([HOL_URL + file, {}], ['https://api.github.com/repos/brucexu-zong/youxu/contents/holidays/' + file + '?ref=main', { headers: { Accept: 'application/vnd.github.raw' } }]);
+    for (let i = 0; i < tries.length; i++) { try { const r = await fetch(tries[i][0], Object.assign({ cache: 'no-cache' }, tries[i][1])); if (r.ok) return await r.json(); } catch (e) { } }
+    throw new Error('offline');
+  }
+  function holLoad(c, force) {
+    const e = HOL[c]; if (!c || holBusy[c] || (!force && e && e.data && Date.now() - e.at < 7 * 864e5) || (!force && e && e.err && Date.now() - e.err < 60000)) return;
+    holBusy[c] = true;
+    holGet(c === '_index' ? 'index.json' : c + '.json').then((data) => { HOL[c] = { at: Date.now(), data: data }; holSave(); }, () => { HOL[c] = Object.assign({}, HOL[c] || {}, { err: Date.now() }); })
+      .then(() => { holBusy[c] = false; render(); if (ui.sheet && /^hol/.test(ui.sheet.type)) renderSheet(); });
+  }
+  const holSubs = () => (S.hcal || []).filter((x) => x && !x.deleted);
+  const holShown = () => holSubs().filter((x) => x.show !== false);
+  const holEn = () => (HOL._index && HOL._index.data && HOL._index.data.list) || null;
+  const holWho = (x) => C.countryName(x.c, HOL[x.c] && HOL[x.c].data && HOL[x.c].data.n) + (x.who ? '（' + x.who + '）' : '');
+  const holDay = (d) => (C.holidayMarks(holShown(), HOL, d, d)[d]) || [];
+  const mdLabel = (d, withWd) => { const x = C.parseYmd(d); return (x.getMonth() + 1) + '月' + x.getDate() + '日' + (withWd ? ' ' + C.weekdayName(d) : ''); };
+  function holQuery(q) {
+    if (q.code) { holLoad(q.code); ui.sheet = { type: 'hol', c: q.code, role: q.collab ? 'collab' : q.mine ? 'mine' : null }; }
+    else { const mine = holSubs().filter((x) => x.mine), col = holSubs().filter((x) => !x.mine), one = q.mine ? mine : q.collab ? col : [];
+      if (one.length === 1) { holLoad(one[0].c); ui.sheet = { type: 'hol', c: one[0].c }; } else ui.sheet = { type: 'hols', filter: q.mine ? 'mine' : q.collab ? 'collab' : null }; }
+    holLoad('_index'); ui.confirm = null; renderSheet(); $('#sheet').scrollTop = 0;
+  }
+
   /* ---------- 日历：平时一行周历，点日期标题展开整月 ---------- */
   const CN_WD = ['一', '二', '三', '四', '五', '六', '日'];
   function relLabel(date, today) { const n = C.diffDays(date, today); return n === 0 ? '今天' : n === 1 ? '明天' : n === 2 ? '后天' : n === -1 ? '昨天' : n === -2 ? '前天' : n > 0 ? n + ' 天后' : (-n) + ' 天前'; }
   function dots(m) { const n = m ? m.n + m.done : 0; return '<i class="dots" aria-hidden="true">' + (n ? '<i></i>' : '') + (n >= 3 ? '<i></i>' : '') + (n >= 6 ? '<i></i>' : '') + '</i>'; }
-  function dayCell(d, sel, today, marks, wd, out) {
-    const m = marks[d], n = m ? m.n + m.done : 0, x = C.parseYmd(d);
-    const cls = 'dd' + (d === sel ? ' sel' : '') + (d === today ? ' now' : '') + (out ? ' out' : '') + (d < today ? ' past' : '');
-    return '<button class="' + cls + '" data-a="pick" data-v="' + d + '" aria-label="' + (x.getMonth() + 1) + '月' + x.getDate() + '日 ' + C.weekdayName(d) + (n ? '，' + n + ' 件事' : '') + '"' + (d === sel ? ' aria-current="date"' : '') + '>' + (wd ? '<small>' + wd + '</small>' : '') + '<b class="num">' + x.getDate() + '</b>' + dots(m) + '</button>';
+  function dayCell(d, sel, today, marks, wd, out, hm) {
+    const m = marks[d], n = m ? m.n + m.done : 0, x = C.parseYmd(d), hs = (hm && hm[d]) || [];
+    const work = hs.find((h) => h.work), mine = hs.find((h) => h.mine && !h.work), oth = hs.filter((h) => !h.mine && !h.work);
+    const badge = work ? '<em class="hb work">班</em>' : mine ? '<em class="hb mine">休</em>' : oth.length ? '<em class="hb oth">' + esc(C.countryShort(oth[0].c)) + '</em>' : '';
+    const hn = hs.map((h) => (h.work ? '调休上班' : (h.mine ? '' : holWho(h) + '：') + h.name)).join('；');
+    const cls = 'dd' + (d === sel ? ' sel' : '') + (d === today ? ' now' : '') + (out ? ' out' : '') + (d < today ? ' past' : '') + (mine && !work ? ' rest' : '');
+    return '<button class="' + cls + '" data-a="pick" data-v="' + d + '"' + (hn ? ' title="' + esc(hn) + '"' : '') + ' aria-label="' + (x.getMonth() + 1) + '月' + x.getDate() + '日 ' + C.weekdayName(d) + (hn ? '，' + esc(hn) : '') + (n ? '，' + n + ' 件事' : '') + '"' + (d === sel ? ' aria-current="date"' : '') + '>' + (wd ? '<small>' + wd + '</small>' : '') + '<b class="num">' + x.getDate() + '</b>' + badge + dots(m) + '</button>';
   }
   function calendar(sel, today) {
     const at = ui.calAt || sel, now = new Date();
-    const mon = C.mondayOf(ui.cal ? sel : at), wm = C.calendarMarks(S, mon, C.addDays(mon, 6), now);
+    const mon = C.mondayOf(ui.cal ? sel : at), wm = C.calendarMarks(S, mon, C.addDays(mon, 6), now), whm = C.holidayMarks(holShown(), HOL, mon, C.addDays(mon, 6));
     let wk = '<div class="cal wk"><button class="cal-nav" data-a="cal-shift" data-v="-7" aria-label="上一周">‹</button><div class="cal-days">';
-    for (let i = 0; i < 7; i++) wk += dayCell(C.addDays(mon, i), sel, today, wm, CN_WD[i]);
+    for (let i = 0; i < 7; i++) wk += dayCell(C.addDays(mon, i), sel, today, wm, CN_WD[i], false, whm);
     wk += '</div><button class="cal-nav" data-a="cal-shift" data-v="7" aria-label="下一周">›</button></div>';
     if (!ui.cal) return '<div class="calbox">' + wk + '</div>';
     const x = C.parseYmd(at), first = C.ymd(new Date(x.getFullYear(), x.getMonth(), 1)), start = C.mondayOf(first), ym = first.slice(0, 7);
-    const marks = C.calendarMarks(S, start, C.addDays(start, 41), now);
+    const marks = C.calendarMarks(S, start, C.addDays(start, 41), now), mhm = C.holidayMarks(holShown(), HOL, start, C.addDays(start, 41));
     let h = '<div class="cal mo"><div class="cal-mh"><button class="cal-nav" data-a="cal-shift" data-v="-1m" aria-label="上个月">‹</button><b>' + (x.getFullYear() !== now.getFullYear() ? x.getFullYear() + '年' : '') + (x.getMonth() + 1) + '月</b><button class="cal-nav" data-a="cal-shift" data-v="1m" aria-label="下个月">›</button></div><div class="cal-days">' + CN_WD.map((w) => '<span class="cal-wd">' + w + '</span>').join('');
-    for (let i = 0; i < 42; i++) { const d = C.addDays(start, i); if (i % 7 === 0 && i >= 28 && d.slice(0, 7) !== ym) break; h += dayCell(d, sel, today, marks, null, d.slice(0, 7) !== ym); }
-    return '<div class="calbox open">' + wk + h.replace('<div class="cal mo">', '<div class="cal mo" role="dialog" aria-label="月历">') + '</div></div></div>';
+    for (let i = 0; i < 42; i++) { const d = C.addDays(start, i); if (i % 7 === 0 && i >= 28 && d.slice(0, 7) !== ym) break; h += dayCell(d, sel, today, marks, null, d.slice(0, 7) !== ym, mhm); }
+    const nh = holSubs().length;
+    h += '</div><div class="cal-foot"><button class="btn ghost sm" data-a="hol-manage">' + (nh ? '节假日 · ' + holSubs().map((x) => C.countryName(x.c)).slice(0, 3).join('、') : '查看各国节假日') + '</button></div>';
+    return '<div class="calbox open">' + wk + h.replace('<div class="cal mo">', '<div class="cal mo" role="dialog" aria-label="月历">') + '</div></div>';
   }
 
   /* ---------- 一天：按时长等比例的方块，时间点画成线 ---------- */
@@ -2019,7 +2249,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const y = (m) => Math.round((m - a) * k), H = y(z);
     let h = '';
     // 全天的事（出差、会议）
-    if ((plan.spans || []).length) h += '<div class="allday">' + plan.spans.map((it) => '<button class="chip on" data-a="open" data-id="' + it.id + '">全天 · ' + esc(it.title) + (it.where ? ' · ' + esc(it.where) : '') + '</button>').join('') + '</div>';
+    const hol = holDay(date).map((x) => '<button class="chip hol' + (x.work ? ' work' : x.mine ? ' mine' : '') + '" data-a="hol-open" data-c="' + x.c + '">' + (x.work ? '调休上班' : (x.mine ? '假期' : esc(holWho(x))) + ' · ' + esc(x.name)) + '</button>');
+    if ((plan.spans || []).length || hol.length) h += '<div class="allday">' + hol.join('') + (plan.spans || []).map((it) => '<button class="chip on" data-a="open" data-id="' + it.id + '">全天 · ' + esc(it.title) + (it.where ? ' · ' + esc(it.where) : '') + '</button>').join('') + '</div>';
     // 前一晚的睡眠：有打卡就算实际，没有就写目标
     const ps = (S.routine.log[C.addDays(date, -1)] || {}).sleep, wa = (S.routine.log[date] || {}).wake;
     const span = (x, y2) => { let d = C.toMin(y2) - C.toMin(x); if (d < 0) d += 1440; return C.fmtDur(d); };
@@ -2048,7 +2279,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       const it = C.byId(S, b.itemId); if (!it) return;
       const p = proj(it.projectId), dn = b.type === 'done' || it.status === 'done';
       const cls = 'ev ' + (p ? 'c' + p.color : 'cn') + (b.type === 'fixed' ? ' fx' : '') + (b.suggested ? ' sug' : '') + (dn ? ' dn done' : '') + (tall ? ' tall' : '');
-      const meta = tm + (b.part ? ' · 第 ' + b.part + ' 段' : '') + (b.suggested ? ' · 有空顺手做' : '') + (b.proj ? ' · ' + (C.REPEAT_NAME[it.repeat] || '重复') : '') + (it.where ? ' · ' + esc(it.where) : '');
+      const meta = tm + (b.part ? ' · 第 ' + b.part + ' 段' : '') + (b.suggested ? ' · 有空顺手做' : '') + (b.proj ? ' · ' + C.repeatLabel(it) : '') + (it.where ? ' · ' + esc(it.where) : '');
       const flag = !dn && it.priority === 3 ? '<span class="flag">!!</span>' : !dn && it.priority === 2 ? '<span class="flag p2">!</span>' : '';
       g += '<div class="' + cls + '" style="' + pos + '" data-a="open" data-id="' + it.id + '">' + (b.proj ? '' : '<button class="chk" data-a="toggle" data-id="' + it.id + '" aria-label="' + (dn ? '标为未完成' : '标为完成') + '"></button>') + '<div class="ev-b"><b>' + flag + esc(it.title) + '</b><span class="tm num">' + meta + '</span></div></div>';
     });
@@ -2256,7 +2487,11 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     more += '<div class="two"><div class="fld"><label for="f-until">结束日期（跨多天才填）</label><input type="date" id="f-until" data-f="until" value="' + (it.until || '') + '"></div><div class="fld"><label for="f-where">地点</label><input type="text" id="f-where" data-f="where" value="' + esc(it.where || '') + '"></div></div>';
     h += it.due ? (it.time || it.until ? '' : '<label class="switch"><input type="checkbox" id="f-by" data-f="by"' + (it.by ? ' checked' : '') + '> 这是截止日期，可以提前做（大事会自动提前开工）</label>') : '<div class="fld"><span class="lbl">没定日子的事</span>' + seg('when', it.when === 'someday' ? 'someday' : 'soon', [['soon', '近期做，有空时排进来'], ['someday', '以后再说，先放着']]) + '</div>';
     h += '<div class="two"><div class="fld"><label for="f-est">预计用时</label><select id="f-est" data-f="est">' + opt('', '未估计（按 30 分钟排）', it.est) + ests.sort((a, b) => a - b).map((m) => opt(m, C.fmtDur(m), it.est)).join('') + '</select></div><div class="fld"><span class="lbl">优先级</span>' + seg('prio', it.priority, [[1, '普通'], [2, '重要'], [3, '紧急']]) + '</div></div>';
-    more += '<div class="two"><div class="fld"><label for="f-rep">重复</label><select id="f-rep" data-f="repeat">' + opt('', '不重复', it.repeat) + Object.keys(C.REPEAT_NAME).map((k) => opt(k, C.REPEAT_NAME[k], it.repeat)).join('') + '</select></div><div class="fld"><span class="lbl">实际用时</span><p class="hint" style="padding-top:8px">' + (it.actual ? C.fmtDur(it.actual) + '，以后类似的事按这个估' : '点“进行中”开始计时，完成时自动记录') + '</p></div></div>';
+    const rcode = C.repeatCode(it), nUnit = { nday: '天', nweek: '周', nmonth: '个月' }[it.repeat];
+    let repx = '';
+    if (it.repeat === 'week') { const on = (i) => (it.repeatDays && it.repeatDays.length ? it.repeatDays : [C.wdIdx(it.due || today)]).indexOf(i) >= 0; repx = '<div class="wdpick" style="margin-top:6px">' + CN_WD.map((w, i) => '<button class="opt' + (on(i) ? ' on' : '') + '" data-a="rep-day" data-v="' + i + '" aria-pressed="' + on(i) + '">' + w + '</button>').join('') + '</div>'; }
+    else if (nUnit) repx = '<div class="btns" style="margin-top:6px;align-items:center">每 <input type="number" class="tinp" style="width:72px" id="f-repn" data-f="repeatN" min="2" max="365" value="' + (it.repeatN || 2) + '"> ' + nUnit + '</div>';
+    more += '<div class="two"><div class="fld"><label for="f-rep">重复</label><select id="f-rep" data-f="repeat">' + C.repeatChoices(it, today).map((o) => opt(o.v, o.label, rcode)).join('') + '</select>' + repx + '</div><div class="fld"><span class="lbl">实际用时</span><p class="hint" style="padding-top:8px">' + (it.actual ? C.fmtDur(it.actual) + '，以后类似的事按这个估' : '点“进行中”开始计时，完成时自动记录') + '</p></div></div>';
     h += '<label class="switch"><input type="checkbox" id="f-today" data-f="today"' + (it.planDate === today ? ' checked' : '') + '> 今天做（即使还没到期也排进今天）</label>';
     more += '<div class="fld"><span class="lbl">要先完成的事</span>' + (curDeps.length ? '<div class="links">' + curDeps.map((d) => '<div><span>' + esc(d.title) + '</span><span class="st">' + stName[d.status] + '</span><button class="icon-btn" data-a="rmdep" data-id="' + d.id + '" aria-label="移除">×</button></div>').join('') + '</div>' : '') +
       (deps.length ? '<select id="f-dep" data-f="adddep" aria-label="添加前置事项">' + opt('', '添加一件前置事项…', '') + deps.map((d) => opt(d.id, d.title.slice(0, 28), '')).join('') + '</select>' : (curDeps.length ? '' : '<p class="hint">同一项目里还没有其他未完成的事。</p>')) + '</div>';
@@ -2279,6 +2514,54 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     h += '<div class="fld"><label for="p-kw">归类关键词（用逗号或空格分开）</label><textarea id="p-kw" data-p="keywords">' + esc((p.keywords || []).join('，')) + '</textarea><p class="hint">随手记里出现这些词，就自动归到这个项目。不填也行：项目里已有的事项会被当作样本，你每归一次，以后就更准。</p></div>';
     h += '<div class="fld"><span class="lbl">颜色</span><div class="btns">' + [0, 1, 2, 3, 4, 5].map((c) => '<button class="icon-btn c' + c + '" data-a="pcolor" data-v="' + c + '" aria-label="颜色 ' + (c + 1) + '" style="background:var(--pc);' + (p.color === c ? 'outline:2px solid var(--ink);outline-offset:2px' : '') + '"></button>').join('') + '</div></div>';
     h += '<div class="btns">' + (p.archived ? '<button class="btn sm" data-a="punarchive" data-id="' + p.id + '">恢复到项目列表</button>' : '<button class="btn sm" data-a="parchive">归档项目</button>') + '<button class="btn danger sm" data-a="pdel">' + (ui.confirm === 'pdel' ? '再点一次确认删除' : '删除项目') + '</button></div><p class="hint">归档后项目不在列表和自动归类里出现，事项保留；在项目页最下面的“已归档的项目”里随时能找到、能恢复。删除项目时，里面的事项会回到收件箱。</p>';
+    return h + '</div>';
+  }
+  const WK_TEXT = (w) => (w || [5, 6]).map((i) => '周' + CN_WD[i]).join('、');
+  function shHol(sh) {
+    const c = sh.c, e = HOL[c], data = e && e.data, sub = holSubs().find((x) => x.c === c), today = todayStr(), y0 = +today.slice(0, 4);
+    const name = C.countryName(c, data && data.n);
+    let h = '<div class="sh-head"><b>节假日</b><div class="btns">' + (holSubs().length ? '<button class="btn ghost sm" data-a="hol-manage">全部</button>' : '') + '<button class="btn sm" data-a="close">关闭</button></div></div><div class="sh-body">';
+    h += '<div class="sh-title" style="border-bottom-color:transparent">' + esc(name) + '</div>';
+    if (!data) {
+      if (!e || !e.err || holBusy[c]) { holLoad(c); return h + '<p class="empty">正在获取' + esc(name) + '的法定节假日…</p></div>'; }
+      return h + '<p class="empty">暂时连不上节假日数据（放在 GitHub 上）。联网后再试。</p><div class="btns"><button class="btn sm" data-a="hol-retry" data-c="' + c + '">重试</button></div></div>';
+    }
+    const yrs = (data.y || []).filter((y) => y >= y0), sel = sh.y || 'next';
+    const from = sel === 'next' ? today : sel + '-01-01', to = sel === 'next' ? C.addDays(today, 365) : sel + '-12-31';
+    h += '<p class="hint" style="margin-top:-6px">法定节假日 · 周末是' + WK_TEXT(data.w) + '</p>';
+    h += '<div class="seg" style="margin:4px 0 2px">' + [['next', '接下来一年']].concat(yrs.map((y) => [String(y), y + '年'])).map((o) => '<button aria-pressed="' + (sel === o[0]) + '" data-a="hol-y" data-v="' + o[0] + '">' + o[1] + '</button>').join('') + '</div>';
+    const rows = C.holidayPeriods(data, from, to).filter((p) => p.e >= from && p.s <= to).map((p) => ({ d: p.s, p: p }))
+      .concat((data.x || []).filter((w) => w >= from && w <= to).map((w) => ({ d: w, w: true }))).sort((a, b) => a.d < b.d ? -1 : 1);
+    h += '<div class="hlist">' + (rows.length ? rows.map((r) => {
+      if (r.w) return '<div class="hrow work' + (r.d < today ? ' past' : '') + '"><span class="hl-d num">' + mdLabel(r.d, true) + '</span><span class="hl-n"><b>调休上班</b></span></div>';
+      const p = r.p, x = C.parseYmd(p.e), sameM = p.s.slice(0, 7) === p.e.slice(0, 7);
+      const dt = p.s === p.e ? mdLabel(p.s, true) : mdLabel(p.s) + '–' + (sameM ? x.getDate() + '日' : mdLabel(p.e));
+      const meta = [p.n > p.k ? '连周末共 ' + p.n + ' 天' : p.k > 1 ? '共 ' + p.k + ' 天' : '', p.lunar ? '按月相确定，可能前后差一天' : '', p.tentative ? '官方安排未公布，按惯例推算' : ''].filter(Boolean).join('，');
+      return '<div class="hrow' + (p.e < today ? ' past' : '') + '"><span class="hl-d num">' + dt + '</span><span class="hl-n"><b>' + esc(p.name) + '</b>' + (meta ? '<span class="hint">' + meta + '</span>' : '') + '</span></div>';
+    }).join('') : '<p class="empty">这段时间没有法定节假日。</p>') + '</div>';
+    if (sub) {
+      h += '<div class="hol-on"><span>' + (sub.show === false ? '已隐藏：' : '已显示在日程里：') + (sub.mine ? '我的假期' : '合作者' + (sub.who ? '（' + esc(sub.who) + '）' : '') + '的假期') + '</span><div class="btns">' +
+        '<button class="btn sm" data-a="hol-show" data-id="' + sub.id + '">' + (sub.show === false ? '显示' : '暂时隐藏') + '</button>' +
+        '<button class="btn sm" data-a="hol-role" data-id="' + sub.id + '">' + (sub.mine ? '改为合作者的' : '改为我的') + '</button>' +
+        '<button class="btn sm" data-a="hol-del" data-id="' + sub.id + '">不再显示</button></div></div>';
+    } else {
+      h += '<div class="hol-add"><span class="lbl">要把这些假日放进日程里吗？</span>' +
+        '<div class="btns"><button class="btn sm' + (sh.role !== 'collab' ? ' pri' : '') + '" data-a="hol-add" data-c="' + c + '" data-role="mine">是我的假期</button></div>' +
+        '<div class="btns"><input id="hol-who" class="tinp" style="width:180px" placeholder="合作者名字（可不填）" value="' + esc(ui.sf.holWho || '') + '"><button class="btn sm' + (sh.role === 'collab' ? ' pri' : '') + '" data-a="hol-add" data-c="' + c + '" data-role="collab">是合作者的假期</button></div>' +
+        '<p class="hint">我的假期在日历上标“休”' + ((data.x || []).length ? '，调休上班标“班”' : '') + '；合作者的标国名简称“' + esc(C.countryShort(c)) + '”。随时能隐藏或去掉。</p></div>';
+    }
+    return h + '<p class="hint" style="margin-top:14px">数据来自开源的 python-holidays，每月自动更新；中国大陆按国务院办公厅的放假通知。只含全国性的法定假日，学校、单位自己的假期和地区性假日不在内。</p></div>';
+  }
+  function shHols(sh) {
+    const subs = holSubs().filter((x) => !sh.filter || (sh.filter === 'mine' ? x.mine : !x.mine));
+    let h = '<div class="sh-head"><b>节假日</b><button class="btn sm" data-a="close">关闭</button></div><div class="sh-body">';
+    h += '<div class="sh-title" style="border-bottom-color:transparent">' + (sh.filter === 'mine' ? '我的假期' : sh.filter === 'collab' ? '合作者的假期' : '各国节假日') + '</div>';
+    h += subs.length ? '<div class="hlist">' + subs.map((x) => { holLoad(x.c); const d = HOL[x.c] && HOL[x.c].data, nx = d ? C.holidayPeriods(d, todayStr(), C.addDays(todayStr(), 365))[0] : null;
+      return '<div class="hrow sub"><button class="hl-n" data-a="hol-open" data-c="' + x.c + '"><b>' + esc(holWho(x)) + '</b><span class="hint">' + (x.mine ? '我的假期' : '合作者的假期') + (nx ? ' · 下一个：' + esc(nx.name) + ' ' + mdLabel(nx.s) : '') + '</span></button><label class="switch"><input type="checkbox" data-a="hol-show" data-id="' + x.id + '"' + (x.show !== false ? ' checked' : '') + '> 显示</label></div>'; }).join('') + '</div>'
+      : '<p class="empty">' + (sh.filter ? '还没有添加。' : '还没有放进日程的节假日。') + '在下面输入国家，或者在随手记里写“查一下沙特的法定节假日”。</p>';
+    const quick = ['CN', 'SA', 'US', 'DE', 'GB', 'JP', 'KR', 'FR'].filter((c) => !holSubs().some((x) => x.c === c));
+    h += '<div class="fld" style="margin-top:14px"><label for="hol-q">查看某个国家或地区</label><input id="hol-q" list="hol-dl" placeholder="比如 沙特、德国、Japan" autocomplete="off"><datalist id="hol-dl">' + Object.keys(C.COUNTRIES).map((c) => '<option value="' + C.COUNTRIES[c].name + '">').join('') + (holEn() || []).map((x) => '<option value="' + esc(x[1]) + '">').join('') + '</datalist>' +
+      '<div class="btns" style="margin-top:8px">' + quick.map((c) => '<button class="opt" data-a="hol-open" data-c="' + c + '">' + C.countryName(c) + '</button>').join('') + '</div></div>';
     return h + '</div>';
   }
   const RT_TPL = [['上班', '09:00', 0, [0, 1, 2, 3, 4]], ['下班', '18:00', 0, [0, 1, 2, 3, 4]], ['健身', '18:30', 60, [0, 2, 4]], ['午休', '13:00', 30, []]];
@@ -2341,6 +2624,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     else if (s && s.type === 'text') h = shText(s);
     else if (s && s.type === 'pair') h = shPair(s);
     else if (s && s.type === 'routine') h = shRoutine(s);
+    else if (s && s.type === 'hol') h = shHol(s);
+    else if (s && s.type === 'hols') h = shHols(s);
     if (!h) { ui.sheet = null; el.hidden = sc.hidden = true; el.innerHTML = ''; return; }
     const top = el.scrollTop; el.hidden = sc.hidden = false; el.innerHTML = h; el.scrollTop = top;
   }
@@ -2410,6 +2695,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const v = $('#cap').value.trim(), box = $('#chips');
     if (!v) { if (ui.receipt) renderReceipt(); else box.innerHTML = ''; return; }
     ui.receipt = null;
+    const hq = C.holidayQuery(v, holEn());
+    if (hq) { box.innerHTML = '<span class="chip on">按回车查看' + (hq.code ? '“' + esc(C.countryName(hq.code)) + '”的法定节假日' : hq.mine ? '我的假期' : hq.collab ? '合作者的假期' : '节假日') + '</span><span class="chip">不会记成一件事</span>'; return; }
     const r = C.capture(S, v, new Date(), ui.skip), p = r.parsed, today = todayStr(), a = [];
     const x = (k) => '<button data-a="cap-skip" data-v="' + k + '" aria-label="不要这项识别" title="识别错了，取消">×</button>';
     if (p.due) a.push('<span class="chip on">' + dateLabel(r.item, today) + (!p.time && !p.until && p.slot ? ' ' + ({ morning: '上午', noon: '中午', afternoon: '下午', evening: '晚上' })[p.slot] : '') + (r.item.by ? '（可提前做）' : '') + x('due') + '</span>');
@@ -2441,23 +2728,26 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const rc = ui.receipt, box = $('#chips'); if (!rc) return;
     const it = C.byId(S, rc.id); if (!it) { ui.receipt = null; box.innerHTML = ''; return; }
     const p = proj(it.projectId), bits = [];
-    bits.push(it.due ? dateLabel(it, todayStr()) : (it.when === 'someday' ? '以后再说' : '没定日子'));
+    if (it.repeat) bits.push(C.repeatLabel(it) + (it.time ? ' ' + it.time : '') + '，下次 ' + C.fmtDate(it.due, todayStr()));
+    else bits.push(it.due ? dateLabel(it, todayStr()) : (it.when === 'someday' ? '以后再说' : '没定日子'));
     if (it.est && !it.time) bits.push(C.fmtDurX(it.est));
     if (it.where) bits.push(it.where);
     bits.push(p ? p.name : '收件箱');
     let h = '<div class="receipt"><span class="rc-ok">已记下</span><span class="rc-t">' + esc(it.title) + '</span><span class="rc-m">' + bits.map(esc).join('<i></i>') + '</span><button class="btn ghost sm" data-a="rc-wrong">' + (rc.open ? '收起' : '不对？') + '</button></div>';
     rc.asks.forEach((a, k) => { const cur = rc.ans[k] != null ? rc.ans[k] : a.cur; h += '<div class="ask"><span class="ask-q">' + esc(a.q) + '</span>' + a.opts.map((o) => '<button class="opt' + (cur != null && String(o.v) === String(cur) ? ' on' : '') + '" data-a="ask" data-k="' + k + '" data-v="' + esc(o.v) + '">' + esc(o.label) + '</button>').join('') + '</div>'; });
-    if (rc.open) h += '<div class="ask"><button class="btn sm" data-a="open" data-id="' + it.id + '">都不对，我自己填</button></div>';
+    if (rc.open) h += '<div class="ask"><button class="btn sm" data-a="rc-self" data-id="' + it.id + '">都不对，我自己填</button></div>';
     box.innerHTML = h;
   }
   function reparse(it) {
     if (!it.raw) return; const sk = {}; (it.rawSkip || []).forEach((k) => { sk[k] = true; });
     const r = C.capture(S, it.raw, new Date(it.createdAt), sk).item;
-    ['title', 'due', 'time', 'slot', 'by', 'when', 'until', 'where', 'repeat', 'repeatDays'].forEach((k) => { it[k] = r[k]; });
+    ['title', 'due', 'time', 'slot', 'by', 'when', 'until', 'where', 'repeat', 'repeatN', 'repeatDays'].forEach((k) => { it[k] = r[k]; });
     if (r.est != null) it.est = r.est;
   }
   function capAdd() {
     const inp = $('#cap'), v = inp.value.trim(); if (!v) { inp.focus(); return; }
+    const hq = C.holidayQuery(v, holEn());
+    if (hq) { inp.value = ''; ui.skip = {}; ui.receipt = null; $('#chips').innerHTML = ''; holQuery(hq); return; }
     const it = addCapture(v, ui.skip);
     inp.value = ''; ui.skip = {};
     commit(true); setReceipt(it, addCapture.asks, addCapture.all);
@@ -2497,6 +2787,23 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     },
     'routine-edit'(d) { ui.confirm = null; ui.rdraft = null; ui.sheet = { type: 'routine', key: d.key, date: d.date || todayStr() }; renderSheet(); $('#sheet').scrollTop = 0; },
     'routine-new'() { ui.confirm = null; ui.rdraft = { name: '', time: '09:00', dur: 0, days: [0, 1, 2, 3, 4] }; ui.sheet = { type: 'routine', key: 'new' }; renderSheet(); const n = $('#r-name'); if (n) n.focus(); },
+    'hol-open'(d) { holLoad(d.c); holLoad('_index'); ui.sheet = { type: 'hol', c: d.c }; renderSheet(); $('#sheet').scrollTop = 0; },
+    'hol-manage'() { ui.cal = false; holLoad('_index'); ui.sheet = { type: 'hols' }; render(); renderSheet(); $('#sheet').scrollTop = 0; },
+    'hol-retry'(d) { holLoad(d.c, true); renderSheet(); },
+    'hol-y'(d) { if (ui.sheet && ui.sheet.type === 'hol') { ui.sheet.y = d.v; renderSheet(); } },
+    'hol-add'(d) {
+      if (holSubs().some((x) => x.c === d.c)) return; const t = Date.now(), who = d.role === 'collab' ? (($('#hol-who') || {}).value || '').trim().slice(0, 20) : '';
+      S.hcal.push({ id: C.uid(), c: d.c, mine: d.role === 'mine', who: who, show: true, createdAt: t, updatedAt: t }); ui.sf.holWho = '';
+      commit(); toast(d.role === 'mine' ? '已作为你的假期显示在日历上（标“休”）' : '已作为合作者的假期显示在日历上');
+    },
+    'hol-show'(d, el) { const x = holSubs().find((y) => y.id === d.id); if (!x) return; x.show = el && el.type === 'checkbox' ? el.checked : x.show === false; x.updatedAt = Date.now(); commit(); },
+    'hol-role'(d) { const x = holSubs().find((y) => y.id === d.id); if (!x) return; x.mine = !x.mine; x.updatedAt = Date.now(); commit(); },
+    'hol-del'(d) { const x = holSubs().find((y) => y.id === d.id); if (!x) return; x.deleted = true; x.updatedAt = Date.now(); commit(); toast('已不再显示' + C.countryName(x.c) + '的节假日'); },
+    'rep-day'(d) {
+      const it = cur(); if (!it || it.repeat !== 'week') return; const i = +d.v, a = (it.repeatDays && it.repeatDays.length ? it.repeatDays : [C.wdIdx(it.due || todayStr())]).slice(), k = a.indexOf(i);
+      if (k >= 0) { if (a.length > 1) a.splice(k, 1); } else a.push(i);
+      C.applyRepeat(it, 'week:' + a.sort().join(','), new Date()); touch(it); commit();
+    },
     'rt-tpl'(d) { const t = RT_TPL[+d.v]; if (!t || !ui.rdraft) return; Object.assign(ui.rdraft, { name: t[0], time: t[1], dur: t[2], days: t[3].slice() }); renderSheet(); },
     'rt-day'(d) {
       const c = rtTarget(); if (!c) return; const i = +d.v, a = (c.days && c.days.length ? c.days : [0, 1, 2, 3, 4, 5, 6]).slice(), k = a.indexOf(i);
@@ -2595,15 +2902,21 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       } else rc.asks = [];
       renderReceipt();
     },
+    'rc-self'(d) { ui.sheetMore = true; A.open(d); },
     ask(d) {
       const rc = ui.receipt; if (!rc) return; const a = rc.asks[+d.k], it = C.byId(S, rc.id); if (!a || !it) return; const v = d.v;
-      if (a.field === 'project') { if (v) { noteFix(it, v); it.projectId = v; } else it.projectId = null; }
+      if (a.field === 'repeat') {
+        const before = it.repeat ? C.repeatLabel(it) : '不重复'; C.applyRepeat(it, v, new Date()); noteParse(it.raw, 'repeat', before, it.repeat ? C.repeatLabel(it) : '不重复');
+        if (/^nday:3$/.test(v)) { rc.ans[d.k] = v; touch(it); commit(true); ui.sheetMore = true; A.open({ id: it.id }); return; }   // 自己定间隔：打开详情
+        rc.asks.forEach((x) => { if (x.field === 'due') x.cur = it.due || ''; });
+      }
+      else if (a.field === 'project') { if (v) { noteFix(it, v); it.projectId = v; } else it.projectId = null; }
       else if (a.field === 'est') { if (it.est && it.est !== +v) noteParse(it.raw, 'est', it.est, v); it.est = +v; C.learnFromCorrection(S, it); }
       else if (a.field === 'due') { noteParse(it.raw, 'due', it.due, v); it.due = v || null; if (it.due) it.when = null; else { it.by = false; it.time = null; } C.learnFromCorrection(S, it); }
       else if (a.field === 'time') { noteParse(it.raw, 'time', it.time, v); it.time = v || null; C.learnFromCorrection(S, it); }
       else {
         const h = S.habits[a.key]; S.habits[a.key] = (h && String(h.v) === String(v)) ? { v: v, n: (h.n || 1) + 1, updatedAt: Date.now() } : { v: v, n: 1, updatedAt: Date.now() }; reparse(it);
-        if (rc.open) { rc.asks.forEach((x, k) => { if (x.field === 'due') x.cur = it.due || ''; else if (x.field === 'time') { x.cur = it.time; if (it.time) { const m = C.toMin(it.time); x.opts = [{ v: it.time, label: it.time }, { v: C.toHM(m + 720), label: C.toHM(m + 720) }, { v: '', label: '不定钟点' }]; } delete rc.ans[k]; } }); }
+        if (rc.open) { rc.asks.forEach((x, k) => { if (x.field === 'repeat') { x.cur = C.repeatCode(it); delete rc.ans[k]; } if (x.field === 'due') x.cur = it.due || ''; else if (x.field === 'time') { x.cur = it.time; if (it.time) { const m = C.toMin(it.time); x.opts = [{ v: it.time, label: it.time }, { v: C.toHM(m + 720), label: C.toHM(m + 720) }, { v: '', label: '不定钟点' }]; } delete rc.ans[k]; } }); }
       }
       rc.ans[d.k] = v; touch(it); commit(true); renderReceipt();
     },
@@ -2667,7 +2980,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     let shut = false;
     if (ui.cal && e.target.closest && !e.target.closest('.cal.mo, [data-a="cal-toggle"]')) { ui.cal = false; shut = true; }   // 点月历外面：收起
     const el = e.target.closest('[data-a]');
-    const f = el && A[el.dataset.a]; if (f) { e.preventDefault(); f(el.dataset, el, e); }
+    const f = el && A[el.dataset.a]; if (f) { if (el.type !== 'checkbox') e.preventDefault(); f(el.dataset, el, e); }
     if (shut && document.querySelector('.cal.mo')) render();
   }
   document.addEventListener('click', onClick);
@@ -2680,12 +2993,13 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const m = slotMin(lane, e.clientY);
     g.style.top = Math.round((m - (+lane.dataset.a0 || 0)) * (+lane.dataset.k || 0.9)) + 'px'; g.firstChild.textContent = '+ ' + C.toHM(m) + ' 记一件事'; g.classList.add('on');
   });
-  document.addEventListener('input', (e) => { if (e.target.id === 'cap') capPreview(); else if (e.target.dataset && e.target.dataset.s) ui.sf[e.target.dataset.s] = e.target.value; else if (e.target.id === 'r-name' && ui.rdraft && ui.sheet && ui.sheet.key === 'new') ui.rdraft.name = e.target.value; });
+  document.addEventListener('input', (e) => { if (e.target.id === 'cap') capPreview(); else if (e.target.dataset && e.target.dataset.s) ui.sf[e.target.dataset.s] = e.target.value; else if (e.target.id === 'r-name' && ui.rdraft && ui.sheet && ui.sheet.key === 'new') ui.rdraft.name = e.target.value; else if (e.target.id === 'hol-who') ui.sf.holWho = e.target.value; });
   document.addEventListener('keydown', (e) => {
     const t = e.target;
     if (e.key === 'Enter' && !e.isComposing) {
       if (t.id === 'cap') { e.preventDefault(); capAdd(); }
       else if (t.dataset && t.dataset.under) { e.preventDefault(); addSub(t.dataset.under); }
+      else if (t.id === 'hol-q') { e.preventDefault(); const f = C.findCountry(t.value.trim(), holEn()) || (holEn() || []).filter((x) => x[0] === t.value.trim().toUpperCase()).map((x) => ({ code: x[0] }))[0]; if (f) A['hol-open']({ c: f.code }); else toast('没找到这个国家或地区，换个写法试试（中文或英文名）'); }
       else if (t.id === 'r-name' && ui.sheet && ui.sheet.key === 'new') { e.preventDefault(); if (ui.rdraft) ui.rdraft.name = t.value; A['rt-add'](); }
       else if (t.classList && t.classList.contains('sh-title')) t.blur();
     }
@@ -2696,7 +3010,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     const t = e.target, d = t.dataset; if (!d) return;
     if (d.f) {
       const it = cur(); if (!it) return; const v = t.value;
-      const fresh = it.raw && FIELD[d.f] && Date.now() - it.createdAt < 10 * 60000;
+      const fresh = it.raw && FIELD[d.f] && d.f !== 'repeat' && Date.now() - it.createdAt < 10 * 60000;
       if (fresh) noteParse(it.raw, d.f, d.f === 'due' ? it.due : it[d.f], v);
       if (d.f === 'title') { if (v.trim()) it.title = v.trim(); }
       else if (d.f === 'note') it.note = v;
@@ -2707,7 +3021,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       else if (d.f === 'where') it.where = v.trim() || null;
       else if (d.f === 'time') { it.time = v || null; if (it.time && !it.due) it.due = todayStr(); }
       else if (d.f === 'est') it.est = v ? +v : null;
-      else if (d.f === 'repeat') { it.repeat = v || null; if (it.repeat && !it.due) it.due = todayStr(); }
+      else if (d.f === 'repeat') { const before = it.repeat ? C.repeatLabel(it) : '不重复'; C.applyRepeat(it, v, new Date()); if (it.raw) noteParse(it.raw, 'repeat', before, it.repeat ? C.repeatLabel(it) : '不重复'); }
+      else if (d.f === 'repeatN') { it.repeatN = Math.max(2, Math.min(365, parseInt(v, 10) || 2)); }
       else if (d.f === 'today') it.planDate = t.checked ? todayStr() : null;
       else if (d.f === 'by') it.by = t.checked;
       else if (d.f === 'private') it.private = t.checked;
@@ -2739,7 +3054,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       if (t.checked) { try { if (!('Notification' in window)) throw 0; Notification.requestPermission().then((r) => { if (r !== 'granted') { S.settings.notify = false; store.save(S); render(); toast('浏览器没有允许通知。到点时页面内仍会提示'); } else toast('已开启桌面通知'); }); } catch (x) { S.settings.notify = false; store.save(S); render(); toast('这个环境不支持桌面通知。到点时页面内仍会提示'); } }
     } else if (d.c === 'restore') {
       const f = t.files && t.files[0]; if (!f) return; const rd = new FileReader();
-      rd.onload = () => { try { const o = JSON.parse(rd.result); if (!o || !Array.isArray(o.items) || !Array.isArray(o.projects)) throw 0; S = o; const dft = C.newState(); S.settings = Object.assign(dft.settings, S.settings); S.meta = Object.assign(dft.meta, S.meta); S.routine = S.routine || dft.routine; S.routine.log = S.routine.log || {}; S.routine.at = S.routine.at || {}; S.rules = S.rules || []; S.fixes = S.fixes || []; S.advisor = S.advisor || null; S.advice = S.advice || null; S.phrases = S.phrases || []; S.habits = S.habits || {}; S.routine.custom = S.routine.custom || []; ui.projectId = null; commit(); toast('已从备份恢复：' + live().length + ' 件事'); } catch (x) { toast('这不是有效的备份文件'); } };
+      rd.onload = () => { try { const o = JSON.parse(rd.result); if (!o || !Array.isArray(o.items) || !Array.isArray(o.projects)) throw 0; S = o; const dft = C.newState(); S.settings = Object.assign(dft.settings, S.settings); S.meta = Object.assign(dft.meta, S.meta); S.routine = S.routine || dft.routine; S.routine.log = S.routine.log || {}; S.routine.at = S.routine.at || {}; S.rules = S.rules || []; S.fixes = S.fixes || []; S.advisor = S.advisor || null; S.advice = S.advice || null; S.phrases = S.phrases || []; S.habits = S.habits || {}; S.routine.custom = S.routine.custom || []; S.hcal = S.hcal || []; ui.projectId = null; commit(); toast('已从备份恢复：' + live().length + ' 件事'); } catch (x) { toast('这不是有效的备份文件'); } };
       rd.readAsText(f);
     }
   });
@@ -2774,6 +3089,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   } catch (e) { }
   window.addEventListener('hashchange', () => { const h = (location.hash || '').replace('#', ''); if (VIEWS[h] && h !== ui.tab) { ui.tab = h; render(); } });
   render();
+  holSubs().forEach((x) => holLoad(x.c));   // 放进日程的节假日：后台更新数据（每周最多一次）
   if (ui.focusCap) { const c0 = $('#cap'); c0.value = shared; capPreview(); c0.focus(); }
   setInterval(tick, 30000);
   if (sync) {

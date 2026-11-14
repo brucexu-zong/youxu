@@ -1,0 +1,24 @@
+# 每月更新一次各国法定节假日数据（holidays/*.json），应用按需下载
+name: holidays
+on:
+  schedule:
+    - cron: '23 4 3 * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -U holidays
+      - run: python tools/holidays_gen.py holidays
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add holidays
+          if git diff --cached --quiet; then echo "no change"; else git commit -m "Update holiday data" && git push; fi
