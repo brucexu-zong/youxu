@@ -1,7 +1,8 @@
 """生成各国法定节假日数据（供“有序”按需下载）。
 
-数据来自开源的 python-holidays；中国大陆的放假调休以国务院办公厅通知为准
-（库里还没收录的年份，用下面的 CN_OFFICIAL 补上）。
+数据来自开源的 python-holidays。中国大陆的放假和调休上班日取自 holiday-cn
+（https://github.com/NateScarlet/holiday-cn，每天自动抓取国务院办公厅的放假通知）；
+某一年还没发通知时，按惯例推算并标记为“未公布”。年份范围随运行日期滚动：去年到三年后。
 用法：python tools/holidays_gen.py <输出目录>
 """
 import datetime as dt
@@ -9,31 +10,42 @@ import json
 import os
 import re
 import sys
+import urllib.request
 
 import holidays
 from holidays.registry import COUNTRIES
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "holidays"
 Y = dt.date.today().year
-YEARS = [Y - 1, Y, Y + 1, Y + 2]
+YEARS = [Y - 1, Y, Y + 1, Y + 2, Y + 3]
 ISLAMIC = re.compile(r"Eid|Arafa|Islamic|Hijri|Prophet|Ramadan|Ashura|Mawlid|Isra|Laylat|Muharram|Adha|Fitr|Mouloud|Maulid|Milad|Hari Raya|Lebaran|Kurban|Ramazan|Bayram", re.I)
 
-# 国务院办公厅关于2027年部分节假日安排的通知（国办发明电〔2026〕10号，2026-11-05 发布）
-CN_OFFICIAL = {
-    2027: {
-        "rest": [("2027-01-01", "2027-01-03", "元旦"), ("2027-02-05", "2027-02-13", "春节"), ("2027-04-03", "2027-04-05", "清明节"),
-                 ("2027-05-01", "2027-05-05", "劳动节"), ("2027-06-09", "2027-06-09", "端午节"), ("2027-09-15", "2027-09-15", "中秋节"),
-                 ("2027-10-01", "2027-10-07", "国庆节")],
-        "work": ["2027-01-31", "2027-02-14", "2027-05-08", "2027-09-26", "2027-10-09"],
-    },
-}
+CN_SRC = "https://raw.githubusercontent.com/NateScarlet/holiday-cn/master/{}.json"
 
 
-def days(a, b):
-    d, e = dt.date.fromisoformat(a), dt.date.fromisoformat(b)
-    while d <= e:
-        yield d.isoformat()
-        d += dt.timedelta(days=1)
+def cn_official(year, out_dir):
+    """国务院通知里的安排：返回 ({日期: 名称}, {调休上班日})；取不到就沿用上次生成的结果，再不行返回 None"""
+    try:
+        with urllib.request.urlopen(CN_SRC.format(year), timeout=30) as r:
+            d = json.load(r)
+        rest = {x["date"]: x["name"] for x in d.get("days", []) if x.get("isOffDay")}
+        work = {x["date"] for x in d.get("days", []) if not x.get("isOffDay")}
+        if rest:
+            return rest, work
+    except Exception as e:  # 404 = 这一年还没发通知；其他是网络问题
+        if "404" not in str(e):
+            print("holiday-cn", year, e)
+            try:
+                with open(os.path.join(out_dir, "CN.json"), encoding="utf-8") as f:
+                    old = json.load(f)
+                if year not in old.get("t", []):
+                    rest = {r[0]: r[1] for r in old["h"] if r[0].startswith(str(year))}
+                    work = {w for w in old.get("x", []) if w.startswith(str(year))}
+                    if rest:
+                        return rest, work
+            except Exception:
+                pass
+    return None
 
 
 def camel(s):
@@ -53,14 +65,13 @@ def build(code, cls_name):
                 work.add(ref)
     if code == "CN":
         for y in YEARS:
-            if y in CN_OFFICIAL:
+            off = cn_official(y, OUT)
+            if off:
                 rows = {k: v for k, v in rows.items() if not k.startswith(str(y))}
                 work = {w for w in work if not w.startswith(str(y))}
-                for a, b, n in CN_OFFICIAL[y]["rest"]:
-                    for d in days(a, b):
-                        rows[d] = n
-                work |= set(CN_OFFICIAL[y]["work"])
-            elif not any(k.startswith(str(y)) and "调休" in v for k, v in rows.items()):
+                rows.update(off[0])
+                work |= off[1]
+            else:
                 tent.append(y)   # 国务院还没公布这一年的安排：按惯例推算
     h_list = []
     for d in sorted(rows):

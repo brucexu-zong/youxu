@@ -1,8 +1,8 @@
-# 每月更新一次各国法定节假日数据（holidays/*.json），应用按需下载
+# 每周更新一次各国法定节假日数据（holidays/*.json），年份范围随时间滚动；应用联网时按需下载
 name: holidays
 on:
   schedule:
-    - cron: '23 4 3 * *'
+    - cron: '23 4 * * 1'
   workflow_dispatch:
 permissions:
   contents: write

@@ -2524,7 +2524,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     h += '<div class="sh-title" style="border-bottom-color:transparent">' + esc(name) + '</div>';
     if (!data) {
       if (!e || !e.err || holBusy[c]) { holLoad(c); return h + '<p class="empty">正在获取' + esc(name) + '的法定节假日…</p></div>'; }
-      return h + '<p class="empty">暂时连不上节假日数据（放在 GitHub 上）。联网后再试。</p><div class="btns"><button class="btn sm" data-a="hol-retry" data-c="' + c + '">重试</button></div></div>';
+      h += '<p class="empty">现在连不上节假日数据（放在 GitHub 上）。联网后会自动取回' + (ui.sheet && ui.sheet.type === 'hol' ? '，这页会自己刷新' : '') + '。</p><div class="btns"><button class="btn sm" data-a="hol-retry" data-c="' + c + '">重试</button></div>';
+      return h + (sub ? '<p class="hint">已设为' + (sub.mine ? '我的假期' : '合作者的假期') + '，取到数据后自动显示在日历上。</p>' : holAddBox(c, sh, null)) + '</div>';
     }
     const yrs = (data.y || []).filter((y) => y >= y0), sel = sh.y || 'next';
     const from = sel === 'next' ? today : sel + '-01-01', to = sel === 'next' ? C.addDays(today, 365) : sel + '-12-31';
@@ -2532,11 +2533,13 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     h += '<div class="seg" style="margin:4px 0 2px">' + [['next', '接下来一年']].concat(yrs.map((y) => [String(y), y + '年'])).map((o) => '<button aria-pressed="' + (sel === o[0]) + '" data-a="hol-y" data-v="' + o[0] + '">' + o[1] + '</button>').join('') + '</div>';
     const rows = C.holidayPeriods(data, from, to).filter((p) => p.e >= from && p.s <= to).map((p) => ({ d: p.s, p: p }))
       .concat((data.x || []).filter((w) => w >= from && w <= to).map((w) => ({ d: w, w: true }))).sort((a, b) => a.d < b.d ? -1 : 1);
+    const tent = Array.from(new Set(rows.filter((r) => r.p && r.p.tentative).map((r) => r.d.slice(0, 4))));
+    if (tent.length) h += '<p class="tip warn" style="margin:10px 0 0">' + tent.join('、') + ' 年的放假安排官方还没公布，下面的日期按惯例推算；公布后一周内自动更新。</p>';
     h += '<div class="hlist">' + (rows.length ? rows.map((r) => {
       if (r.w) return '<div class="hrow work' + (r.d < today ? ' past' : '') + '"><span class="hl-d num">' + mdLabel(r.d, true) + '</span><span class="hl-n"><b>调休上班</b></span></div>';
       const p = r.p, x = C.parseYmd(p.e), sameM = p.s.slice(0, 7) === p.e.slice(0, 7);
       const dt = p.s === p.e ? mdLabel(p.s, true) : mdLabel(p.s) + '–' + (sameM ? x.getDate() + '日' : mdLabel(p.e));
-      const meta = [p.n > p.k ? '连周末共 ' + p.n + ' 天' : p.k > 1 ? '共 ' + p.k + ' 天' : '', p.lunar ? '按月相确定，可能前后差一天' : '', p.tentative ? '官方安排未公布，按惯例推算' : ''].filter(Boolean).join('，');
+      const meta = [p.n > p.k ? '连周末共 ' + p.n + ' 天' : p.k > 1 ? '共 ' + p.k + ' 天' : '', p.lunar ? '按月相确定，可能前后差一天' : ''].filter(Boolean).join('，');
       return '<div class="hrow' + (p.e < today ? ' past' : '') + '"><span class="hl-d num">' + dt + '</span><span class="hl-n"><b>' + esc(p.name) + '</b>' + (meta ? '<span class="hint">' + meta + '</span>' : '') + '</span></div>';
     }).join('') : '<p class="empty">这段时间没有法定节假日。</p>') + '</div>';
     if (sub) {
@@ -2544,13 +2547,16 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
         '<button class="btn sm" data-a="hol-show" data-id="' + sub.id + '">' + (sub.show === false ? '显示' : '暂时隐藏') + '</button>' +
         '<button class="btn sm" data-a="hol-role" data-id="' + sub.id + '">' + (sub.mine ? '改为合作者的' : '改为我的') + '</button>' +
         '<button class="btn sm" data-a="hol-del" data-id="' + sub.id + '">不再显示</button></div></div>';
-    } else {
-      h += '<div class="hol-add"><span class="lbl">要把这些假日放进日程里吗？</span>' +
-        '<div class="btns"><button class="btn sm' + (sh.role !== 'collab' ? ' pri' : '') + '" data-a="hol-add" data-c="' + c + '" data-role="mine">是我的假期</button></div>' +
-        '<div class="btns"><input id="hol-who" class="tinp" style="width:180px" placeholder="合作者名字（可不填）" value="' + esc(ui.sf.holWho || '') + '"><button class="btn sm' + (sh.role === 'collab' ? ' pri' : '') + '" data-a="hol-add" data-c="' + c + '" data-role="collab">是合作者的假期</button></div>' +
-        '<p class="hint">我的假期在日历上标“休”' + ((data.x || []).length ? '，调休上班标“班”' : '') + '；合作者的标国名简称“' + esc(C.countryShort(c)) + '”。随时能隐藏或去掉。</p></div>';
-    }
-    return h + '<p class="hint" style="margin-top:14px">数据来自开源的 python-holidays，每月自动更新；中国大陆按国务院办公厅的放假通知。只含全国性的法定假日，学校、单位自己的假期和地区性假日不在内。</p></div>';
+    } else h += holAddBox(c, sh, data);
+    const yy = data.y || [];
+    return h + '<p class="hint" style="margin-top:14px">覆盖 ' + yy[0] + '–' + yy[yy.length - 1] + ' 年，范围每年自动往后延。数据在网上（GitHub），每周自动更新：各国来自开源的 python-holidays，中国大陆来自国务院办公厅的放假通知（发布后一周内更新）。本机只留你放进日程的国家和最近查过的，' + (e && e.at ? '这份是 ' + mdLabel(C.ymd(new Date(e.at))) + ' 取的，' : '') + '联网时自动刷新。<button class="btn ghost sm" data-a="hol-retry" data-c="' + c + '">现在更新</button></p>' +
+      '<p class="hint">只含全国性的法定假日；学校、单位自己的假期和地区性假日不在内。</p></div>';
+  }
+  function holAddBox(c, sh, data) {
+    return '<div class="hol-add"><span class="lbl">要把这些假日放进日程里吗？</span>' +
+      '<div class="btns"><button class="btn sm' + (sh.role !== 'collab' ? ' pri' : '') + '" data-a="hol-add" data-c="' + c + '" data-role="mine">是我的假期</button></div>' +
+      '<div class="btns"><input id="hol-who" class="tinp" style="width:180px" placeholder="合作者名字（可不填）" value="' + esc(ui.sf.holWho || '') + '"><button class="btn sm' + (sh.role === 'collab' ? ' pri' : '') + '" data-a="hol-add" data-c="' + c + '" data-role="collab">是合作者的假期</button></div>' +
+      '<p class="hint">我的假期在日历上标“休”' + (!data || (data.x || []).length ? '，调休上班标“班”' : '') + '；合作者的标国名简称“' + esc(C.countryShort(c)) + '”。随时能隐藏或去掉。' + (data ? '' : '现在没联网也可以先设好，联网后自动显示。') + '</p></div>';
   }
   function shHols(sh) {
     const subs = holSubs().filter((x) => !sh.filter || (sh.filter === 'mine' ? x.mine : !x.mine));
@@ -2789,12 +2795,14 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     'routine-new'() { ui.confirm = null; ui.rdraft = { name: '', time: '09:00', dur: 0, days: [0, 1, 2, 3, 4] }; ui.sheet = { type: 'routine', key: 'new' }; renderSheet(); const n = $('#r-name'); if (n) n.focus(); },
     'hol-open'(d) { holLoad(d.c); holLoad('_index'); ui.sheet = { type: 'hol', c: d.c }; renderSheet(); $('#sheet').scrollTop = 0; },
     'hol-manage'() { ui.cal = false; holLoad('_index'); ui.sheet = { type: 'hols' }; render(); renderSheet(); $('#sheet').scrollTop = 0; },
-    'hol-retry'(d) { holLoad(d.c, true); renderSheet(); },
+    'hol-retry'(d) { holLoad(d.c, true); renderSheet(); if (navigator.onLine === false) toast('现在没联网，联网后会自动更新'); },
     'hol-y'(d) { if (ui.sheet && ui.sheet.type === 'hol') { ui.sheet.y = d.v; renderSheet(); } },
     'hol-add'(d) {
       if (holSubs().some((x) => x.c === d.c)) return; const t = Date.now(), who = d.role === 'collab' ? (($('#hol-who') || {}).value || '').trim().slice(0, 20) : '';
       S.hcal.push({ id: C.uid(), c: d.c, mine: d.role === 'mine', who: who, show: true, createdAt: t, updatedAt: t }); ui.sf.holWho = '';
-      commit(); toast(d.role === 'mine' ? '已作为你的假期显示在日历上（标“休”）' : '已作为合作者的假期显示在日历上');
+      commit(); holLoad(d.c);
+      const ready = !!(HOL[d.c] && HOL[d.c].data), what = d.role === 'mine' ? '作为你的假期显示在日历上（标“休”）' : '作为合作者的假期显示在日历上';
+      toast(ready ? '已' + what : '联网后会' + what);
     },
     'hol-show'(d, el) { const x = holSubs().find((y) => y.id === d.id); if (!x) return; x.show = el && el.type === 'checkbox' ? el.checked : x.show === false; x.updatedAt = Date.now(); commit(); },
     'hol-role'(d) { const x = holSubs().find((y) => y.id === d.id); if (!x) return; x.mine = !x.mine; x.updatedAt = Date.now(); commit(); },
@@ -3089,7 +3097,16 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   } catch (e) { }
   window.addEventListener('hashchange', () => { const h = (location.hash || '').replace('#', ''); if (VIEWS[h] && h !== ui.tab) { ui.tab = h; render(); } });
   render();
-  holSubs().forEach((x) => holLoad(x.c));   // 放进日程的节假日：后台更新数据（每周最多一次）
+  // 节假日数据：本机只留放进日程的国家和 30 天内查过的；放进日程的每周联网更新一次，断网时等恢复后再取
+  (function holKeep() {
+    const keep = new Set(holSubs().map((x) => x.c)); let n = 0;
+    Object.keys(HOL).forEach((c) => { if (c !== '_index' && !keep.has(c) && Date.now() - ((HOL[c] && (HOL[c].at || HOL[c].err)) || 0) > 30 * 864e5) { delete HOL[c]; n++; } });
+    if (n) holSave();
+  })();
+  const holRefresh = (force) => { holSubs().forEach((x) => holLoad(x.c, force && !!(HOL[x.c] && HOL[x.c].err && !HOL[x.c].data))); if (ui.sheet && ui.sheet.type === 'hol') holLoad(ui.sheet.c, force && !(HOL[ui.sheet.c] && HOL[ui.sheet.c].data)); };
+  holRefresh();
+  window.addEventListener('online', () => holRefresh(true));
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') holRefresh(false); });
   if (ui.focusCap) { const c0 = $('#cap'); c0.value = shared; capPreview(); c0.focus(); }
   setInterval(tick, 30000);
   if (sync) {
